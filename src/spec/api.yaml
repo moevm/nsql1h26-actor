@@ -1,0 +1,67 @@
+openapi: 3.0.3
+info:
+  title: Actor API
+  description: API для управления акторами
+  version: 1.0.0
+
+servers:
+  - url: /v1
+    description: API v1
+
+paths:
+  /actors:
+    get:
+      summary: Получить всех акторов
+      operationId: v1ActorsGet
+      tags:
+        - actors
+      responses:
+        '200':
+          description: Список акторов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/components/schemas/Actor'
+    post:
+      summary: Добавить актора
+      operationId: v1ActorsPost
+      tags:
+        - actors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/ActorCreate'
+      responses:
+        '201':
+          description: Созданный актор
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Actor'
+
+  /actors/{id}:
+    get:
+      summary: Получить одного актора по ID
+      operationId: v1ActorsIdGet
+      tags:
+        - actors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID актора
+      responses:
+        '200':
+          description: Актор
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/Actor'
+        '404':
+          description: Актор не найден

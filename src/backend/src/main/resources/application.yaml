@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: NOSQL
+  
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/nosql_db
+      auto-index-creation: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+    org.mongodb.driver: DEBUG

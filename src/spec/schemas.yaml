@@ -1,0 +1,46 @@
+# Схемы моделей — вынесены в отдельный файл
+# Используется через $ref: './schemas.yaml#/components/schemas/Actor'
+
+components:
+  schemas:
+    Actor:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+          readOnly: true
+          description: ID актора (MongoDB ObjectId)
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [USER, ADMIN]
+          default: USER
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+          readOnly: true
+      required:
+        - name
+        - email
+
+    ActorCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [USER, ADMIN]
+          default: USER
+      required:
+        - name
+        - email
