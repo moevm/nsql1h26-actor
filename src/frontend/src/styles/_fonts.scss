@@ -1,0 +1,47 @@
+@font-face {
+    font-family: "Roboto Condensed";
+    src: url("/fonts/roboto-condensed/RobotoCondensed-VariableFont_wght.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Roboto Condensed";
+    src: url("/fonts/roboto-condensed/RobotoCondensed-Italic-VariableFont_wght.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Serif';
+  src: url('/fonts/pt-serif/PTSerif-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Serif';
+  src: url('/fonts/pt-serif/PTSerif-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Serif';
+  src: url('/fonts/pt-serif/PTSerif-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PT Serif';
+  src: url('/fonts/pt-serif/PTSerif-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}

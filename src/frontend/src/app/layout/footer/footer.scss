@@ -1,0 +1,57 @@
+@use "styles/variables" as vars;
+@use "styles/fonts";
+
+.footer {
+    padding: 36px 0px;
+    background-color: #1c1a18;
+    border-top: 5px solid vars.$color-accent-secondary;
+
+    &__container {
+        padding: 0px 100px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+    }
+
+    &__info-project,
+    &__info-team {
+        color: vars.$color-text-white;
+    }
+
+    &__info-project p,
+    &__info-team p {
+        margin-bottom: 12px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__info-project {
+        a {
+            display: inline-block;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        p {
+            font-size: 16px;
+        }
+    }
+
+    &__info-team {
+        text-align: right;
+
+        h5 {
+            font-size: 16px;
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+        p {
+            font-family: vars.$font-primary;
+            font-size: 14px;
+            font-weight: 400;
+        }
+    }
+}
