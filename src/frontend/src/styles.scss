@@ -1,5 +1,5 @@
 @use "styles/variables" as vars;
-@use 'styles/fonts';
+@use "styles/fonts";
 
 * {
   padding: 0;
@@ -7,13 +7,25 @@
   box-sizing: border-box;
 }
 
-body{
-    font-family: vars.$font-secondary;
+body {
+  font-family: vars.$font-primary;
 }
 
-a{
+a {
   display: inline-block;
-  font-family: vars.$font-primary;
   text-decoration: none;
+  color: vars.$color-text-white;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
   color: vars.$color-text-white;
 }

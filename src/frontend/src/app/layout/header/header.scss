@@ -1,0 +1,59 @@
+@use "styles/variables" as vars;
+
+.header {
+    padding: 24px 0px;
+    background-color: #1c1a18;
+    border-bottom: 5px solid vars.$color-accent-secondary;
+    margin-bottom: 100px;
+
+    &__container {
+        padding: 0px 100px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__logo {
+        font-size: 24px;
+        font-family: vars.$font-secondary;
+        color: vars.$color-text-white;
+    }
+
+    &__nav {
+        ul {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        a {
+            font-size: 18px;
+            color: vars.$color-text-white;
+            transition: color 0.25s ease;
+
+            &:hover {
+                color: vars.$color-accent-secondary;
+            }
+        }
+
+        button{
+            padding: 10px 16px;
+            font-size: 18px;
+            font-family: inherit;
+            border-radius: 5px;
+            border: 1px solid vars.$color-text-white;
+            background-color: transparent;
+            color: vars.$color-text-white;
+            cursor: pointer;
+            transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+
+            &:hover {
+                background-color: vars.$color-accent-secondary;
+                border-color: vars.$color-accent-secondary;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 18px rgba(199, 167, 104, 0.35);
+            }
+        }
+    }
+}
