@@ -1,2 +1,99 @@
-<app-header></app-header>
-<app-footer></app-footer>
+<div class="landing">
+  <section class="landing__info">
+    <h1>Единая база данных актёров</h1>
+    <p>
+      Быстрый поиск, структурированные профили и удобная работа с базой актёров для эффективной
+      работы над проектами
+    </p>
+    <button>Найти актера</button>
+    <img src="/images/decor.png" alt="decoration" />
+  </section>
+  <section id="about" class="landing__about about">
+    <div class="about__heading">
+      <span class="about__line"></span>
+      <h2>О Нас</h2>
+      <span class="about__line"></span>
+    </div>
+
+    <div class="about__grid">
+      <div class="about__card">
+        <img class="about__icon" src="/images/about_first.svg" alt="" aria-hidden="true" />
+        <h3>Профессиональная база актёров</h3>
+        <p>
+          ActorsHub - это единая платформа для поиска актёров в кино, театре и рекламе. Мы собираем
+          структурированные профили с актуальными данными, чтобы кастинг-директора и продакшены
+          тратили время на выбор, а не на рутину.
+        </p>
+      </div>
+
+      <div class="about__card">
+        <img class="about__icon" src="/images/about_second.svg" alt="" aria-hidden="true" />
+        <h3>Сделано для реальной индустрии</h3>
+        <p>
+          Платформа создаётся с участием актёров, агентов и кастинг-директоров. Мы знаем, как
+          выглядят реальные запросы и дедлайны, поэтому делаем поиск быстрым, а профили понятными и
+          честными.
+        </p>
+      </div>
+
+      <div class="about__card">
+        <img class="about__icon" src="/images/about_third.svg" alt="" aria-hidden="true" />
+        <h3>Связь без лишних шагов</h3>
+        <p>
+          Никаких посредников и хаоса в контактах. Вы находите нужного актёра, изучаете опыт и
+          выходите на связь напрямую - удобно, прозрачно и по делу.
+        </p>
+      </div>
+    </div>
+  </section>
+  <section class="landing__top-search top-search">
+    <div class="top-search__heading">
+      <div class="top-search__heading-line">
+        <h2>Топ поиска</h2>
+        <span class="top-search__line"></span>
+      </div>
+      <p>Самые популярные актеры на нашем сайте</p>
+    </div>
+    <div class="top-search__cards">
+      @for (_ of cardSlots; track $index) {
+        <app-profile-card></app-profile-card>
+      }
+    </div>
+     <button>Смотреть всех</button>
+  </section>
+  <section id="audience" class="landing__audience audience">
+    <h2>Для кого этот проект?</h2>
+    <p class="audience__lead">
+      ActorsHub - учебный проект о том, как может выглядеть цифровая база актёров при аккуратной
+      работе со структурой и визуальной иерархией. Проект не носит коммерческого характера.
+    </p>
+
+    <div class="audience__list">
+      <div class="audience__item">
+        <h3>Для кастинг - директоров</h3>
+        <p>
+          Проект демонстрирует подход к организации актёрских профилей, поиску и визуальной
+          навигации в базе данных. Он показывает, как интерфейс может помогать выбору, а не
+          отвлекать от него.
+        </p>
+      </div>
+
+      <div class="audience__item">
+        <h3>Для актёров</h3>
+        <p>
+          Проект может быть полезен всем, кто регулярно сталкивается с поиском, просмотром и
+          сравнением актёров - в учебных, творческих или исследовательских задачах. ActorsHub
+          показывает, как может выглядеть аккуратная и понятная база без лишней сложности.
+        </p>
+      </div>
+
+      <div class="audience__item">
+        <h3>Для всех, кто работает с актёрами</h3>
+        <p>
+          ActorsHub исследует, как может выглядеть цифровое представление актёра - с акцентом на
+          образ, опыт и читаемость, а не на перегруженность информацией.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>

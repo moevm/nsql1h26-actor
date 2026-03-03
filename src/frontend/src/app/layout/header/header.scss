@@ -4,7 +4,6 @@
     padding: 24px 0px;
     background-color: #1c1a18;
     border-bottom: 5px solid vars.$color-accent-secondary;
-    margin-bottom: 100px;
 
     &__container {
         padding: 0px 100px;
@@ -37,7 +36,7 @@
             }
         }
 
-        button{
+        button {
             padding: 10px 16px;
             font-size: 18px;
             font-family: inherit;
@@ -46,13 +45,112 @@
             background-color: transparent;
             color: vars.$color-text-white;
             cursor: pointer;
-            transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+            transition:
+                background-color 0.25s ease,
+                border-color 0.25s ease,
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
 
             &:hover {
                 background-color: vars.$color-accent-secondary;
                 border-color: vars.$color-accent-secondary;
                 transform: translateY(-2px);
                 box-shadow: 0 8px 18px rgba(199, 167, 104, 0.35);
+            }
+        }
+    }
+}
+
+@media (max-width: 1200px) {
+    .header {
+        &__container {
+            padding: 0px 48px;
+            gap: 24px;
+        }
+
+        &__logo {
+            font-size: 22px;
+        }
+
+        &__nav {
+            ul {
+                gap: 24px;
+            }
+
+            a,
+            button {
+                font-size: 16px;
+            }
+
+            button {
+                padding: 8px 14px;
+            }
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    .header {
+        padding: 20px 0px;
+
+        &__container {
+            padding: 0px 32px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        &__logo {
+            width: 100%;
+            text-align: center;
+            font-size: 21px;
+        }
+
+        &__nav {
+            width: 100%;
+
+            ul {
+                width: 100%;
+                justify-content: center;
+                gap: 56px;
+            }
+
+            a,
+            button {
+                font-size: 15px;
+            }
+        }
+    }
+}
+
+@media (max-width: 680px) {
+    .header {
+        padding: 16px 0px;
+
+        &__container {
+            padding: 0px 16px;
+            gap: 12px;
+        }
+
+        &__logo {
+            font-size: 19px;
+        }
+
+        &__nav {
+            ul {
+                justify-content: center;
+                flex-wrap: wrap;
+                row-gap: 10px;
+                column-gap: 14px;
+            }
+
+            a,
+            button {
+                font-size: 14px;
+            }
+
+            button {
+                padding: 7px 12px;
             }
         }
     }

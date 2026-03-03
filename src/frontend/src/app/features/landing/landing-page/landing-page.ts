@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Footer } from '../../../layout/footer/footer';
-import { Header } from '../../../layout/header/header';
+import { ProfileCard } from '../../../shared/ui/profile-card/profile-card';
 
 @Component({
   standalone: true,
   selector: 'app-landing-page',
-  imports: [CommonModule, Footer, Header],
+  imports: [CommonModule, ProfileCard],
   templateUrl: './landing-page.html',
   styleUrls: ['./landing-page.scss'],
 })
-export class LandingPage {}
+export class LandingPage {
+  readonly cardSlots = Array.from({ length: 8 });
+}
