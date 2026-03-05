@@ -17,7 +17,7 @@ export class ProfileCard {
     fullName: 'Анастасия Сергеевна\nВоронцова',
     age: '24 года',
     education: 'Российский институт театрального искусства\nГИТИС',
-    imageSrc: '/img/profilepic.jpg',
+    imageSrc: '/images/profilepic.jpg',
   };
 
   get resolvedFullName(): string {

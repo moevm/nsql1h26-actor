@@ -1,0 +1,15 @@
+@use "styles/variables" as vars;
+
+.search-page {
+    background-image: url("/images/backgrounds/main.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 64px 128px;
+
+    h1{
+        font-size: 36px;
+        font-family: vars.$font-secondary;
+        margin-bottom: 64px;
+    }
+}

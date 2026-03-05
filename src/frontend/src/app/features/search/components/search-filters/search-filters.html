@@ -1,0 +1,164 @@
+﻿<form class="search-form" (reset)="onReset()">
+  <div class="form-wrapp">
+    <div class="search-form__group">
+      <h5>Пол</h5>
+      <div class="search-form__group-box">
+        <div class="radio-inputs">
+          <input type="radio" id="male" name="gender" value="male" />
+          <label for="male">Мужской</label>
+        </div>
+        <div class="radio-inputs">
+          <input type="radio" id="female" name="gender" value="female" />
+          <label for="female">Женский</label>
+        </div>
+      </div>
+    </div>
+    <div class="search-form__group">
+      <h5>Возраст</h5>
+      <div class="search-form__group-box">
+        <input type="number" id="age-from" name="age-from" placeholder="от: 0" min="0" />
+        <input type="number" id="age-to" name="age-to" placeholder="до: 100" max="100" />
+      </div>
+    </div>
+    <div class="search-form__group">
+      <h5>Рост (см)</h5>
+      <div class="search-form__group-box">
+        <input type="number" id="height-from" name="height-from" placeholder="от: 60" min="60" />
+        <input type="number" id="height-to" name="height-to" placeholder="до: 250" max="250" />
+      </div>
+    </div>
+    <div class="search-form__group">
+      <h5>Вес</h5>
+      <div class="search-form__group-box">
+        <input type="number" id="weight-from" name="weight-from" placeholder="от: 30" min="30" />
+        <input type="number" id="weight-to" name="weight-to" placeholder="до: 150" max="150" />
+      </div>
+    </div>
+    <div class="search-form__group">
+      <h5>Годы активности</h5>
+      <div class="search-form__group-box">
+        <input
+          type="number"
+          id="activity-years-from"
+          name="activity-years-from"
+          placeholder="от: 1900"
+          min="1900"
+        />
+        <input
+          type="number"
+          id="activity-years-to"
+          name="activity-years-to"
+          placeholder="до: 2026"
+          max="2026"
+        />
+      </div>
+    </div>
+    <div
+      id="advanced-filters"
+      class="advanced-filters"
+      [class.advanced-filters--hidden]="!isAdvancedOpen"
+    >
+      <div class="search-form__group secondary">
+        <h5>Вуз</h5>
+        <div class="select-wrap">
+          <select name="university">
+            <option value="" disabled selected hidden>Выберите</option>
+          </select>
+        </div>
+      </div>
+      <div class="search-form__group secondary">
+        <h5>Театр</h5>
+        <div class="select-wrap">
+          <select name="theatre">
+            <option value="" disabled selected hidden>Выберите</option>
+          </select>
+        </div>
+      </div>
+      <div class="search-form__group secondary">
+        <h5>Звание</h5>
+        <div class="select-wrap">
+          <select name="rank">
+            <option value="" disabled selected hidden>Выберите</option>
+          </select>
+        </div>
+      </div>
+      <div class="search-form__group secondary">
+        <h5>Цвет волос</h5>
+        <div class="select-wrap">
+          <select name="hair-color">
+            <option value="" disabled selected hidden>Выберите</option>
+          </select>
+        </div>
+      </div>
+      <div class="search-form__group secondary">
+        <h5>Цвет глаз</h5>
+        <div class="select-wrap">
+          <select name="eye-color">
+            <option value="" disabled selected hidden>Выберите</option>
+          </select>
+        </div>
+      </div>
+      <div class="search-form__group secondary">
+        <div class="button-box">
+          <h5>Жанр</h5>
+          <button
+            type="button"
+            class="genres-toggle"
+            [class.is-open]="isGenresOpen"
+            [attr.aria-expanded]="isGenresOpen"
+            aria-controls="genres-list"
+            (click)="toggleGenres()"
+          ></button>
+        </div>
+        <div id="genres-list" class="genres-list" [class.genres-list--hidden]="!isGenresOpen">
+          <div class="genres-box">
+            <input type="checkbox" name="genre-drama" id="genre-drama" />
+            <label for="genre-drama">Драма</label>
+          </div>
+          <div class="genres-box">
+            <input type="checkbox" name="genre-comedy" id="genre-comedy" />
+            <label for="genre-comedy">Комедия</label>
+          </div>
+          <div class="genres-box">
+            <input type="checkbox" name="genre-tragedy" id="genre-tragedy" />
+            <label for="genre-tragedy">Трагедия</label>
+          </div>
+          <div class="genres-box">
+            <input type="checkbox" name="genre-melodrama" id="genre-melodrama" />
+            <label for="genre-melodrama">Мелодрама</label>
+          </div>
+          <div class="genres-box">
+            <input type="checkbox" name="genre-tragicomedy" id="genre-tragicomedy" />
+            <label for="genre-tragicomedy">Трагикомедия</label>
+          </div>
+          <div class="genres-box">
+            <input type="checkbox" name="genre-musical" id="genre-musical" />
+            <label for="genre-musical">Мюзикл</label>
+          </div>
+          <div class="genres-box">
+            <input type="checkbox" name="genre-opera" id="genre-opera" />
+            <label for="genre-opera">Опера</label>
+          </div>
+          <div class="genres-box">
+            <input type="checkbox" name="genre-ballet" id="genre-ballet" />
+            <label for="genre-ballet">Балет</label>
+          </div>
+          <div class="genres-box">
+            <input type="checkbox" name="genre-monodrama" id="genre-monodrama" />
+            <label for="genre-monodrama">Монодрама</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="search-form__reset" type="reset">Сбросить фильтры</button>
+  <button
+    type="button"
+    class="search-form__advanced-toggle"
+    [class.is-open]="isAdvancedOpen"
+    (click)="toggleAdvanced()"
+  >
+    Расширенный поиск
+  </button>
+</form>
