@@ -1,5 +1,29 @@
 <div class="search-page">
+  <div class="title_wrapper">
     <h1>Поиск по базе</h1>
-    <app-search-filters></app-search-filters>
-</div>
+  </div>
 
+  <div class="search-page_wrapper">
+    <app-search-filters (filtersChange)="onFiltersChange($event)"></app-search-filters>
+
+    <app-search-bar [(query)]="query"></app-search-bar>
+
+    <div class="search-page__results-wrap">
+      <div class="search-page__results">
+        @if (loading()) {
+          <p class="search-page__status">Загрузка...</p>
+        } @else if (error()) {
+          <p class="search-page__status search-page__status--error">{{ error() }}</p>
+        } @else if (results().length === 0) {
+          <p class="search-page__status">Ничего не найдено</p>
+        } @else {
+          @for (_ of cardSlots; track $index) {
+            <app-profile-card></app-profile-card>
+          }
+        }
+      </div>
+
+      <app-search-pagination></app-search-pagination>
+    </div>
+  </div>
+</div>

@@ -1,58 +1,191 @@
-﻿<form class="search-form" (reset)="onReset()">
+<form class="search-form" [formGroup]="search_form" (ngSubmit)="onSubmit()" (reset)="onReset()">
   <div class="form-wrapp">
     <div class="search-form__group">
       <h5>Пол</h5>
       <div class="search-form__group-box">
         <div class="radio-inputs">
-          <input type="radio" id="male" name="gender" value="male" />
+          <input type="radio" id="male" formControlName="gender" value="male" />
           <label for="male">Мужской</label>
         </div>
         <div class="radio-inputs">
-          <input type="radio" id="female" name="gender" value="female" />
+          <input type="radio" id="female" formControlName="gender" value="female" />
           <label for="female">Женский</label>
         </div>
       </div>
     </div>
+
     <div class="search-form__group">
       <h5>Возраст</h5>
       <div class="search-form__group-box">
-        <input type="number" id="age-from" name="age-from" placeholder="от: 0" min="0" />
-        <input type="number" id="age-to" name="age-to" placeholder="до: 100" max="100" />
+        <input
+          type="number"
+          id="age_from"
+          formControlName="age_from"
+          placeholder="от: 0"
+          min="0"
+          max="120"
+        />
+        <input
+          type="number"
+          id="age_to"
+          formControlName="age_to"
+          placeholder="до: 120"
+          min="0"
+          max="120"
+        />
       </div>
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="isRangeInvalid('ageRangeInvalid', 'age_from', 'age_to')"
+      >
+        Возраст "от" не может быть больше возраста "до".
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('age_from', 'min')">
+        Возраст "от" не может быть меньше 0.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('age_from', 'max')">
+        Возраст "от" не может быть больше 120.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('age_to', 'min')">
+        Возраст "до" не может быть меньше 0.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('age_to', 'max')">
+        Возраст "до" не может быть больше 120.
+      </p>
     </div>
+
     <div class="search-form__group">
       <h5>Рост (см)</h5>
       <div class="search-form__group-box">
-        <input type="number" id="height-from" name="height-from" placeholder="от: 60" min="60" />
-        <input type="number" id="height-to" name="height-to" placeholder="до: 250" max="250" />
+        <input
+          type="number"
+          id="height_from"
+          formControlName="height_from"
+          placeholder="от: 40"
+          min="40"
+          max="250"
+        />
+        <input
+          type="number"
+          id="height_to"
+          formControlName="height_to"
+          placeholder="до: 250"
+          min="40"
+          max="250"
+        />
       </div>
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="isRangeInvalid('heightRangeInvalid', 'height_from', 'height_to')"
+      >
+        Рост "от" не может быть больше роста "до".
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('height_from', 'min')">
+        Рост "от" не может быть меньше 40.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('height_from', 'max')">
+        Рост "от" не может быть больше 250.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('height_to', 'min')">
+        Рост "до" не может быть меньше 40.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('height_to', 'max')">
+        Рост "до" не может быть больше 250.
+      </p>
     </div>
+
     <div class="search-form__group">
       <h5>Вес</h5>
       <div class="search-form__group-box">
-        <input type="number" id="weight-from" name="weight-from" placeholder="от: 30" min="30" />
-        <input type="number" id="weight-to" name="weight-to" placeholder="до: 150" max="150" />
+        <input
+          type="number"
+          id="weight_from"
+          formControlName="weight_from"
+          placeholder="от: 20"
+          min="20"
+          max="150"
+        />
+        <input
+          type="number"
+          id="weight_to"
+          formControlName="weight_to"
+          placeholder="до: 150"
+          min="20"
+          max="150"
+        />
       </div>
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="isRangeInvalid('weightRangeInvalid', 'weight_from', 'weight_to')"
+      >
+        Вес "от" не может быть больше веса "до".
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('weight_from', 'min')">
+        Вес "от" не может быть меньше 20.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('weight_from', 'max')">
+        Вес "от" не может быть больше 150.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('weight_to', 'min')">
+        Вес "до" не может быть меньше 20.
+      </p>
+      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('weight_to', 'max')">
+        Вес "до" не может быть больше 150.
+      </p>
     </div>
+
     <div class="search-form__group">
       <h5>Годы активности</h5>
       <div class="search-form__group-box">
         <input
           type="number"
           id="activity-years-from"
-          name="activity-years-from"
+          formControlName="activity_years_from"
           placeholder="от: 1900"
           min="1900"
+          max="2026"
         />
         <input
           type="number"
           id="activity-years-to"
-          name="activity-years-to"
+          formControlName="activity_years_to"
           placeholder="до: 2026"
+          min="1900"
           max="2026"
         />
       </div>
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="isRangeInvalid('activityRangeInvalid', 'activity_years_from', 'activity_years_to')"
+      >
+        Годы активности "от" не могут быть больше "до".
+      </p>
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('activity_years_from', 'min')"
+      >
+        Годы активности "от" не могут быть меньше 1900.
+      </p>
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('activity_years_from', 'max')"
+      >
+        Годы активности "от" не могут быть больше 2026.
+      </p>
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('activity_years_to', 'min')"
+      >
+        Годы активности "до" не могут быть меньше 1900.
+      </p>
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('activity_years_to', 'max')"
+      >
+        Годы активности "до" не могут быть больше 2026.
+      </p>
     </div>
+
     <div
       id="advanced-filters"
       class="advanced-filters"
@@ -61,7 +194,7 @@
       <div class="search-form__group secondary">
         <h5>Вуз</h5>
         <div class="select-wrap">
-          <select name="university">
+          <select id="university" formControlName="university">
             <option value="" disabled selected hidden>Выберите</option>
           </select>
         </div>
@@ -69,7 +202,7 @@
       <div class="search-form__group secondary">
         <h5>Театр</h5>
         <div class="select-wrap">
-          <select name="theatre">
+          <select id="theatre" formControlName="theatre">
             <option value="" disabled selected hidden>Выберите</option>
           </select>
         </div>
@@ -77,7 +210,7 @@
       <div class="search-form__group secondary">
         <h5>Звание</h5>
         <div class="select-wrap">
-          <select name="rank">
+          <select id="actor_rank" formControlName="actor_rank">
             <option value="" disabled selected hidden>Выберите</option>
           </select>
         </div>
@@ -85,7 +218,7 @@
       <div class="search-form__group secondary">
         <h5>Цвет волос</h5>
         <div class="select-wrap">
-          <select name="hair-color">
+          <select id="hair_color" formControlName="hair_color">
             <option value="" disabled selected hidden>Выберите</option>
           </select>
         </div>
@@ -93,7 +226,7 @@
       <div class="search-form__group secondary">
         <h5>Цвет глаз</h5>
         <div class="select-wrap">
-          <select name="eye-color">
+          <select id="eye_color" formControlName="eye_color">
             <option value="" disabled selected hidden>Выберите</option>
           </select>
         </div>
@@ -112,39 +245,39 @@
         </div>
         <div id="genres-list" class="genres-list" [class.genres-list--hidden]="!isGenresOpen">
           <div class="genres-box">
-            <input type="checkbox" name="genre-drama" id="genre-drama" />
+            <input type="checkbox" formControlName="genre_drama" id="genre-drama" />
             <label for="genre-drama">Драма</label>
           </div>
           <div class="genres-box">
-            <input type="checkbox" name="genre-comedy" id="genre-comedy" />
+            <input type="checkbox" formControlName="genre_comedy" id="genre-comedy" />
             <label for="genre-comedy">Комедия</label>
           </div>
           <div class="genres-box">
-            <input type="checkbox" name="genre-tragedy" id="genre-tragedy" />
+            <input type="checkbox" formControlName="genre_tragedy" id="genre-tragedy" />
             <label for="genre-tragedy">Трагедия</label>
           </div>
           <div class="genres-box">
-            <input type="checkbox" name="genre-melodrama" id="genre-melodrama" />
+            <input type="checkbox" formControlName="genre_melodrama" id="genre-melodrama" />
             <label for="genre-melodrama">Мелодрама</label>
           </div>
           <div class="genres-box">
-            <input type="checkbox" name="genre-tragicomedy" id="genre-tragicomedy" />
+            <input type="checkbox" formControlName="genre_tragicomedy" id="genre-tragicomedy" />
             <label for="genre-tragicomedy">Трагикомедия</label>
           </div>
           <div class="genres-box">
-            <input type="checkbox" name="genre-musical" id="genre-musical" />
+            <input type="checkbox" formControlName="genre_musical" id="genre-musical" />
             <label for="genre-musical">Мюзикл</label>
           </div>
           <div class="genres-box">
-            <input type="checkbox" name="genre-opera" id="genre-opera" />
+            <input type="checkbox" formControlName="genre_opera" id="genre-opera" />
             <label for="genre-opera">Опера</label>
           </div>
           <div class="genres-box">
-            <input type="checkbox" name="genre-ballet" id="genre-ballet" />
+            <input type="checkbox" formControlName="genre_ballet" id="genre-ballet" />
             <label for="genre-ballet">Балет</label>
           </div>
           <div class="genres-box">
-            <input type="checkbox" name="genre-monodrama" id="genre-monodrama" />
+            <input type="checkbox" formControlName="genre_monodrama" id="genre-monodrama" />
             <label for="genre-monodrama">Монодрама</label>
           </div>
         </div>

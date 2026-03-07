@@ -1,0 +1,9 @@
+<div class="search-bar">
+  <input
+    #queryInput
+    type="text"
+    placeholder="Поиск актера"
+    [value]="query()"
+    (input)="query.set(queryInput.value)"
+  />
+</div>

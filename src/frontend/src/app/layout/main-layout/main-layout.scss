@@ -1,11 +1,15 @@
-.wrapper{
+.wrapper {
     height: 100vh !important;
 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 
-    &-content{
+    &-content {
+        background-image: url("/images/backgrounds/main.jpg");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
         flex: 1 1 auto;
     }
 }

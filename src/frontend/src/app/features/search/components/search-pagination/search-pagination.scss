@@ -1,0 +1,109 @@
+@use "styles/variables" as vars;
+
+.pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    justify-content: center;
+    max-width: 100%;
+}
+
+.pagination__button {
+    width: 42px;
+    height: 42px;
+    border: 2px solid vars.$color-accent-primary;
+    border-radius: 6px;
+    background-color: transparent;
+    color: vars.$color-accent-primary;
+    font-family: vars.$font-secondary;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background-color 180ms ease,
+        color 180ms ease,
+        opacity 180ms ease;
+
+    &:hover:not(:disabled) {
+        background-color: #fff8f4;
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    &--active {
+        background-color: #631e16;
+        color: vars.$color-text-white;
+        border-color: #631e16;
+    }
+
+    &--arrow {
+        background-image: url("/images/arrow-pagination.png");
+        background-size: 16px 32px;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    &--arrow:nth-last-child(1) {
+        transform: rotate(180deg);
+    }
+}
+
+.pagination__button.pagination__button--active {
+    &:hover {
+        background-color: #8f271b;
+        border-color: #8f271b;
+    }
+}
+
+.pagination__ellipsis {
+    color: vars.$color-accent-primary;
+    font-family: vars.$font-secondary;
+    font-size: 24px;
+    line-height: 1;
+    margin: 0 2px;
+}
+
+@media (max-width: 680px) {
+    .pagination {
+        gap: 10px;
+    }
+
+    .pagination__button {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+
+        &--arrow {
+            background-size: 13px 26px;
+        }
+    }
+
+    .pagination__ellipsis {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 420px) {
+    .pagination {
+        gap: 6px;
+    }
+
+    .pagination__button {
+        width: 31px;
+        height: 31px;
+        border-radius: 5px;
+        font-size: 16px;
+
+        &--arrow {
+            background-size: 11px 22px;
+        }
+    }
+
+    .pagination__ellipsis {
+        margin: 0;
+        font-size: 18px;
+    }
+}

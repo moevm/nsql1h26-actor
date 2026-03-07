@@ -1,0 +1,30 @@
+<nav class="pagination" aria-label="Pagination">
+  <button
+    type="button"
+    class="pagination__button pagination__button--arrow"
+    [disabled]="currentPage() === 1"
+    (click)="prevPage()"
+  ></button>
+
+  @for (item of items(); track item.type === 'page' ? item.value : item.key) {
+    @if (item.type === 'page') {
+      <button
+        type="button"
+        class="pagination__button"
+        [class.pagination__button--active]="item.value === currentPage()"
+        (click)="selectPage(item.value)"
+      >
+        {{ item.value }}
+      </button>
+    } @else {
+      <span class="pagination__ellipsis">...</span>
+    }
+  }
+
+  <button
+    type="button"
+    class="pagination__button pagination__button--arrow"
+    [disabled]="currentPage() === totalPages"
+    (click)="nextPage()"
+  ></button>
+</nav>

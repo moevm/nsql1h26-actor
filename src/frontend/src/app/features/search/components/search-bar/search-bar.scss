@@ -1,0 +1,49 @@
+@use "styles/variables" as vars;
+
+.search-bar {
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 20px 10px #52110c1a;
+    background-color: vars.$color-background-primary;
+    width: 100%;
+}
+
+input{
+    width: 100%;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 18px;
+    color: vars.$color-text-black;
+    border-radius: 3px;
+    border: 2px solid vars.$color-accent-primary;
+    outline: none;
+    background-color: transparent;
+    background-image:url("/images/search.png");
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    transition:
+        border-color 180ms ease,
+        box-shadow 220ms ease,
+        background-color 220ms linear;
+
+    &:hover {
+        background-color: #fff8f4;
+    }
+
+    &:focus-visible {
+        border-color: #6f2018;
+        box-shadow: 0 0 0 3px #52110c26;
+    }
+}
+
+@media (max-width: 680px) {
+    .search-bar {
+        padding: 12px;
+    }
+
+    input {
+        font-size: 16px;
+        padding: 9px;
+        background-size: 16px;
+    }
+}
