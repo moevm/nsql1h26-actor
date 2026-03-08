@@ -1,0 +1,39 @@
+<div class="auth-page">
+  <form class="auth-page_form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <h3>Вход в админ-панель</h3>
+
+    <div class="form_box">
+      <label for="login_email">Email</label>
+      <input
+        formControlName="email"
+        id="login_email"
+        type="email"
+        placeholder="Введите email"
+      />
+      @if (hasControlError('email', 'required')) {
+        <small class="error">Email обязателен</small>
+      }
+      @if (hasControlError('email', 'pattern')) {
+        <small class="error">Некорректный формат email</small>
+      }
+    </div>
+
+    <div class="form_box">
+      <label for="login_password">Пароль</label>
+      <input
+        formControlName="password"
+        id="login_password"
+        type="password"
+        placeholder="Введите пароль"
+      />
+      @if (hasControlError('password', 'required')) {
+        <small class="error">Пароль обязателен</small>
+      }
+      @if (hasControlError('password', 'minlength')) {
+        <small class="error">Минимум 6 символов</small>
+      }
+    </div>
+
+    <button type="submit" [disabled]="loginForm.invalid">Войти</button>
+  </form>
+</div>

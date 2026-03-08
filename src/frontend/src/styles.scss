@@ -35,3 +35,26 @@ button {
   background: none;
   color: vars.$color-text-white;
 }
+
+input,
+select {
+  font-family: inherit;
+  color: vars.$color-text-black;
+  border-radius: 5px;
+  border: 2px solid vars.$color-accent-primary;
+  outline: none;
+  background-color: transparent;
+  transition:
+    border-color 180ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+
+  &:hover {
+    background-color: #fff8f4;
+  }
+
+  &:focus-visible {
+    border-color: #6f2018;
+    box-shadow: 0 0 0 3px #52110c26;
+  }
+}

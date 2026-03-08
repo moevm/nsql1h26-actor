@@ -57,6 +57,10 @@
                 transform: translateY(-2px);
                 box-shadow: 0 8px 18px rgba(199, 167, 104, 0.35);
             }
+
+            a:hover{
+                color: vars.$color-text-white;
+            }
         }
     }
 }

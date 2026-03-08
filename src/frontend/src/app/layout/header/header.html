@@ -1,12 +1,20 @@
 <header class="header">
   <div class="header__container">
-    <a routerLink="/" class="header__logo">ActorsHub</a>
+    <a routerLink="/" class="header__logo">{{ headerState().logoText }}</a>
     <nav class="header__nav">
       <ul>
-        <li><a routerLink="/search">Актёры</a></li>
-        <li><a routerLink="/" fragment="about">О платформе</a></li>
-        <li><a routerLink="/" fragment="audience">Для кого</a></li>
-        <li><button>Вход</button></li>
+        @for (item of headerState().navItems; track item.label) {
+          <li>
+            <a [routerLink]="item.routerLink" [fragment]="item.fragment">{{ item.label }}</a>
+          </li>
+        }
+        @if (headerState().showAction) {
+          <li>
+            <button type="button">
+              <a routerLink="/auth">{{ headerState().actionLabel }}</a>
+            </button>
+          </li>
+        }
       </ul>
     </nav>
   </div>
