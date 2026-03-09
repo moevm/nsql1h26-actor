@@ -1,11 +1,21 @@
 spring:
   application:
     name: NOSQL
-  
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
   data:
     mongodb:
       uri: mongodb://localhost:27017/nosql_db
+      database: nosql_db
       auto-index-creation: true
+
+app:
+  mongodb:
+    gridfs-bucket: media
 
 server:
   port: 8080

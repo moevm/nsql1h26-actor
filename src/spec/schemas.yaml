@@ -1,46 +1,323 @@
-# Схемы моделей — вынесены в отдельный файл
-# Используется через $ref: './schemas.yaml#/components/schemas/Actor'
+# Схемы: актёр, медиа, ответы создания, авторизация, фильтры
 
 components:
   schemas:
+    # --- Перечисления ---
+    Gender:
+      type: string
+      enum: [male, female]
+      description: Пол
+
+    Title:
+      type: string
+      description: Звание
+      enum: [honored, national, none]
+
+    ActorMediaType:
+      type: string
+      enum: [photo, video]
+      description: Тип медиа при загрузке
+
+    # --- Вложенные ---
+    MongoId:
+      type: string
+      pattern: "^[0-9a-fA-F]{24}$"
+      description: "ID для поиска в MongoDB (ObjectId, 24 hex-символа)"
+
+    UniversityInfo:
+      type: object
+      description: "Данные вуза (агрегация при отдаче актёра)"
+      readOnly: true
+      properties:
+        name:
+          type: string
+        shortName:
+          type: string
+          nullable: true
+        oldNames:
+          type: array
+          items:
+            type: string
+          nullable: true
+
+    EducationItem:
+      type: object
+      properties:
+        uniId:
+          $ref: '#/components/schemas/MongoId'
+          description: "ObjectId вуза"
+        graduationYear:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        university:
+          $ref: '#/components/schemas/UniversityInfo'
+          description: "Вуз (заполняется при отдаче актёра, фронту не ходить отдельно)"
+          readOnly: true
+          nullable: true
+
+    FilmPlayItem:
+      type: object
+      properties:
+        title:
+          type: string
+        year:
+          type: integer
+          nullable: true
+        role:
+          type: string
+          nullable: true
+        director:
+          type: string
+          nullable: true
+
+    PhotoItem:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/MongoId'
+          readOnly: true
+        caption:
+          type: string
+          nullable: true
+
+    VideoItem:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/MongoId'
+          readOnly: true
+        caption:
+          type: string
+          nullable: true
+
+    TheatrePlayItem:
+      type: object
+      description: "Элемент списка — театр и его пьесы (название, годы, пьесы)"
+      properties:
+        name:
+          type: string
+          description: "Название театра"
+        years:
+          type: string
+          nullable: true
+          description: "Годы (например 2010–2015)"
+        plays:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilmPlayItem'
+          description: "Пьесы"
+
+    # --- Актёр ---
     Actor:
       type: object
       properties:
         id:
+          $ref: '#/components/schemas/MongoId'
+          readOnly: true
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
           type: string
           nullable: true
-          readOnly: true
-          description: ID актора (MongoDB ObjectId)
-        name:
+        birthDate:
           type: string
-        email:
+          format: date
+          nullable: true
+        height:
+          type: integer
+          nullable: true
+        weight:
+          type: integer
+          nullable: true
+        gender:
+          $ref: '#/components/schemas/Gender'
+        hairColor:
           type: string
-          format: email
-        role:
+          nullable: true
+        eyeColor:
           type: string
-          enum: [USER, ADMIN]
-          default: USER
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        title:
+          $ref: '#/components/schemas/Title'
+        education:
+          type: array
+          items:
+            $ref: '#/components/schemas/EducationItem'
+        films:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilmPlayItem'
+        theatrePlayItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/TheatrePlayItem'
+          description: "Театры и пьесы (для фронта)"
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhotoItem'
+        videos:
+          type: array
+          items:
+            $ref: '#/components/schemas/VideoItem'
+        genres:
+          type: array
+          items:
+            type: string
         createdAt:
           type: string
           format: date-time
-          nullable: true
           readOnly: true
-      required:
-        - name
-        - email
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
 
     ActorCreate:
       type: object
+      required: [firstName, lastName]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+          nullable: true
+        birthDate:
+          type: string
+          format: date
+          nullable: true
+        height:
+          type: integer
+          nullable: true
+        weight:
+          type: integer
+          nullable: true
+        gender:
+          $ref: '#/components/schemas/Gender'
+        hairColor:
+          type: string
+          nullable: true
+        eyeColor:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        title:
+          $ref: '#/components/schemas/Title'
+        education:
+          type: array
+          items:
+            $ref: '#/components/schemas/EducationItem'
+        films:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilmPlayItem'
+        theatrePlayItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/TheatrePlayItem'
+        genres:
+          type: array
+          items:
+            type: string
+
+    # --- Ответ создания актёра: id + status + errorCode ---
+    ActorCreateResponse:
+      type: object
+      required: [status]
+      properties:
+        id:
+          $ref: '#/components/schemas/MongoId'
+          nullable: true
+          description: "ID актёра при status=ok"
+        status:
+          type: string
+          enum: [ok, failed]
+        errorCode:
+          type: string
+          nullable: true
+          description: "Код ошибки при status=failed"
+
+    # --- Ответ загрузки медиа ---
+    MediaUploadResponse:
+      type: object
+      required: [status]
+      properties:
+        mediaId:
+          $ref: '#/components/schemas/MongoId'
+          nullable: true
+        status:
+          type: string
+          enum: [ok, failed]
+        errorCode:
+          type: string
+          nullable: true
+
+    # --- Вуз ---
+    UniversityCreate:
+      type: object
+      required: [name]
       properties:
         name:
           type: string
+          description: "Название вуза"
+        shortName:
+          type: string
+          nullable: true
+          description: "Короткое название"
+        oldNames:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: "Старые названия"
+
+    UniversityCreateResponse:
+      type: object
+      required: [status]
+      properties:
+        id:
+          $ref: '#/components/schemas/MongoId'
+          nullable: true
+          description: "ID вуза при status=ok"
+        status:
+          type: string
+          enum: [ok, failed]
+        errorCode:
+          type: string
+          nullable: true
+
+    # --- Авторизация ---
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
         email:
           type: string
           format: email
-        role:
+        password:
           type: string
-          enum: [USER, ADMIN]
-          default: USER
-      required:
-        - name
-        - email
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true

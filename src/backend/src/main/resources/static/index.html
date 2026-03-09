@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тест API актёров</title>
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --card: #1a1a20;
+      --border: #2a2a32;
+      --text: #e4e4e7;
+      --muted: #71717a;
+      --accent: #a78bfa;
+      --success: #22c55e;
+      --error: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    h1 { font-size: 1.5rem; margin: 0 0 24px; color: var(--accent); }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    section h2 { font-size: 1.1rem; margin: 0 0 12px; color: var(--text); }
+    label { display: block; margin-bottom: 4px; color: var(--muted); font-size: 0.85rem; }
+    input[type="text"], input[type="number"], input[type="file"], textarea, select {
+      width: 100%;
+      max-width: 400px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { filter: brightness(1.1); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .out, .result {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 320px;
+      overflow: auto;
+    }
+    .out.ok { border-color: var(--success); }
+    .out.err { border-color: var(--error); color: #fca5a5; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .row > * { margin-bottom: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 500; }
+    a { color: var(--accent); }
+    img.preview { max-width: 100%; max-height: 300px; border-radius: 8px; margin-top: 8px; }
+
+    /* Карточка актёра */
+    .actor-card-wrap { margin-top: 16px; display: none; }
+    .actor-card-wrap.visible { display: block; }
+    .actor-card {
+      background: linear-gradient(145deg, #1e1e24 0%, #16161a 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      max-width: 720px;
+    }
+    .actor-card-header {
+      padding: 24px 24px 16px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .actor-card-avatar {
+      width: 120px; height: 120px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .actor-card-avatar.placeholder { background: var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; text-align: center; padding: 8px; }
+    .actor-card-head {
+      flex: 1;
+      min-width: 200px;
+    }
+    .actor-card-name { font-size: 1.5rem; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.02em; }
+    .actor-card-title { color: var(--accent); font-size: 0.9rem; margin-bottom: 8px; }
+    .actor-card-meta {
+      display: flex; flex-wrap: wrap; gap: 12px 20px; font-size: 0.85rem; color: var(--muted);
+    }
+    .actor-card-meta span { white-space: nowrap; }
+    .actor-card-bio {
+      padding: 0 24px 20px;
+      font-size: 0.95rem; line-height: 1.6; color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .actor-card-bio:empty { display: none; }
+    .actor-card-section {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .actor-card-section:last-child { border-bottom: none; }
+    .actor-card-section h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 10px; }
+    .actor-card-section ul { margin: 0; padding-left: 18px; }
+    .actor-card-section li { margin-bottom: 4px; }
+    .actor-edu-item { margin-bottom: 8px; padding: 8px 12px; background: var(--bg); border-radius: 8px; font-size: 0.9rem; }
+    .actor-edu-uni { color: var(--accent); font-weight: 500; }
+    .actor-theatre { margin-bottom: 12px; }
+    .actor-theatre-name { font-weight: 600; margin-bottom: 4px; }
+    .actor-theatre-years { font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+    .actor-plays { padding-left: 16px; font-size: 0.9rem; }
+    .actor-film-item { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .actor-film-item:last-child { border-bottom: none; }
+    .actor-film-title { font-weight: 500; }
+    .actor-film-role { color: var(--muted); }
+    .actor-genres { display: flex; flex-wrap: wrap; gap: 6px; }
+    .actor-genre { background: var(--bg); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; color: var(--muted); }
+    .actor-media-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .actor-media-item { width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background: var(--border); }
+    .actor-media-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .actor-media-item a { display: block; width: 100%; height: 100%; font-size: 10px; padding: 6px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+    .actor-json-toggle { margin-top: 12px; font-size: 0.85rem; color: var(--muted); }
+    .actor-json-toggle button { padding: 4px 10px; font-size: 12px; background: var(--border); color: var(--text); margin-right: 8px; }
+    .actor-json-toggle button.active { background: var(--accent); color: var(--bg); }
+  </style>
+</head>
+<body>
+  <h1>Тест API каталога актёров</h1>
+  <p style="color: var(--muted); margin-bottom: 24px;">Бэкенд: <code id="apiBase">/v1</code> (тот же хост)</p>
+
+  <section>
+    <h2>1. Создать вуз</h2>
+    <label>Название *</label>
+    <input type="text" id="uniName" placeholder="Московский государственный университет">
+    <label>Короткое название</label>
+    <input type="text" id="uniShortName" placeholder="МГУ">
+    <label>Старые названия (через запятую)</label>
+    <input type="text" id="uniOldNames" placeholder="Императорский Московский университет">
+    <button type="button" id="btnCreateUni">Создать вуз</button>
+    <div id="uniOut" class="out" style="display:none;"></div>
+  </section>
+
+  <section>
+    <h2>2. Поиск актёров (фильтры)</h2>
+    <div class="row">
+      <div><label>Пол</label><select id="filterGender"><option value="">—</option><option value="male">male</option><option value="female">female</option></select></div>
+      <div><label>Возраст от</label><input type="number" id="filterAgeFrom" placeholder="25" style="width:80px"></div>
+      <div><label>Возраст до</label><input type="number" id="filterAgeTo" placeholder="50" style="width:80px"></div>
+      <div><label>Вес мин</label><input type="number" id="filterWeightMin" style="width:80px"></div>
+      <div><label>Вес макс</label><input type="number" id="filterWeightMax" style="width:80px"></div>
+      <div><label>Театр (подстрока)</label><input type="text" id="filterTheatre" placeholder="Современник" style="width:140px"></div>
+      <div><label>Звание</label><select id="filterTitle"><option value="">—</option><option value="honored">honored</option><option value="national">national</option><option value="none">none</option></select></div>
+      <div><label>ID вуза</label><input type="text" id="filterUniversityId" placeholder="24 hex" style="width:180px"></div>
+      <div><label>limit</label><input type="number" id="filterLimit" value="20" min="1" style="width:70px"></div>
+      <div><label>offset</label><input type="number" id="filterOffset" value="0" min="0" style="width:70px"></div>
+    </div>
+    <button type="button" id="btnSearch">Искать</button>
+    <div id="searchOut" class="out" style="display:none;"></div>
+    <div id="searchTable"></div>
+  </section>
+
+  <section>
+    <h2>3. Получить актёра по ID</h2>
+    <label>ID актёра (Mongo ObjectId)</label>
+    <div class="row">
+      <input type="text" id="actorId" placeholder="69ae82ab8f69b57563344e0c" style="max-width:280px">
+      <button type="button" id="btnGetActor">Загрузить</button>
+    </div>
+    <div id="actorCardWrap" class="actor-card-wrap">
+      <div id="actorCard" class="actor-card"></div>
+      <div class="actor-json-toggle">
+        <button type="button" id="btnShowCard" class="active">Карточка</button>
+        <button type="button" id="btnShowJson">JSON</button>
+      </div>
+    </div>
+    <div id="actorOut" class="out" style="display:none;"></div>
+  </section>
+
+  <section>
+    <h2>4. Загрузить фото или видео для актёра</h2>
+    <label>ID актёра</label>
+    <input type="text" id="uploadActorId" placeholder="69ae82ab8f69b57563344e0c">
+    <label>Тип медиа</label>
+    <select id="uploadType">
+      <option value="photo">Фото</option>
+      <option value="video">Видео</option>
+    </select>
+    <label>Файл</label>
+    <input type="file" id="uploadFile" accept="image/*,video/*">
+    <label>Подпись (caption)</label>
+    <input type="text" id="uploadCaption" placeholder="Портрет / Описание">
+    <button type="button" id="btnUpload">Загрузить</button>
+    <div id="uploadOut" class="out" style="display:none;"></div>
+  </section>
+
+  <section>
+    <h2>5. Получить фото/медиа</h2>
+    <label>ID актёра</label>
+    <input type="text" id="mediaActorId" placeholder="69ae82ab8f69b57563344e0c">
+    <label>ID медиа (из photos[].id или videos[].id)</label>
+    <input type="text" id="mediaId" placeholder="ObjectId файла в GridFS">
+    <button type="button" id="btnGetMedia">Показать</button>
+    <div id="mediaOut" class="out" style="display:none;"></div>
+    <img id="mediaPreview" class="preview" alt="" style="display:none;">
+    <video id="mediaVideo" class="preview" controls style="display:none;"></video>
+  </section>
+
+  <script>
+    const API = window.location.origin + '/v1';
+
+    function showOut(el, text, isError) {
+      el.style.display = 'block';
+      el.textContent = text;
+      el.className = 'out ' + (isError ? 'err' : 'ok');
+    }
+
+    function hideOut(el) {
+      el.style.display = 'none';
+    }
+
+    async function api(method, path, body, isBlob) {
+      const opts = { method, headers: {} };
+      if (body && !(body instanceof FormData)) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = typeof body === 'string' ? body : JSON.stringify(body);
+      } else if (body instanceof FormData) {
+        opts.body = body;
+      }
+      const r = await fetch(API + path, opts);
+      if (isBlob) return { ok: r.ok, status: r.status, blob: await r.blob(), contentType: r.headers.get('Content-Type') };
+      const text = await r.text();
+      let data;
+      try { data = text ? JSON.parse(text) : null; } catch (_) { data = text; }
+      return { ok: r.ok, status: r.status, data };
+    }
+
+    // 1. Создать вуз
+    document.getElementById('btnCreateUni').onclick = async () => {
+      const out = document.getElementById('uniOut');
+      const name = document.getElementById('uniName').value.trim();
+      if (!name) { showOut(out, 'Введите название вуза', true); return; }
+      const shortName = document.getElementById('uniShortName').value.trim() || null;
+      const oldNamesRaw = document.getElementById('uniOldNames').value.trim();
+      const oldNames = oldNamesRaw ? oldNamesRaw.split(',').map(s => s.trim()).filter(Boolean) : null;
+      const body = { name, shortName, oldNames };
+      const res = await api('POST', '/universities', body);
+      if (res.ok) {
+        showOut(out, JSON.stringify(res.data, null, 2));
+        if (res.data && res.data.id) document.getElementById('filterUniversityId').placeholder = res.data.id;
+      } else {
+        showOut(out, (res.data && res.data.errorCode) ? res.data.errorCode + '\n' + JSON.stringify(res.data) : res.data ? JSON.stringify(res.data) : 'HTTP ' + res.status, true);
+      }
+    };
+
+    // 2. Поиск
+    document.getElementById('btnSearch').onclick = async () => {
+      const out = document.getElementById('searchOut');
+      const table = document.getElementById('searchTable');
+      const params = new URLSearchParams();
+      const gender = document.getElementById('filterGender').value;
+      if (gender) params.set('gender', gender);
+      const ageFrom = document.getElementById('filterAgeFrom').value;
+      if (ageFrom) params.set('ageFrom', ageFrom);
+      const ageTo = document.getElementById('filterAgeTo').value;
+      if (ageTo) params.set('ageTo', ageTo);
+      const weightMin = document.getElementById('filterWeightMin').value;
+      if (weightMin) params.set('weightMin', weightMin);
+      const weightMax = document.getElementById('filterWeightMax').value;
+      if (weightMax) params.set('weightMax', weightMax);
+      const theatre = document.getElementById('filterTheatre').value.trim();
+      if (theatre) params.set('theatre', theatre);
+      const title = document.getElementById('filterTitle').value;
+      if (title) params.set('title', title);
+      const universityId = document.getElementById('filterUniversityId').value.trim();
+      if (universityId) params.set('universityId', universityId);
+      params.set('limit', document.getElementById('filterLimit').value || '20');
+      params.set('offset', document.getElementById('filterOffset').value || '0');
+      const res = await api('GET', '/actors?' + params.toString());
+      if (res.ok) {
+        const list = Array.isArray(res.data) ? res.data : [];
+        showOut(out, 'Найдено: ' + list.length);
+        if (list.length === 0) {
+          table.innerHTML = '';
+          return;
+        }
+        table.innerHTML = '<table><thead><tr><th>ID</th><th>Имя</th><th>Дата рождения</th><th>Звание</th><th></th></tr></thead><tbody>' +
+          list.map(a => {
+            const name = [a.lastName, a.firstName, a.middleName].filter(Boolean).join(' ');
+            return '<tr><td><code>' + (a.id || '') + '</code></td><td>' + name + '</td><td>' + (a.birthDate || '') + '</td><td>' + (a.title || '') + '</td><td><a href="#" data-id="' + (a.id || '') + '">Подставить в «Получить по ID»</a></td></tr>';
+          }).join('') + '</tbody></table>';
+        table.querySelectorAll('a[data-id]').forEach(link => {
+          link.onclick = e => { e.preventDefault(); document.getElementById('actorId').value = link.dataset.id; };
+        });
+      } else {
+        showOut(out, res.data ? JSON.stringify(res.data) : 'HTTP ' + res.status, true);
+        table.innerHTML = '';
+      }
+    };
+
+    function esc(s) {
+      if (s == null || s === undefined) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    const titleLabels = { honored: 'Заслуженный артист', national: 'Народный артист', none: '' };
+
+    function renderActorCard(a, actorId) {
+      const name = [a.lastName, a.firstName, a.middleName].filter(Boolean).join(' ');
+      const titleText = (a.title && titleLabels[a.title]) ? titleLabels[a.title] : '';
+      const meta = [];
+      if (a.birthDate) meta.push('Род. ' + esc(a.birthDate));
+      if (a.gender) meta.push(a.gender === 'female' ? 'ж' : 'м');
+      if (a.height != null) meta.push(esc(a.height) + ' см');
+      if (a.weight != null) meta.push(esc(a.weight) + ' кг');
+      if (a.hairColor) meta.push(esc(a.hairColor));
+      if (a.eyeColor) meta.push(esc(a.eyeColor));
+      const firstPhoto = (a.photos && a.photos[0]) ? a.photos[0] : null;
+      const avatarHtml = firstPhoto && firstPhoto.id
+        ? '<img class="actor-card-avatar" src="' + API + '/actors/' + encodeURIComponent(actorId) + '/media/' + encodeURIComponent(firstPhoto.id) + '" alt="">'
+        : '<div class="actor-card-avatar placeholder">Нет фото</div>';
+      let html = '<div class="actor-card-header">' + avatarHtml + '<div class="actor-card-head">' +
+        '<h2 class="actor-card-name">' + esc(name) + '</h2>' +
+        (titleText ? '<div class="actor-card-title">' + esc(titleText) + '</div>' : '') +
+        '<div class="actor-card-meta">' + meta.map(m => '<span>' + m + '</span>').join('') + '</div></div></div>';
+      if (a.bio) html += '<div class="actor-card-bio">' + esc(a.bio) + '</div>';
+      if (a.education && a.education.length) {
+        html += '<div class="actor-card-section"><h3>Образование</h3>';
+        a.education.forEach(e => {
+          const uni = (e.university && (e.university.shortName || e.university.name)) ? (e.university.shortName || e.university.name) : (e.uniId ? 'ID: ' + e.uniId : '');
+          html += '<div class="actor-edu-item"><span class="actor-edu-uni">' + esc(uni) + '</span>' +
+            (e.graduationYear ? ' · ' + esc(e.graduationYear) : '') +
+            (e.name ? ' · ' + esc(e.name) : '') + '</div>';
+        });
+        html += '</div>';
+      }
+      if (a.films && a.films.length) {
+        html += '<div class="actor-card-section"><h3>Кино</h3>';
+        a.films.forEach(f => {
+          html += '<div class="actor-film-item"><span class="actor-film-title">' + esc(f.title) + '</span>' +
+            (f.year ? ' (' + esc(f.year) + ')' : '') +
+            (f.role ? ' — ' + esc(f.role) : '') +
+            (f.director ? ', реж. ' + esc(f.director) : '') + '</div>';
+        });
+        html += '</div>';
+      }
+      if (a.theatrePlayItems && a.theatrePlayItems.length) {
+        html += '<div class="actor-card-section"><h3>Театр</h3>';
+        a.theatrePlayItems.forEach(t => {
+          html += '<div class="actor-theatre"><div class="actor-theatre-name">' + esc(t.name) + '</div>';
+          if (t.years) html += '<div class="actor-theatre-years">' + esc(t.years) + '</div>';
+          if (t.plays && t.plays.length) {
+            html += '<ul class="actor-plays">';
+            t.plays.forEach(p => {
+              html += '<li><span class="actor-film-title">' + esc(p.title) + '</span>' + (p.year ? ' (' + p.year + ')' : '') + (p.role ? ' — ' + esc(p.role) : '') + '</li>';
+            });
+            html += '</ul>';
+          }
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+      if (a.genres && a.genres.length) {
+        html += '<div class="actor-card-section"><h3>Жанры</h3><div class="actor-genres">' +
+          a.genres.map(g => '<span class="actor-genre">' + esc(g) + '</span>').join('') + '</div></div>';
+      }
+      if ((a.photos && a.photos.length) || (a.videos && a.videos.length)) {
+        html += '<div class="actor-card-section"><h3>Фото и видео</h3><div class="actor-media-grid">';
+        (a.photos || []).forEach(p => {
+          if (p.id) html += '<div class="actor-media-item"><img src="' + API + '/actors/' + encodeURIComponent(actorId) + '/media/' + encodeURIComponent(p.id) + '" alt="' + esc(p.caption || '') + '"></div>';
+        });
+        (a.videos || []).forEach(v => {
+          if (v.id) html += '<div class="actor-media-item"><a href="' + API + '/actors/' + encodeURIComponent(actorId) + '/media/' + encodeURIComponent(v.id) + '" target="_blank">▶ Видео</a></div>';
+        });
+        html += '</div></div>';
+      }
+      return html;
+    }
+
+    // 3. Получить актёра по ID
+    const actorCardWrap = document.getElementById('actorCardWrap');
+    const actorCard = document.getElementById('actorCard');
+    document.getElementById('btnShowCard').onclick = () => {
+      actorCard.style.display = '';
+      document.getElementById('actorOut').style.display = 'none';
+      document.getElementById('btnShowCard').classList.add('active');
+      document.getElementById('btnShowJson').classList.remove('active');
+    };
+    document.getElementById('btnShowJson').onclick = () => {
+      actorCard.style.display = 'none';
+      document.getElementById('actorOut').style.display = 'block';
+      document.getElementById('btnShowJson').classList.add('active');
+      document.getElementById('btnShowCard').classList.remove('active');
+    };
+
+    document.getElementById('btnGetActor').onclick = async () => {
+      const out = document.getElementById('actorOut');
+      const id = document.getElementById('actorId').value.trim();
+      if (!id) { showOut(out, 'Введите ID актёра', true); actorCardWrap.classList.remove('visible'); return; }
+      const res = await api('GET', '/actors/' + encodeURIComponent(id));
+      if (res.ok) {
+        const a = res.data;
+        actorCard.innerHTML = renderActorCard(a, id);
+        actorCardWrap.classList.add('visible');
+        actorCard.style.display = '';
+        document.getElementById('actorOut').style.display = 'none';
+        document.getElementById('btnShowCard').classList.add('active');
+        document.getElementById('btnShowJson').classList.remove('active');
+        out.textContent = JSON.stringify(res.data, null, 2);
+        out.className = 'out ok';
+        out.style.display = 'none';
+        if (a.photos && a.photos.length && a.photos[0].id) document.getElementById('mediaId').value = a.photos[0].id;
+        if (a.id) document.getElementById('mediaActorId').value = a.id;
+      } else {
+        actorCardWrap.classList.remove('visible');
+        showOut(out, res.status === 404 ? 'Актёр не найден' : (res.data ? JSON.stringify(res.data) : 'HTTP ' + res.status), true);
+      }
+    };
+
+    // 4. Загрузка фото
+    document.getElementById('btnUpload').onclick = async () => {
+      const out = document.getElementById('uploadOut');
+      const actorId = document.getElementById('uploadActorId').value.trim();
+      const file = document.getElementById('uploadFile').files[0];
+      if (!actorId) { showOut(out, 'Введите ID актёра', true); return; }
+      if (!file) { showOut(out, 'Выберите файл', true); return; }
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('type', document.getElementById('uploadType').value);
+      const caption = document.getElementById('uploadCaption').value.trim();
+      if (caption) fd.append('caption', caption);
+      const res = await fetch(API + '/actors/' + encodeURIComponent(actorId) + '/media', { method: 'POST', body: fd });
+      const text = await res.text();
+      let data;
+      try { data = text ? JSON.parse(text) : null; } catch (_) { data = text; }
+      if (res.ok && data && data.status === 'ok') {
+        showOut(out, 'Загружено. mediaId: ' + (data.mediaId || '') + '\n' + JSON.stringify(data, null, 2));
+        if (data.mediaId) {
+          document.getElementById('mediaId').value = data.mediaId;
+          document.getElementById('mediaActorId').value = actorId;
+        }
+      } else {
+        showOut(out, (data && data.errorCode) ? data.errorCode + '\n' + JSON.stringify(data) : (data ? JSON.stringify(data) : 'HTTP ' + res.status), true);
+      }
+    };
+
+    // 5. Получить медиа
+    let lastMediaUrl = null;
+    document.getElementById('btnGetMedia').onclick = async () => {
+      const out = document.getElementById('mediaOut');
+      const img = document.getElementById('mediaPreview');
+      const video = document.getElementById('mediaVideo');
+      const actorId = document.getElementById('mediaActorId').value.trim();
+      const mediaId = document.getElementById('mediaId').value.trim();
+      if (!actorId || !mediaId) { showOut(out, 'Введите ID актёра и ID медиа', true); img.style.display = 'none'; video.style.display = 'none'; return; }
+      if (lastMediaUrl) URL.revokeObjectURL(lastMediaUrl);
+      const res = await api('GET', '/actors/' + encodeURIComponent(actorId) + '/media/' + encodeURIComponent(mediaId), null, true);
+      if (res.ok && res.blob) {
+        lastMediaUrl = URL.createObjectURL(res.blob);
+        const ct = res.contentType || '';
+        img.style.display = 'none';
+        video.style.display = 'none';
+        if (ct.startsWith('image/')) {
+          img.src = lastMediaUrl;
+          img.style.display = 'block';
+          showOut(out, 'Content-Type: ' + ct);
+        } else if (ct.startsWith('video/')) {
+          video.src = lastMediaUrl;
+          video.style.display = 'block';
+          showOut(out, 'Content-Type: ' + ct);
+        } else {
+          showOut(out, 'Content-Type: ' + ct + ' (не фото/видео)');
+        }
+      } else {
+        img.style.display = 'none';
+        video.style.display = 'none';
+        showOut(out, res.status === 404 ? 'Медиа не найдено' : 'HTTP ' + res.status, true);
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://testcontainers-required.invalid/test
+      database: test
