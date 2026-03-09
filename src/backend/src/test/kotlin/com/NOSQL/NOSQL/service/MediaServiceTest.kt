@@ -4,6 +4,8 @@ import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.MediaUploadResponse
 import com.NOSQL.NOSQL.repository.ActorRepository
+import org.bson.Document
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -36,9 +38,11 @@ class MediaServiceTest {
         @DynamicPropertySource
         @JvmStatic
         fun mongoProperties(registry: DynamicPropertyRegistry) {
+            val db = "test_media"
             registry.add("spring.data.mongodb.uri") {
-                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/test_media"
+                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/$db"
             }
+            registry.add("spring.data.mongodb.database") { db }
         }
     }
 
@@ -51,10 +55,15 @@ class MediaServiceTest {
     @Autowired
     lateinit var actorRepository: ActorRepository
 
+    @Autowired
+    lateinit var mongoTemplate: MongoTemplate
+
     private lateinit var actorId: String
 
     @BeforeEach
     fun setUp() {
+        mongoTemplate.db.getCollection("media.chunks").deleteMany(Document())
+        mongoTemplate.db.getCollection("media.files").deleteMany(Document())
         actorRepository.deleteAll()
         actorId = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
     }

@@ -7,6 +7,8 @@ import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
 import com.NOSQL.NOSQL.repository.ActorRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository
+import org.bson.Document
+import org.springframework.data.mongodb.core.MongoTemplate
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.assertj.core.api.Assertions.assertThat
@@ -46,9 +48,11 @@ class ActorApiTest {
         @DynamicPropertySource
         @JvmStatic
         fun mongoProperties(registry: DynamicPropertyRegistry) {
+            val db = "test_actor_api"
             registry.add("spring.data.mongodb.uri") {
-                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/test_actor_api"
+                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/$db"
             }
+            registry.add("spring.data.mongodb.database") { db }
         }
     }
 
@@ -63,12 +67,17 @@ class ActorApiTest {
     @Autowired
     lateinit var universityRepository: UniversityRepository
 
+    @Autowired
+    lateinit var mongoTemplate: MongoTemplate
+
     private val objectMapper = ObjectMapper().apply { registerModule(JavaTimeModule()) }
     private lateinit var uniId: String
     private lateinit var actorId: String
 
     @BeforeEach
     fun setUp() {
+        mongoTemplate.db.getCollection("media.chunks").deleteMany(Document())
+        mongoTemplate.db.getCollection("media.files").deleteMany(Document())
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
         actorRepository.deleteAll()
         universityRepository.deleteAll()

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Actor API
-  description: API каталога актёров (без эндпоинтов входа/выхода админа)
+  description: API каталога актёров
   version: 1.0.0
 
 servers:
@@ -9,7 +9,6 @@ servers:
     description: API v1
 
 paths:
-  # Создать вуз
   /universities:
     post:
       summary: Создать вуз
@@ -29,7 +28,34 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/UniversityCreateResponse'
 
-  # 1) Создать актёра
+  /universities/search:
+    get:
+      summary: Поиск вузов
+      operationId: v1UniversitiesSearchGet
+      tags: [universities]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Строка поиска (по name, shortName, oldNames)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Максимум результатов
+      responses:
+        '200':
+          description: Список подходящих вузов (id, name, shortName, oldNames)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/components/schemas/UniversitySearchItem'
+
   /actors:
     post:
       summary: Создать актёра
@@ -49,7 +75,6 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/ActorCreateResponse'
 
-    # 4) Получить актёров по фильтрам
     get:
       summary: Получить актёров по фильтрам
       operationId: v1ActorsGet
@@ -112,6 +137,11 @@ paths:
             type: array
             items:
               type: string
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: Подстрока по ФИО (firstName, lastName, middleName), без учёта регистра
         - name: limit
           in: query
           schema:
@@ -132,7 +162,6 @@ paths:
                 items:
                   $ref: './schemas.yaml#/components/schemas/Actor'
 
-  # 2) Получить актёра по id
   /actors/{id}:
     get:
       summary: Получить актёра по ID
@@ -154,7 +183,6 @@ paths:
         '404':
           description: Не найден
 
-  # 3) Загрузить медиа (Multipart/Form-Data, тип фото/видео, GridFS)
   /actors/{id}/media:
     post:
       summary: Загрузить медиа актёра (фото или видео в GridFS)
@@ -195,7 +223,6 @@ paths:
         '404':
           description: Актёр не найден
 
-  # 7) Получить медиа по id (бинарный контент)
   /actors/{actorId}/media/{mediaId}:
     get:
       summary: Получить медиафайл по id (бинарный контент из GridFS)

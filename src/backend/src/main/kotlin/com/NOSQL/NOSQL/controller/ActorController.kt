@@ -10,6 +10,7 @@ import com.NOSQL.NOSQL.model.generated.MediaUploadResponse
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.service.ActorService
 import com.NOSQL.NOSQL.service.MediaService
+import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
@@ -20,16 +21,16 @@ class ActorController(
     private val mediaService: MediaService
 ) : ActorsApi {
 
-    companion object{
-
-    }
+    private val log = LoggerFactory.getLogger(javaClass)
 
     override fun v1ActorCreatePost(actorCreate: ActorCreate): ResponseEntity<ActorCreateResponse> {
+        log.info("POST /v1/actors {} {}", actorCreate.firstName, actorCreate.lastName)
         val response = actorService.create(actorCreate)
         return ResponseEntity.status(201).body(response)
     }
 
     override fun v1ActorByIdGet(id: String): ResponseEntity<Actor> {
+        log.info("GET /v1/actors/{}", id)
         val actor = actorService.getById(id)
         return ResponseEntity.ok(actor)
     }
@@ -48,9 +49,11 @@ class ActorController(
         hairColor: String?,
         eyeColor: String?,
         genres: List<String>?,
+        name: String?,
         limit: Int,
         offset: Int
     ): ResponseEntity<List<Actor>> {
+        log.info("GET /v1/actors gender={} limit={} offset={} theatre={} universityId={} name={}", gender, limit, offset, theatre, universityId, name)
         val list = actorService.findAll(
             gender = gender,
             ageFrom = ageFrom,
@@ -65,6 +68,7 @@ class ActorController(
             hairColor = hairColor,
             eyeColor = eyeColor,
             genres = genres,
+            name = name,
             limit = limit,
             offset = offset
         )
@@ -77,6 +81,7 @@ class ActorController(
         type: ActorMediaType,
         caption: String?
     ): ResponseEntity<MediaUploadResponse> {
+        log.info("POST /v1/actors/{}/media type={}", id, type)
         val filename = file.getFilename() ?: "file"
         val response = mediaService.upload(
             actorId = id,
@@ -95,6 +100,7 @@ class ActorController(
     }
 
     override fun v1MediaByIdGet(actorId: String, mediaId: String): ResponseEntity<Resource> {
+        log.info("GET /v1/actors/{}/media/{}", actorId, mediaId)
         val resource = mediaService.getResource(actorId, mediaId)
         return ResponseEntity.ok(resource)
     }

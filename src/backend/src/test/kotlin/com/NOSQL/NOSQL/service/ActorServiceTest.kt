@@ -39,9 +39,11 @@ class ActorServiceTest {
         @DynamicPropertySource
         @JvmStatic
         fun mongoProperties(registry: DynamicPropertyRegistry) {
+            val db = "test_actor_service"
             registry.add("spring.data.mongodb.uri") {
-                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/test_actor_service"
+                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/$db"
             }
+            registry.add("spring.data.mongodb.database") { db }
         }
     }
 

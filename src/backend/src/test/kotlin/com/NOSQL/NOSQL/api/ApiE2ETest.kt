@@ -1,8 +1,13 @@
 package com.NOSQL.NOSQL.api
 
+import com.NOSQL.NOSQL.repository.ActorRepository
+import com.NOSQL.NOSQL.repository.UniversityRepository
+import org.bson.Document
+import org.springframework.data.mongodb.core.MongoTemplate
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,20 +41,35 @@ class ApiE2ETest {
         @DynamicPropertySource
         @JvmStatic
         fun mongoProperties(registry: DynamicPropertyRegistry) {
+            val db = "test_e2e"
             registry.add("spring.data.mongodb.uri") {
-                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/test_e2e"
+                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/$db"
             }
+            registry.add("spring.data.mongodb.database") { db }
         }
     }
 
     @Autowired
     lateinit var webApplicationContext: WebApplicationContext
 
+    @Autowired
+    lateinit var actorRepository: ActorRepository
+
+    @Autowired
+    lateinit var universityRepository: UniversityRepository
+
+    @Autowired
+    lateinit var mongoTemplate: MongoTemplate
+
     private lateinit var mockMvc: MockMvc
     private val mapper = ObjectMapper().apply { registerModule(JavaTimeModule()) }
 
-    @org.junit.jupiter.api.BeforeEach
+    @BeforeEach
     fun setUp() {
+        mongoTemplate.db.getCollection("media.chunks").deleteMany(Document())
+        mongoTemplate.db.getCollection("media.files").deleteMany(Document())
+        actorRepository.deleteAll()
+        universityRepository.deleteAll()
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
     }
 

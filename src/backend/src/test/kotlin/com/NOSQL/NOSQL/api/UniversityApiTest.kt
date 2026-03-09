@@ -34,9 +34,11 @@ class UniversityApiTest {
         @DynamicPropertySource
         @JvmStatic
         fun mongoProperties(registry: DynamicPropertyRegistry) {
+            val db = "test_university_api"
             registry.add("spring.data.mongodb.uri") {
-                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/test_university_api"
+                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/$db"
             }
+            registry.add("spring.data.mongodb.database") { db }
         }
     }
 
@@ -78,5 +80,30 @@ class UniversityApiTest {
         )
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").exists())
+    }
+
+    @Test
+    @DisplayName("GET /v1/universities/search — поиск по строке, возвращает id и названия")
+    fun searchUniversities() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/universities")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"ГИТИС","shortName":"ГИТИС","oldNames":["РАТИ"]}""")
+        ).andExpect(status().isCreated())
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/v1/universities/search").param("q", "ГИТИС").param("limit", "5")
+        )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].id").exists())
+            .andExpect(jsonPath("$[0].name").value("ГИТИС"))
+            .andExpect(jsonPath("$[0].shortName").value("ГИТИС"))
+            .andExpect(jsonPath("$[0].oldNames[0]").value("РАТИ"))
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/v1/universities/search").param("q", "РАТИ")
+        )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].name").value("ГИТИС"))
     }
 }

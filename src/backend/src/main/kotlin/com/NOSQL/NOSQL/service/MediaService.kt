@@ -55,7 +55,7 @@ class MediaService(
     }
 
     fun getResource(actorId: String, mediaId: String): Resource {
-        log.debug("Getting media: actorId={}, mediaId={}", actorId, mediaId)
+        log.info("getResource: actorId={}, mediaId={}", actorId, mediaId)
         return mediaRepository.findOne(actorId, mediaId)
             ?: run {
                 log.warn("Media not found: actorId={}, mediaId={}", actorId, mediaId)

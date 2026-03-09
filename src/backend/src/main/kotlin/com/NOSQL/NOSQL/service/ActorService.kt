@@ -52,7 +52,7 @@ class ActorService(
     }
 
     fun getById(id: String): Actor {
-        log.debug("Getting actor by id={}", id)
+        log.info("getById: id={}", id)
         val doc = actorRepository.findById(id)
             .orElseThrow {
                 log.warn("Actor not found: {}", id)
@@ -75,12 +75,24 @@ class ActorService(
         hairColor: String?,
         eyeColor: String?,
         genres: List<String>?,
+        name: String?,
         limit: Int,
         offset: Int
     ): List<Actor> {
-        log.debug("findAll: limit={}, offset={}, gender={}, theatre={}", limit, offset, gender, theatre)
+        log.info("findAll: limit={}, offset={}, gender={}, theatre={}, universityId={}, name={}", limit, offset, gender, theatre, universityId, name)
         val query = Query()
         val criteria = mutableListOf<Criteria>()
+
+        name?.trim()?.takeIf { it.isNotEmpty() }?.let { n ->
+            val pattern = ".*" + Regex.escape(n) + ".*"
+            criteria.add(
+                Criteria().orOperator(
+                    Criteria.where("firstName").regex(pattern, "i"),
+                    Criteria.where("lastName").regex(pattern, "i"),
+                    Criteria.where("middleName").regex(pattern, "i")
+                )
+            )
+        }
 
         gender?.let { criteria.add(Criteria.where("gender").`is`(it)) }
         weightMin?.let { criteria.add(Criteria.where("weight").gte(it)) }
@@ -119,7 +131,7 @@ class ActorService(
         query.with(Sort.by(Sort.Direction.ASC, "lastName", "firstName"))
         query.skip(offset.toLong()).limit(limit)
         val docs = mongoTemplate.find(query, ActorDocument::class.java)
-        log.debug("findAll returned {} actors", docs.size)
+        log.info("findAll returned {} actors", docs.size)
         return docs.map { MappingToApi.documentToActor(it) }.map(::enrichWithUniversities)
     }
 

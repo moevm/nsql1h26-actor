@@ -167,7 +167,19 @@
   </section>
 
   <section>
-    <h2>2. Поиск актёров (фильтры)</h2>
+    <h2>2. Поиск вузов</h2>
+    <p style="color: var(--muted); font-size: 0.9rem;">По полному, краткому и старым названиям. Результаты можно подставить в фильтр актёров.</p>
+    <div class="row">
+      <div><label>Строка поиска</label><input type="text" id="uniSearchQ" placeholder="ГИТИС, МХАТ, Щука…" style="width:220px"></div>
+      <div><label>Макс. результатов</label><input type="number" id="uniSearchLimit" value="10" min="1" max="100" style="width:70px"></div>
+      <button type="button" id="btnSearchUni">Искать вузы</button>
+    </div>
+    <div id="uniSearchOut" class="out" style="display:none;"></div>
+    <div id="uniSearchTable"></div>
+  </section>
+
+  <section>
+    <h2>3. Поиск актёров (фильтры)</h2>
     <div class="row">
       <div><label>Пол</label><select id="filterGender"><option value="">—</option><option value="male">male</option><option value="female">female</option></select></div>
       <div><label>Возраст от</label><input type="number" id="filterAgeFrom" placeholder="25" style="width:80px"></div>
@@ -186,7 +198,7 @@
   </section>
 
   <section>
-    <h2>3. Получить актёра по ID</h2>
+    <h2>4. Получить актёра по ID</h2>
     <label>ID актёра (Mongo ObjectId)</label>
     <div class="row">
       <input type="text" id="actorId" placeholder="69ae82ab8f69b57563344e0c" style="max-width:280px">
@@ -203,7 +215,7 @@
   </section>
 
   <section>
-    <h2>4. Загрузить фото или видео для актёра</h2>
+    <h2>5. Загрузить фото или видео для актёра</h2>
     <label>ID актёра</label>
     <input type="text" id="uploadActorId" placeholder="69ae82ab8f69b57563344e0c">
     <label>Тип медиа</label>
@@ -220,7 +232,7 @@
   </section>
 
   <section>
-    <h2>5. Получить фото/медиа</h2>
+    <h2>6. Получить фото/медиа</h2>
     <label>ID актёра</label>
     <input type="text" id="mediaActorId" placeholder="69ae82ab8f69b57563344e0c">
     <label>ID медиа (из photos[].id или videos[].id)</label>
@@ -278,7 +290,36 @@
       }
     };
 
-    // 2. Поиск
+    // 2. Поиск вузов
+    document.getElementById('btnSearchUni').onclick = async () => {
+      const out = document.getElementById('uniSearchOut');
+      const table = document.getElementById('uniSearchTable');
+      const q = document.getElementById('uniSearchQ').value.trim();
+      const limit = document.getElementById('uniSearchLimit').value || '10';
+      if (!q) { showOut(out, 'Введите строку поиска', true); table.innerHTML = ''; return; }
+      const res = await api('GET', '/universities/search?q=' + encodeURIComponent(q) + '&limit=' + encodeURIComponent(limit));
+      if (res.ok && Array.isArray(res.data)) {
+        const list = res.data;
+        showOut(out, 'Найдено: ' + list.length);
+        if (list.length === 0) {
+          table.innerHTML = '';
+          return;
+        }
+        table.innerHTML = '<table><thead><tr><th>ID</th><th>Название</th><th>Краткое</th><th>Старые названия</th><th></th></tr></thead><tbody>' +
+          list.map(u => {
+            const oldStr = (u.oldNames && u.oldNames.length) ? u.oldNames.join(', ') : '—';
+            return '<tr><td><code>' + esc(u.id || '') + '</code></td><td>' + esc(u.name || '') + '</td><td>' + esc(u.shortName || '—') + '</td><td>' + esc(oldStr) + '</td><td><a href="#" data-uni-id="' + esc(u.id || '') + '">Подставить в «ID вуза»</a></td></tr>';
+          }).join('') + '</tbody></table>';
+        table.querySelectorAll('a[data-uni-id]').forEach(link => {
+          link.onclick = e => { e.preventDefault(); document.getElementById('filterUniversityId').value = link.dataset.uniId || ''; };
+        });
+      } else {
+        showOut(out, res.data ? JSON.stringify(res.data) : 'HTTP ' + res.status, true);
+        table.innerHTML = '';
+      }
+    };
+
+    // 3. Поиск актёров
     document.getElementById('btnSearch').onclick = async () => {
       const out = document.getElementById('searchOut');
       const table = document.getElementById('searchTable');
@@ -401,7 +442,7 @@
       return html;
     }
 
-    // 3. Получить актёра по ID
+    // 4. Получить актёра по ID
     const actorCardWrap = document.getElementById('actorCardWrap');
     const actorCard = document.getElementById('actorCard');
     document.getElementById('btnShowCard').onclick = () => {
@@ -441,7 +482,7 @@
       }
     };
 
-    // 4. Загрузка фото
+    // 5. Загрузка фото
     document.getElementById('btnUpload').onclick = async () => {
       const out = document.getElementById('uploadOut');
       const actorId = document.getElementById('uploadActorId').value.trim();
@@ -468,7 +509,7 @@
       }
     };
 
-    // 5. Получить медиа
+    // 6. Получить медиа
     let lastMediaUrl = null;
     document.getElementById('btnGetMedia').onclick = async () => {
       const out = document.getElementById('mediaOut');

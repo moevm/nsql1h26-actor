@@ -39,9 +39,11 @@ class ActorServiceFilterTest {
         @DynamicPropertySource
         @JvmStatic
         fun mongoProperties(registry: DynamicPropertyRegistry) {
+            val db = "test_actor_filters"
             registry.add("spring.data.mongodb.uri") {
-                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/test_actor_filters"
+                "mongodb://${mongo.host}:${mongo.getMappedPort(27017)}/$db"
             }
+            registry.add("spring.data.mongodb.database") { db }
         }
     }
 
@@ -62,6 +64,7 @@ class ActorServiceFilterTest {
     private lateinit var idMale40: String
     private lateinit var idFemale35: String
     private lateinit var idMale25: String
+    private lateinit var idOleg: String
 
     @BeforeEach
     fun setUp() {
@@ -150,6 +153,21 @@ class ActorServiceFilterTest {
             )
         )
         idMale25 = create3.id!!
+
+        val create4 = actorService.create(
+            ActorCreate(
+                firstName = "Олег",
+                lastName = "Смирнов",
+                middleName = null,
+                birthDate = now.minusYears(30),
+                gender = Gender.male,
+                education = null,
+                films = null,
+                theatrePlayItems = null,
+                genres = null
+            )
+        )
+        idOleg = create4.id!!
     }
 
     private fun findAll(
@@ -166,6 +184,7 @@ class ActorServiceFilterTest {
         hairColor: String? = null,
         eyeColor: String? = null,
         genres: List<String>? = null,
+        name: String? = null,
         limit: Int = 20,
         offset: Int = 0
     ) = actorService.findAll(
@@ -182,6 +201,7 @@ class ActorServiceFilterTest {
         hairColor = hairColor,
         eyeColor = eyeColor,
         genres = genres,
+        name = name,
         limit = limit,
         offset = offset
     )
@@ -190,17 +210,18 @@ class ActorServiceFilterTest {
     @DisplayName("Без фильтров")
     inner class NoFilters {
         @Test
-        fun `findAll без фильтров возвращает всех трёх`() {
+        fun `findAll без фильтров возвращает всех четырёх`() {
             val list = findAll()
-            assertThat(list).hasSize(3)
-            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idFemale35, idMale25)
+            assertThat(list).hasSize(4)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idFemale35, idMale25, idOleg)
         }
 
         @Test
         fun `limit и offset работают`() {
             assertThat(findAll(limit = 2, offset = 0)).hasSize(2)
             assertThat(findAll(limit = 2, offset = 1)).hasSize(2)
-            assertThat(findAll(limit = 2, offset = 2)).hasSize(1)
+            assertThat(findAll(limit = 2, offset = 2)).hasSize(2)
+            assertThat(findAll(limit = 1, offset = 3)).hasSize(1)
             assertThat(findAll(limit = 1, offset = 0)).hasSize(1)
         }
     }
@@ -209,10 +230,10 @@ class ActorServiceFilterTest {
     @DisplayName("Фильтр по полу")
     inner class GenderFilter {
         @Test
-        fun `gender male — два актёра`() {
+        fun `gender male — три актёра`() {
             val list = findAll(gender = Gender.male)
-            assertThat(list).hasSize(2)
-            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idMale25)
+            assertThat(list).hasSize(3)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idMale25, idOleg)
         }
 
         @Test
@@ -227,17 +248,17 @@ class ActorServiceFilterTest {
     @DisplayName("Фильтр по возрасту")
     inner class AgeFilter {
         @Test
-        fun `ageFrom 30 ageTo 45 — два актёра 40 и 35 лет`() {
+        fun `ageFrom 30 ageTo 45 — три актёра 40, 35 и 30 лет`() {
             val list = findAll(ageFrom = 30, ageTo = 45)
-            assertThat(list).hasSize(2)
-            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idFemale35)
+            assertThat(list).hasSize(3)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idFemale35, idOleg)
         }
 
         @Test
-        fun `ageTo 30 — только 25 лет`() {
+        fun `ageTo 30 — два актёра 25 и 30 лет`() {
             val list = findAll(ageTo = 30)
-            assertThat(list).hasSize(1)
-            assertThat(list[0].id).isEqualTo(idMale25)
+            assertThat(list).hasSize(2)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale25, idOleg)
         }
 
         @Test
@@ -418,6 +439,24 @@ class ActorServiceFilterTest {
             val list = findAll(activityYearFrom = 2012, activityYearTo = 2012)
             assertThat(list).hasSize(1)
             assertThat(list[0].id).isEqualTo(idFemale35)
+        }
+    }
+
+    @Nested
+    @DisplayName("Фильтр по ФИО (подстрока)")
+    inner class NameFilter {
+        @Test
+        fun `name Олег находит Олега`() {
+            val list = findAll(name = "Олег")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].firstName).isEqualTo("Олег")
+        }
+
+        @Test
+        fun `name Смирн находит Смирнова`() {
+            val list = findAll(name = "Смирн")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].lastName).isEqualTo("Смирнов")
         }
     }
 
