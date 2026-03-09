@@ -9,11 +9,34 @@ servers:
     description: API v1
 
 paths:
+  /auth/login:
+    post:
+      summary: Вход (получить JWT)
+      operationId: v1AuthLoginPost
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: JWT для заголовка Authorization Bearer (только для операций изменения данных)
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/LoginResponse'
+        '401':
+          description: Неверный email или пароль
+
   /universities:
     post:
       summary: Создать вуз
       operationId: v1UniversityCreatePost
       tags: [universities]
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -27,6 +50,12 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/UniversityCreateResponse'
+        '401':
+          description: Нет или невалидный JWT
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
 
   /universities/search:
     get:
@@ -61,6 +90,8 @@ paths:
       summary: Создать актёра
       operationId: v1ActorCreatePost
       tags: [actors]
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -74,6 +105,12 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/ActorCreateResponse'
+        '401':
+          description: Нет или невалидный JWT
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
 
     get:
       summary: Получить актёров по фильтрам
@@ -188,6 +225,8 @@ paths:
       summary: Загрузить медиа актёра (фото или видео в GridFS)
       operationId: v1ActorMediaUploadPost
       tags: [media]
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -218,6 +257,12 @@ paths:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/MediaUploadResponse'
+        '401':
+          description: Нет или невалидный JWT
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
         '400':
           description: Ошибка запроса
         '404':
@@ -258,3 +303,11 @@ paths:
                 format: binary
         '404':
           description: Медиа не найдено
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT для операций, изменяющих данные (POST университетов, актёров, медиа)

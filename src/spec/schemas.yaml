@@ -1,8 +1,5 @@
-# Схемы: актёр, медиа, ответы создания, авторизация, фильтры
-
 components:
   schemas:
-    # --- Перечисления ---
     Gender:
       type: string
       enum: [male, female]
@@ -18,11 +15,46 @@ components:
       enum: [photo, video]
       description: Тип медиа при загрузке
 
-    # --- Вложенные ---
     MongoId:
       type: string
       pattern: "^[0-9a-fA-F]{24}$"
       description: "ID для поиска в MongoDB (ObjectId, 24 hex-символа)"
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      description: Учётные данные для входа (админ)
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      description: Успешный логин — JWT для заголовка Authorization Bearer
+      properties:
+        token:
+          type: string
+          description: JWT
+        expiresIn:
+          type: integer
+          description: Срок жизни токена в секундах
+          nullable: true
+
+    UnauthorizedError:
+      type: object
+      description: Ответ 401 при отсутствии или невалидном JWT
+      properties:
+        error:
+          type: string
+          example: Unauthorized
+        message:
+          type: string
+          description: Описание причины (например, требуется токен или токен истёк)
 
     UniversityInfo:
       type: object
@@ -110,7 +142,6 @@ components:
             $ref: '#/components/schemas/FilmPlayItem'
           description: "Пьесы"
 
-    # --- Актёр ---
     Actor:
       type: object
       properties:
@@ -234,7 +265,6 @@ components:
           items:
             type: string
 
-    # --- Ответ создания актёра: id + status + errorCode ---
     ActorCreateResponse:
       type: object
       required: [status]
@@ -251,7 +281,6 @@ components:
           nullable: true
           description: "Код ошибки при status=failed"
 
-    # --- Ответ загрузки медиа ---
     MediaUploadResponse:
       type: object
       required: [status]
@@ -266,7 +295,6 @@ components:
           type: string
           nullable: true
 
-    # --- Вуз ---
     UniversityCreate:
       type: object
       required: [name]
@@ -317,24 +345,3 @@ components:
             type: string
           nullable: true
 
-    # --- Авторизация ---
-    LoginRequest:
-      type: object
-      required: [email, password]
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-
-    LoginResponse:
-      type: object
-      properties:
-        token:
-          type: string
-        expiresAt:
-          type: string
-          format: date-time
-          nullable: true
