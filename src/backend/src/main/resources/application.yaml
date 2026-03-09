@@ -13,7 +13,15 @@ spring:
       database: nosql_db
       auto-index-creation: true
 
+  security:
+    user:
+      name: admin@example.com
+      password: admin
+
 app:
+  admin:
+    seed-email: ${ADMIN_EMAIL:admin@example.com}
+    seed-password: ${ADMIN_PASSWORD:admin}
   mongodb:
     gridfs-bucket: media
   jwt:
