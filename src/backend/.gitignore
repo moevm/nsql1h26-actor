@@ -1,7 +1,6 @@
 # Gradle
 .gradle/
 build/
-!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -47,7 +46,7 @@ bin/
 # Log files
 *.log
 
-# Package Files
+# Package Files (gradle-wrapper.jar нужен для сборки — исключён ниже)
 *.jar
 *.war
 *.nar
@@ -55,6 +54,7 @@ bin/
 *.zip
 *.tar.gz
 *.rar
+!gradle/wrapper/gradle-wrapper.jar
 
 # JVM crash logs
 hs_err_pid*
