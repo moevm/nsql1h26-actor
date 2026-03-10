@@ -1,0 +1,73 @@
+﻿<div
+  class="media-carousel"
+  [class.media-carousel--video]="mediaType === 'video'"
+  [class.media-carousel--photo]="mediaType === 'photo'"
+>
+  <div class="media-carousel_navigation">
+    <h3>{{ title }} ({{ items.length }})</h3>
+    <div class="buttons">
+      <button
+        class="arrow_left"
+        type="button"
+        [disabled]="!hasPrevPage()"
+        (click)="goPrevPage()"
+      ></button>
+      <button
+        class="arrow_rigth"
+        type="button"
+        [disabled]="!hasNextPage()"
+        (click)="goNextPage()"
+      ></button>
+    </div>
+  </div>
+
+  <div class="media-carousel_box">
+    @for (item of visibleItems(); track item.id) {
+      <figure class="item">
+        @if (mediaType === 'video') {
+          <div
+            class="item_media"
+            [style.width]="itemWidth + 'px'"
+            [style.height]="itemHeight + 'px'"
+          >
+            <video
+              #videoEl
+              class="item_video"
+              [class.isnt_playing]="!isVideoPlaying(item.id)"
+              [src]="item.url"
+              [controls]="isVideoPlaying(item.id)"
+              preload="metadata"
+              (play)="onVideoPlay(item.id)"
+              (pause)="onVideoPause(item.id)"
+              (ended)="onVideoPause(item.id)"
+            ></video>
+
+            @if (!isVideoPlaying(item.id)) {
+              <button
+                class="item_playButton"
+                type="button"
+                (click)="startVideo(item.id, videoEl)"
+                aria-label="Воспроизвести видео"
+              >
+                <span class="item_playIcon" aria-hidden="true"></span>
+              </button>
+            }
+          </div>
+        } @else {
+          <img
+            class="item_image"
+            [style.width]="itemWidth + 'px'"
+            [style.height]="itemHeight + 'px'"
+            [src]="item.url"
+            [alt]="item.caption || 'Медиа актера'"
+            loading="lazy"
+          />
+        }
+
+        @if (item.caption) {
+          <figcaption class="item_caption">{{ item.caption }}</figcaption>
+        }
+      </figure>
+    }
+  </div>
+</div>
