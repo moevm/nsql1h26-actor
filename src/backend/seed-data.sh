@@ -3,14 +3,15 @@
 # Перед запуском подними бэкенд: ./gradlew bootRun
 
 BASE="${1:-http://localhost:8080/v1}"
+TOKEN="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2OWFlZDg3YmIyMDg2YjMwZTYyZmJjNzkiLCJleHAiOjE3NzMxNTM1NzR9.xNknUaIJJXqTeM5OpldyRzmOORTLLQH7s-rLFZwXCqE"
+AUTH_HEADER="Authorization: Bearer $TOKEN"
 
 echo "=== Создаём вузы ==="
 UNI_IDS=()
 for name_short in "ГИТИС:ГИТИС" "МХАТ:МХАТ" "Щука:Щукинское" "Щепка:Щепкинское" "ВГИК:ВГИК" "Гнесинка:Гнесинка"; do
   name="${name_short%%:*}"
   short="${name_short##*:}"
-  resp=$(curl -s -X POST "$BASE/universities" -H "Content-Type: application/json" \
-    -d "{\"name\":\"$name\",\"shortName\":\"$short\",\"oldNames\":[\"$name\"]}")
+  resp=$(curl -s -X POST "$BASE/universities" -H "Content-Type: application/json" -H "$AUTH_HEADER" -d "{\"name\":\"$name\",\"shortName\":\"$short\",\"oldNames\":[\"$name\"]}")
   id=$(echo "$resp" | jq -r '.id')
   if [ "$id" != "null" ] && [ -n "$id" ]; then
     UNI_IDS+=("$id")
@@ -75,7 +76,7 @@ create_actor() {
 }
 EOF
 )
-  curl -s -X POST "$BASE/actors" -H "Content-Type: application/json" -d "$body"
+  curl -s -X POST "$BASE/actors" -H "Content-Type: application/json" -H "$AUTH_HEADER" -d "$body"
 }
 
 i=0
