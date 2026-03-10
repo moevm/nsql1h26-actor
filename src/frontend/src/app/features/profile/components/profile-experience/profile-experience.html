@@ -1,0 +1,34 @@
+<section class="profile-experience section-card">
+  <h2>Актёрский профиль</h2>
+  <div class="experience-content">
+    <div class="experience-box">
+      <h3>Театр</h3>
+      @for (theatre of theatrePlayList; track $index + '-' + theatre.name + '-' + theatre.years) {
+        <div class="theatre-item">
+          <div class="theatre-item_title">
+            <h4>{{ theatre.name }}</h4>
+            <p>{{ theatre.years }}</p>
+          </div>
+          <ul class="theatre-item_list">
+            @for (play of theatre.plays; track $index + '-' + play.title + '-' + play.year) {
+              <li>«{{ play.title }}» (Комедия) - {{ play.role }}</li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+    <div class="experience-box">
+      <h3>Фильмография</h3>
+      @for (
+        film of filmPlayList;
+        track $index + '-' + film.title + '-' + film.year + '-' + film.role
+      ) {
+        <div class="film-item">
+          <p class="film-item_year">{{ film.year }}</p>
+          <p class="film-item_title">{{ film.title }}</p>
+          <p class="film-item_role">{{ film.role }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

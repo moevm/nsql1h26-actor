@@ -1,0 +1,117 @@
+@use "styles/variables" as vars;
+
+.profile-experience {
+    padding: 24px;
+}
+
+.experience-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 32px;
+    padding: 14px 24px 0px;
+}
+
+.experience-box {
+    flex: 1 1 0;
+    min-width: 0;
+
+    h3 {
+        font-size: 20px;
+        font-family: vars.$font-secondary;
+        color: vars.$color-accent-primary;
+    }
+}
+
+.theatre-item {
+    padding: 12px 0px 0px 12px;
+
+    &_title {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+
+        h4 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 18px;
+            color: vars.$color-text-black;
+            opacity: 0.8;
+        }
+    }
+
+    &_list {
+        margin: 14px 0 0 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 16px;
+            color: rgba(vars.$color-text-black, 0.8);
+
+            &::before {
+                content: "";
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: rgba(vars.$color-text-black, 0.6);
+            }
+        }
+    }
+}
+
+.film-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 16px;
+    color: vars.$color-text-black;
+    gap: 12px;
+    margin: 12px 0px 0px 12px;
+
+    &_year {
+        opacity: 0.8;
+    }
+
+    &_title {
+        font-weight: 700;
+    }
+
+    &_role {
+        opacity: 0.6;
+    }
+}
+
+@media (max-width: 980px) {
+    .profile-experience {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 640px) {
+    .experience-content {
+        flex-direction: column;
+        padding: 14px 0 0;
+    }
+}
+
+@media (max-width: 560px) {
+    .profile-experience {
+        padding: 16px;
+    }
+
+    .experience-box h3 {
+        font-size: 18px;
+    }
+
+    .theatre-item {
+        padding-left: 0;
+    }
+}

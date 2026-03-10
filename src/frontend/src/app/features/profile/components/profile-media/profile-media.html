@@ -1,0 +1,47 @@
+﻿<section class="profile-media section-card">
+  <h2>Медиаданные</h2>
+
+  <div class="profile-media_content">
+    <section class="profile-media_group profile-media_group--video">
+      @if (videosLoading()) {
+        <p class="profile-media_empty">Загрузка видео...</p>
+      }
+
+      @if (!videosLoading() && videoItems().length) {
+        <app-media-carousel
+          title="Видео"
+          mediaType="video"
+          [items]="videoItems()"
+          [itemsPerPage]="1"
+          [itemWidth]="340"
+          [itemHeight]="190"
+        ></app-media-carousel>
+      }
+
+      @if (!videosLoading() && !videoItems().length) {
+        <p class="profile-media_empty">Видео не найдены</p>
+      }
+    </section>
+
+    <section class="profile-media_group profile-media_group--photo">
+      @if (photosLoading()) {
+        <p class="profile-media_empty">Загрузка фото...</p>
+      }
+
+      @if (!photosLoading() && photoItems().length) {
+        <app-media-carousel
+          title="Фото"
+          mediaType="photo"
+          [items]="photoItems()"
+          [itemsPerPage]="4"
+          [itemWidth]="115"
+          [itemHeight]="190"
+        ></app-media-carousel>
+      }
+
+      @if (!photosLoading() && !photoItems().length) {
+        <p class="profile-media_empty">Фото не найдены</p>
+      }
+    </section>
+  </div>
+</section>

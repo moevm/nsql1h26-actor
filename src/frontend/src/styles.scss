@@ -58,3 +58,14 @@ select {
     box-shadow: 0 0 0 3px #52110c26;
   }
 }
+
+.section-card {
+  background-color: vars.$color-background-primary;
+  box-shadow: 0px 6px 12px 6px #52110c1a;
+  border-radius: 12px;
+}
+
+.section-card h2 {
+  font-size: 22px;
+  font-family: vars.$font-secondary;
+}
