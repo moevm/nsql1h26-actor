@@ -6,11 +6,11 @@
     <div class="profile-info_details">
       <dl class="profile-list">
         <dt>Пол</dt><dd>{{ genderLabel }}</dd>
-        <dt>Возраст</dt><dd>{{ageWord(actor?.birthDate ?? '-')}}</dd>
+        <dt>Возраст</dt><dd>{{ ageLabel }}</dd>
         <dt>Рост</dt><dd>{{actor?.height ?? '—'}} см</dd>
         <dt>Вес</dt><dd>{{actor?.weight ?? '—'}} кг</dd>
-        <dt>Цвет волос</dt><dd>{{capitalize(actor?.hairColor)}}</dd>
-        <dt>Цвет глаз</dt><dd>{{capitalize(actor?.hairColor)}}</dd>
+        <dt>Цвет волос</dt><dd>{{ capitalize(actor?.hairColor) }}</dd>
+        <dt>Цвет глаз</dt><dd>{{ capitalize(actor?.eyeColor) }}</dd>
         <dt>Образование</dt><dd>{{fullEducationString}}</dd>
       </dl>
       <div class="line"></div>

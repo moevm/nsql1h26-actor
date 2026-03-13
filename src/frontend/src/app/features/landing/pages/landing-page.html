@@ -5,7 +5,7 @@
       Быстрый поиск, структурированные профили и удобная работа с базой актёров для эффективной
       работы над проектами
     </p>
-    <button>Найти актера</button>
+    <a [routerLink]="'/search'" class="card-link"><button>Найти актера</button></a>
     <img src="/images/decor.png" alt="decoration" />
   </section>
   <section id="about" class="landing__about about">
@@ -55,11 +55,29 @@
       <p>Самые популярные актеры на нашем сайте</p>
     </div>
     <div class="top-search__cards">
-      @for (_ of cardSlots; track $index) {
-        <app-profile-card></app-profile-card>
+      @if (actorsLoading()) {
+        <p class="top-search__status">Загрузка актёров...</p>
+      } @else if (actorsError()) {
+        <p class="top-search__status top-search__status--error">{{ actorsError() }}</p>
+      } @else if (actors().length === 0) {
+        <p class="top-search__status">
+          Ошибка в получении списка, попробуйте перезагрузить страницу.
+        </p>
+      } @else {
+        @for (actor of actors(); track actor.id) {
+          <a [routerLink]="['/profile', actor.id]" class="card-link">
+            <app-profile-card
+              [fullName]="fullName(actor)"
+              [birthDate]="actor.birthDate ?? undefined"
+              [education]="actor.education?.[0]?.university?.name ?? undefined"
+              [actorId]="actor.id ?? undefined"
+              [imageId]="actor.photos?.[0]?.id ?? undefined"
+            ></app-profile-card>
+          </a>
+        }
       }
     </div>
-     <button>Смотреть всех</button>
+    <a [routerLink]="'/search'" class="card-link"><button>Смотреть всех</button></a>
   </section>
   <section id="audience" class="landing__audience audience">
     <h2>Для кого этот проект?</h2>

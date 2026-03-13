@@ -228,6 +228,18 @@
         align-items: start;
         justify-items: center;
     }
+
+    &__status {
+        grid-column: 1 / -1;
+        margin: 0;
+        text-align: center;
+        font-size: 18px;
+        color: vars.$color-accent-primary;
+    }
+
+    &__status--error {
+        color: #8b1f1a;
+    }
 }
 
 .audience {

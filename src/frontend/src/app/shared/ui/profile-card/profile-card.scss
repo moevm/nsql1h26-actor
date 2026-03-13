@@ -1,4 +1,4 @@
-﻿@use "styles/variables" as vars;
+@use "styles/variables" as vars;
 
 .profile-card {
   max-width: 300px;
@@ -41,6 +41,7 @@
   font-size: 19px;
   font-weight: 600;
   color: vars.$color-accent-primary;
+  white-space: pre-line;
 }
 
 .profile-card__age {
@@ -58,3 +59,4 @@
   color: vars.$color-accent-primary;
   opacity: 0.5;
 }
+

@@ -15,4 +15,8 @@ export class ActorsApi {
   getActorById(actorId: string): Observable<Actor> {
     return this.http.get<Actor>(`${this.apiPrefix}/actors/${encodeURIComponent(actorId)}`);
   }
+
+  getActorbyLimit(limit: number): Observable<Actor[]>{
+    return this.http.get<Actor[]>(`${this.apiPrefix}/actors?limit=${limit}`);
+  }
 }

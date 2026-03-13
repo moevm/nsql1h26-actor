@@ -6,8 +6,9 @@ import { ProfileExperience } from '../../components/profile-experience/profile-e
 import { ActorsApi } from '../../../../core/services/actors-api';
 import { components } from '../../../../shared/api/types';
 import { ProfileMedia } from '../../components/profile-media/profile-media';
+import { catchError, distinctUntilChanged, filter, map, of, switchMap } from 'rxjs';
 
-type Actor = components['schemas']['Actor']
+type Actor = components['schemas']['Actor'];
 
 @Component({
   selector: 'app-profile-page',
@@ -21,27 +22,22 @@ export class ProfilePage {
   private readonly actorsApi = inject(ActorsApi);
   readonly actor = signal<Actor | null>(null);
 
-
   constructor() {
-    const actorId = this.route.snapshot.queryParamMap.get('actorId') ?? '69aee09a3dcd7a59f2474e42';
-
-    if (!actorId) {
-      console.info(
-        '[ProfilePage] Add query param actorId to test API call, for example: /profile?actorId=67cdb7849b9c8f2d1e6a1234',
-      );
-      return;
-    }
-
-    this.actorsApi
-      .getActorById(actorId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (actor) => {
-          this.actor.set(actor);
-        },
-        error: (error) => console.error('[ProfilePage] Failed to load actor:', error),
-      });
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('id')),
+        filter((id): id is string => !!id),
+        distinctUntilChanged(),
+        switchMap((id) =>
+          this.actorsApi.getActorById(id).pipe(
+            catchError((error) => {
+              console.error('[ProfilePage] Failed to load actor:', error);
+              return of(null);
+            }),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((actor) => this.actor.set(actor));
   }
-
-
 }

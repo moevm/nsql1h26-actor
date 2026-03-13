@@ -14,7 +14,7 @@ export const routes: Routes = [
       { path: '', component: LandingPage, data: { header: LANDING_HEADER_STATE } },
       { path: 'search', component: SearchPage, data: { header: SEARCH_HEADER_STATE } },
       { path: 'auth', component: AdminLoginPage, data: { header: AUTH_HEADER_STATE } },
-      { path: 'profile', component: ProfilePage, data: { header: AUTH_HEADER_STATE } },
+      { path: 'profile/:id', component: ProfilePage, data: { header: AUTH_HEADER_STATE } },
     ],
   },
   { path: '**', redirectTo: '' },
