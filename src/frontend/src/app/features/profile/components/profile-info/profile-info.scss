@@ -25,6 +25,7 @@
 }
 
 .content {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(220px, 275px) minmax(0, 1fr);
     align-items: start;
@@ -108,6 +109,54 @@
     }
 }
 
+.profile-admin {
+    position: absolute;
+    top: 0%;
+    right: 0%;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    button {
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 8px;
+        background-color: transparent;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        cursor: pointer;
+        transition:
+            transform 0.2s ease,
+            opacity 0.2s ease,
+            filter 0.2s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+            opacity: 0.88;
+            filter: brightness(1.04);
+        }
+
+        &:active {
+            transform: translateY(0) scale(0.96);
+            opacity: 0.75;
+        }
+
+        &:focus-visible {
+            outline: none;
+            filter: brightness(1.08) drop-shadow(0 0 5px rgba(82, 17, 12, 0.25));
+        }
+    }
+
+    .admin-delete {
+        background-image: url("/images/admin-delete.png");
+    }
+    .admin-edit {
+        background-image: url("/images/admin-edit.png");
+    }
+}
+
 @media (max-width: 900px) {
     .profile-info {
         padding: 24px;
@@ -126,6 +175,10 @@
         font-size: 18px;
         column-gap: 28px;
         row-gap: 10px;
+    }
+
+    .profile-admin{
+        top: 45%;
     }
 }
 

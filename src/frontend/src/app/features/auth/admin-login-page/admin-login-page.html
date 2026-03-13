@@ -4,12 +4,7 @@
 
     <div class="form_box">
       <label for="login_email">Email</label>
-      <input
-        formControlName="email"
-        id="login_email"
-        type="email"
-        placeholder="Введите email"
-      />
+      <input formControlName="email" id="login_email" type="email" placeholder="Введите email" />
       @if (hasControlError('email', 'required')) {
         <small class="error">Email обязателен</small>
       }
@@ -30,10 +25,14 @@
         <small class="error">Пароль обязателен</small>
       }
       @if (hasControlError('password', 'minlength')) {
-        <small class="error">Минимум 6 символов</small>
+        <small class="error">Минимум 4 символа</small>
       }
     </div>
 
-    <button type="submit" [disabled]="loginForm.invalid">Войти</button>
+    @if (loginErrorMessage()) {
+      <small class="error">{{ loginErrorMessage() }}</small>
+    }
+
+    <button type="submit" [disabled]="loginForm.invalid || isSubmitting()">Войти</button>
   </form>
 </div>

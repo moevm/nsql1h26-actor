@@ -10,9 +10,11 @@
         }
         @if (headerState().showAction) {
           <li>
-            <button type="button">
-              <a routerLink="/auth">{{ headerState().actionLabel }}</a>
-            </button>
+            @if (authSessionService.isLoggedIn) {
+              <button type="button" (click)="logout()">Выйти</button>
+            } @else {
+              <button type="button" (click)="login()">Войти</button>
+            }
           </li>
         }
       </ul>

@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { MediaApi } from '../../../../core/services/media-api';
 import { components } from '../../../../shared/api/types';
 import { capitalize, getAgeFromDob, ageWord } from '../../../../shared/utils/actorFormatter';
+import { AuthSessionService } from '../../../../core/services/auth-session-service';
 
 type Actor = components['schemas']['Actor'];
 
@@ -23,6 +24,7 @@ type Actor = components['schemas']['Actor'];
 export class ProfileInfo implements OnChanges, OnDestroy {
   @Input() actor: Actor | null = null;
   private readonly mediaApi = inject(MediaApi);
+  readonly authSessionService = inject(AuthSessionService);
   private readonly fallbackImage = '/images/profile.jpg';
   private photoRequestSub?: Subscription;
   private currentObjectUrl: string | null = null;
