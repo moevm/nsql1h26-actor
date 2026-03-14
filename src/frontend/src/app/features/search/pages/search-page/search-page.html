@@ -14,16 +14,27 @@
           <p class="search-page__status">Загрузка...</p>
         } @else if (error()) {
           <p class="search-page__status search-page__status--error">{{ error() }}</p>
-        } @else if (results().length === 0) {
+        } @else if (actors().length === 0) {
           <p class="search-page__status">Ничего не найдено</p>
         } @else {
-          @for (_ of cardSlots; track $index) {
-            <app-profile-card></app-profile-card>
+          @for (actor of actors(); track actor.id) {
+            <a [routerLink]="['/profile', actor.id]" class="card-link">
+              <app-profile-card
+                [fullName]="fullName(actor)"
+                [birthDate]="actor.birthDate ?? undefined"
+                [education]="actor.education?.[0]?.university?.name ?? undefined"
+                [actorId]="actor.id ?? undefined"
+                [imageId]="actor.photos?.[0]?.id ?? undefined"
+              ></app-profile-card>
+            </a>
           }
         }
       </div>
-
-      <app-search-pagination></app-search-pagination>
+      <app-search-pagination
+        [(actorsCount)]="actorsCount"
+        [(currentPage)]="currentPage"
+        [pageSize]="pageSize"
+      ></app-search-pagination>
     </div>
   </div>
 </div>

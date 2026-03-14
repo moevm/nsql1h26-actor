@@ -1,0 +1,18 @@
+<div class="university-search">
+  <input
+    class="university-search__input"
+    type="text"
+    [value]="inputValue"
+    [placeholder]="placeholder"
+    [attr.list]="datalistId"
+    [attr.data-university-id]="selectedUniversityId()"
+    autocomplete="off"
+    (input)="onInput($event)"
+  />
+
+  <datalist [id]="datalistId">
+    @for (u of universities(); track u.id ?? $index) {
+      <option [value]="u.name ?? ''" [attr.data-id]="u.id ?? null">{{ u.name }}</option>
+    }
+  </datalist>
+</div>

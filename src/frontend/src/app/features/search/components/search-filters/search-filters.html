@@ -36,20 +36,34 @@
       </div>
       <p
         class="search-form__error"
-        [class.search-form__error--visible]="isRangeInvalid('ageRangeInvalid', 'age_from', 'age_to')"
+        [class.search-form__error--visible]="
+          isRangeInvalid('ageRangeInvalid', 'age_from', 'age_to')
+        "
       >
         Возраст "от" не может быть больше возраста "до".
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('age_from', 'min')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('age_from', 'min')"
+      >
         Возраст "от" не может быть меньше 0.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('age_from', 'max')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('age_from', 'max')"
+      >
         Возраст "от" не может быть больше 120.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('age_to', 'min')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('age_to', 'min')"
+      >
         Возраст "до" не может быть меньше 0.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('age_to', 'max')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('age_to', 'max')"
+      >
         Возраст "до" не может быть больше 120.
       </p>
     </div>
@@ -76,20 +90,34 @@
       </div>
       <p
         class="search-form__error"
-        [class.search-form__error--visible]="isRangeInvalid('heightRangeInvalid', 'height_from', 'height_to')"
+        [class.search-form__error--visible]="
+          isRangeInvalid('heightRangeInvalid', 'height_from', 'height_to')
+        "
       >
         Рост "от" не может быть больше роста "до".
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('height_from', 'min')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('height_from', 'min')"
+      >
         Рост "от" не может быть меньше 40.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('height_from', 'max')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('height_from', 'max')"
+      >
         Рост "от" не может быть больше 250.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('height_to', 'min')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('height_to', 'min')"
+      >
         Рост "до" не может быть меньше 40.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('height_to', 'max')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('height_to', 'max')"
+      >
         Рост "до" не может быть больше 250.
       </p>
     </div>
@@ -116,20 +144,34 @@
       </div>
       <p
         class="search-form__error"
-        [class.search-form__error--visible]="isRangeInvalid('weightRangeInvalid', 'weight_from', 'weight_to')"
+        [class.search-form__error--visible]="
+          isRangeInvalid('weightRangeInvalid', 'weight_from', 'weight_to')
+        "
       >
         Вес "от" не может быть больше веса "до".
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('weight_from', 'min')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('weight_from', 'min')"
+      >
         Вес "от" не может быть меньше 20.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('weight_from', 'max')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('weight_from', 'max')"
+      >
         Вес "от" не может быть больше 150.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('weight_to', 'min')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('weight_to', 'min')"
+      >
         Вес "до" не может быть меньше 20.
       </p>
-      <p class="search-form__error" [class.search-form__error--visible]="hasControlError('weight_to', 'max')">
+      <p
+        class="search-form__error"
+        [class.search-form__error--visible]="hasControlError('weight_to', 'max')"
+      >
         Вес "до" не может быть больше 150.
       </p>
     </div>
@@ -156,7 +198,9 @@
       </div>
       <p
         class="search-form__error"
-        [class.search-form__error--visible]="isRangeInvalid('activityRangeInvalid', 'activity_years_from', 'activity_years_to')"
+        [class.search-form__error--visible]="
+          isRangeInvalid('activityRangeInvalid', 'activity_years_from', 'activity_years_to')
+        "
       >
         Годы активности "от" не могут быть больше "до".
       </p>
@@ -193,25 +237,25 @@
     >
       <div class="search-form__group secondary">
         <h5>Вуз</h5>
-        <div class="select-wrap">
-          <select id="university" formControlName="university">
-            <option value="" disabled selected hidden>Выберите</option>
-          </select>
-        </div>
+        <app-university-search
+          [resetVersion]="universityResetVersion"
+          (selectedUniversityIdChange)="onUniversityIdChange($event)"
+        ></app-university-search>
       </div>
       <div class="search-form__group secondary">
         <h5>Театр</h5>
-        <div class="select-wrap">
-          <select id="theatre" formControlName="theatre">
-            <option value="" disabled selected hidden>Выберите</option>
-          </select>
+        <div class="search-form__group-box">
+          <input [style.width]="'100%'" type="text" id="theatre" formControlName="theatre" placeholder="Введите название театра" />
         </div>
       </div>
       <div class="search-form__group secondary">
         <h5>Звание</h5>
         <div class="select-wrap">
           <select id="actor_rank" formControlName="actor_rank">
-            <option value="" disabled selected hidden>Выберите</option>
+            <option value="">Выберите</option>
+            @for (rank of actorRankOptions; track rank.value) {
+              <option [value]="rank.value">{{ rank.label }}</option>
+            }
           </select>
         </div>
       </div>
@@ -219,7 +263,10 @@
         <h5>Цвет волос</h5>
         <div class="select-wrap">
           <select id="hair_color" formControlName="hair_color">
-            <option value="" disabled selected hidden>Выберите</option>
+            <option value="">Выберете</option>
+            @for (color of hairColorOptions; track color) {
+              <option [value]="color">{{ color.charAt(0).toUpperCase() + color.slice(1) }}</option>
+            }
           </select>
         </div>
       </div>
@@ -227,7 +274,10 @@
         <h5>Цвет глаз</h5>
         <div class="select-wrap">
           <select id="eye_color" formControlName="eye_color">
-            <option value="" disabled selected hidden>Выберите</option>
+            <option value="">Выберете</option>
+            @for (color of eyeColorOptions; track color) {
+              <option [value]="color">{{ color.charAt(0).toUpperCase() + color.slice(1) }}</option>
+            }
           </select>
         </div>
       </div>

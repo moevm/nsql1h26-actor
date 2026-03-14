@@ -9,58 +9,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { debounceTime, startWith } from 'rxjs';
-
-export type SearchFiltersValue = {
-  gender: '' | 'male' | 'female';
-  age_from: number | null;
-  age_to: number | null;
-  height_from: number | null;
-  height_to: number | null;
-  weight_from: number | null;
-  weight_to: number | null;
-  activity_years_from: number | null;
-  activity_years_to: number | null;
-  university: string;
-  theatre: string;
-  actor_rank: string;
-  hair_color: string;
-  eye_color: string;
-  genre_drama: boolean;
-  genre_comedy: boolean;
-  genre_tragedy: boolean;
-  genre_melodrama: boolean;
-  genre_tragicomedy: boolean;
-  genre_musical: boolean;
-  genre_opera: boolean;
-  genre_ballet: boolean;
-  genre_monodrama: boolean;
-};
-
-export const DEFAULT_SEARCH_FILTERS: SearchFiltersValue = {
-  gender: '',
-  age_from: null,
-  age_to: null,
-  height_from: null,
-  height_to: null,
-  weight_from: null,
-  weight_to: null,
-  activity_years_from: null,
-  activity_years_to: null,
-  university: '',
-  theatre: '',
-  actor_rank: '',
-  hair_color: '',
-  eye_color: '',
-  genre_drama: false,
-  genre_comedy: false,
-  genre_tragedy: false,
-  genre_melodrama: false,
-  genre_tragicomedy: false,
-  genre_musical: false,
-  genre_opera: false,
-  genre_ballet: false,
-  genre_monodrama: false,
-};
+import { UniversitySearch } from '../../../../shared/ui/university-search/university-search';
+import { SearchFiltersValue, DEFAULT_SEARCH_FILTERS } from './search-filters.model';
 
 const toNumber = (value: unknown): number | null => {
   if (value === null || value === undefined || value === '') {
@@ -86,31 +36,47 @@ const rangeValidator = (fromKey: string, toKey: string, errorKey: string): Valid
 
 @Component({
   selector: 'app-search-filters',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, UniversitySearch],
   templateUrl: './search-filters.html',
   styleUrl: './search-filters.scss',
 })
+
 export class SearchFilters implements OnInit {
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
+
+  readonly actorRankOptions: Array<{ value: 'honored' | 'national' | 'none'; label: string }> = [
+    { value: 'honored', label: 'Заслуженный артист' },
+    { value: 'national', label: 'Народный артист' },
+    { value: 'none', label: 'Без звания' },
+  ];
+  readonly hairColorOptions = ['каштановый', 'брюнет', 'шатен', 'русый', 'рыжий', 'седой'];
+  readonly eyeColorOptions = ['карий', 'голубой', 'зеленый', 'серый'];
 
   @Output() filtersChange = new EventEmitter<SearchFiltersValue>();
 
   isAdvancedOpen = false;
   isGenresOpen = false;
+  universityResetVersion = 0;
 
   search_form = this.fb.group(
     {
-      gender: [DEFAULT_SEARCH_FILTERS.gender, [Validators.required]],
+      gender: [DEFAULT_SEARCH_FILTERS.gender],
       age_from: [DEFAULT_SEARCH_FILTERS.age_from, [Validators.min(0), Validators.max(120)]],
       age_to: [DEFAULT_SEARCH_FILTERS.age_to, [Validators.min(0), Validators.max(120)]],
       height_from: [DEFAULT_SEARCH_FILTERS.height_from, [Validators.min(40), Validators.max(250)]],
       height_to: [DEFAULT_SEARCH_FILTERS.height_to, [Validators.min(40), Validators.max(250)]],
       weight_from: [DEFAULT_SEARCH_FILTERS.weight_from, [Validators.min(20), Validators.max(150)]],
       weight_to: [DEFAULT_SEARCH_FILTERS.weight_to, [Validators.min(20), Validators.max(150)]],
-      activity_years_from: [DEFAULT_SEARCH_FILTERS.activity_years_from, [Validators.min(1900), Validators.max(2026)]],
-      activity_years_to: [DEFAULT_SEARCH_FILTERS.activity_years_to, [Validators.min(1900), Validators.max(2026)]],
-      university: [DEFAULT_SEARCH_FILTERS.university],
+      activity_years_from: [
+        DEFAULT_SEARCH_FILTERS.activity_years_from,
+        [Validators.min(1900), Validators.max(2026)],
+      ],
+      activity_years_to: [
+        DEFAULT_SEARCH_FILTERS.activity_years_to,
+        [Validators.min(1900), Validators.max(2026)],
+      ],
+      university_id: [DEFAULT_SEARCH_FILTERS.university_id],
       theatre: [DEFAULT_SEARCH_FILTERS.theatre],
       actor_rank: [DEFAULT_SEARCH_FILTERS.actor_rank],
       hair_color: [DEFAULT_SEARCH_FILTERS.hair_color],
@@ -137,7 +103,11 @@ export class SearchFilters implements OnInit {
 
   ngOnInit(): void {
     this.search_form.valueChanges
-      .pipe(startWith(this.search_form.getRawValue()), debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        startWith(this.search_form.getRawValue()),
+        debounceTime(300),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe(() => this.emitFiltersIfValid());
   }
 
@@ -176,6 +146,7 @@ export class SearchFilters implements OnInit {
     this.search_form.reset(DEFAULT_SEARCH_FILTERS);
     this.isAdvancedOpen = false;
     this.isGenresOpen = false;
+    this.universityResetVersion += 1;
     this.emitFiltersIfValid();
   }
 
@@ -186,6 +157,10 @@ export class SearchFilters implements OnInit {
     }
 
     this.emitFiltersIfValid();
+  }
+
+  onUniversityIdChange(universityId: string | null): void {
+    this.search_form.controls.university_id.setValue(universityId);
   }
 
   private emitFiltersIfValid(): void {
@@ -204,7 +179,7 @@ export class SearchFilters implements OnInit {
       weight_to: toNumber(raw.weight_to),
       activity_years_from: toNumber(raw.activity_years_from),
       activity_years_to: toNumber(raw.activity_years_to),
-      university: raw.university ?? '',
+      university_id: raw.university_id ?? null,
       theatre: raw.theatre ?? '',
       actor_rank: raw.actor_rank ?? '',
       hair_color: raw.hair_color ?? '',

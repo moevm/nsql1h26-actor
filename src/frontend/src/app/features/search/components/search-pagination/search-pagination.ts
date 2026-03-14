@@ -1,8 +1,6 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, effect, model, Input } from '@angular/core';
 
-type PaginationItem =
-  | { type: 'page'; value: number }
-  | { type: 'ellipsis'; key: string };
+type PaginationItem = { type: 'page'; value: number } | { type: 'ellipsis'; key: string };
 
 @Component({
   selector: 'app-search-pagination',
@@ -11,11 +9,21 @@ type PaginationItem =
   styleUrl: './search-pagination.scss',
 })
 export class SearchPagination {
-  readonly totalPages = 49;
-  readonly currentPage = signal(1);
+  @Input() pageSize: number = 12;
+  actorsCount = model(0);
+  currentPage = model(1);
+
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.actorsCount() / this.pageSize)));
+
+  constructor() {
+    effect(() => {
+      const maxPage = this.totalPages();
+      if (this.currentPage() > maxPage) this.currentPage.set(maxPage);
+    });
+  }
 
   readonly items = computed<PaginationItem[]>(() => {
-    const total = this.totalPages;
+    const total = this.totalPages();
     const current = this.currentPage();
 
     if (total <= 5) {
@@ -59,16 +67,14 @@ export class SearchPagination {
   }
 
   nextPage(): void {
-    const nextPage = Math.min(this.totalPages, this.currentPage() + 1);
+    const nextPage = Math.min(this.totalPages(), this.currentPage() + 1);
     this.selectPage(nextPage);
   }
 
   selectPage(page: number): void {
-    if (page < 1 || page > this.totalPages) {
+    if (page < 1 || page > this.totalPages()) {
       return;
     }
-
-    console.log('Selected page:', page);
 
     if (page === this.currentPage()) {
       return;

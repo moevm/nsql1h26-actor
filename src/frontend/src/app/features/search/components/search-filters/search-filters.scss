@@ -356,3 +356,25 @@
         gap: 24px;
     }
 }
+
+:host ::ng-deep app-university-search {
+    display: block;
+    width: 100%;
+}
+
+:host ::ng-deep app-university-search .university-search {
+    width: 100%;
+}
+
+:host ::ng-deep app-university-search .university-search__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    font-size: 14px;
+}
+
+@media (max-width: 680px) {
+    :host ::ng-deep app-university-search .university-search__input {
+        font-size: 13px;
+    }
+}
