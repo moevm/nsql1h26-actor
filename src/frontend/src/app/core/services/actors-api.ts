@@ -30,6 +30,8 @@ export class ActorsApi {
         ...(request?.ageTo != null ? { ageTo: request.ageTo } : {}),
         ...(request?.weightMin != null ? { weightMin: request.weightMin } : {}),
         ...(request?.weightMax != null ? { weightMax: request.weightMax } : {}),
+        ...(request?.heightMin != null ? { heightMin: request.heightMin } : {}),
+        ...(request?.heightMax != null ? { heightMax: request.heightMax } : {}),
         ...(request?.activityYearFrom != null ? { activityYearFrom: request.activityYearFrom } : {}),
         ...(request?.activityYearTo != null ? { activityYearTo: request.activityYearTo } : {}),
         ...(request?.universityId ? { universityId: request.universityId } : {}),

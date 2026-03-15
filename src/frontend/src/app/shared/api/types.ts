@@ -84,7 +84,8 @@ export interface paths {
         get: operations["v1ActorByIdGet"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Удалить страницу актёра */
+        delete: operations["v1ActorByIdDelete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -183,6 +184,16 @@ export interface components {
          * @enum {string}
          */
         Title: "honored" | "national" | "none";
+        /** @description Ссылка контакта (ВК, Макс, Рутуб, личный сайт и т.п.) */
+        ContactLinkItem: {
+            /** @description Название (например ВК, Макс, Рутуб) */
+            name?: string;
+            /**
+             * Format: uri
+             * @description URL ссылки
+             */
+            url?: string;
+        };
         /** @description Данные вуза (агрегация при отдаче актёра) */
         UniversityInfo: {
             name?: string;
@@ -234,6 +245,15 @@ export interface components {
             eyeColor?: string | null;
             bio?: string | null;
             title?: components["schemas"]["Title"];
+            /** @description Телефонный номер */
+            phone?: string | null;
+            /**
+             * Format: email
+             * @description Электронная почта
+             */
+            email?: string | null;
+            /** @description Ссылки (ВК, Макс, Рутуб, личный сайт и т.п.) */
+            links?: components["schemas"]["ContactLinkItem"][] | null;
             education?: components["schemas"]["EducationItem"][];
             films?: components["schemas"]["FilmPlayItem"][];
             /** @description Театры и пьесы (для фронта) */
@@ -259,6 +279,15 @@ export interface components {
             eyeColor?: string | null;
             bio?: string | null;
             title?: components["schemas"]["Title"];
+            /** @description Телефонный номер */
+            phone?: string | null;
+            /**
+             * Format: email
+             * @description Электронная почта
+             */
+            email?: string | null;
+            /** @description Ссылки (ВК, Макс, Рутуб, личный сайт и т.п.) */
+            links?: components["schemas"]["ContactLinkItem"][] | null;
             education?: components["schemas"]["EducationItem"][];
             films?: components["schemas"]["FilmPlayItem"][];
             theatrePlayItems?: components["schemas"]["TheatrePlayItem"][];
@@ -390,6 +419,10 @@ export interface operations {
                 ageTo?: number;
                 weightMin?: number;
                 weightMax?: number;
+                /** @description Рост от (см) */
+                heightMin?: number;
+                /** @description Рост до (см) */
+                heightMax?: number;
                 /** @description Годы активности от */
                 activityYearFrom?: number;
                 activityYearTo?: number;
@@ -476,6 +509,42 @@ export interface operations {
                 };
             };
             /** @description Не найден */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1ActorByIdDelete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["MongoId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Актёр удалён */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Нет или невалидный JWT */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Актёр не найден */
             404: {
                 headers: {
                     [name: string]: unknown;

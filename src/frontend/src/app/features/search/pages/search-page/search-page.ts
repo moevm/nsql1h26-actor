@@ -52,7 +52,6 @@ export class SearchPage {
     ...this.filters(),
   }));
 
-  readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly actors = signal<Actor[]>([]);
 
@@ -71,7 +70,7 @@ export class SearchPage {
 
     toObservable(this.criteriaParams)
       .pipe(
-        debounceTime(350),
+        debounceTime(450),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
         switchMap((params) =>
           this.fetchActorsCount(params).pipe(
@@ -86,11 +85,10 @@ export class SearchPage {
 
     toObservable(this.requestParams)
       .pipe(
-        debounceTime(350),
+        debounceTime(450),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
         tap(() => {
           console.log('Fetching actors with params:', this.requestParams());
-          this.loading.set(true);
           this.error.set(null);
         }),
         switchMap((params) =>
@@ -105,7 +103,6 @@ export class SearchPage {
       )
       .subscribe((actors) => {
         this.actors.set(actors);
-        this.loading.set(false);
       });
   }
 
@@ -140,6 +137,8 @@ export class SearchPage {
       ...(params.age_to != null ? { ageTo: params.age_to } : {}),
       ...(params.weight_from != null ? { weightMin: params.weight_from } : {}),
       ...(params.weight_to != null ? { weightMax: params.weight_to } : {}),
+      ...(params.height_from != null ? { heightMin: params.height_from } : {}),
+      ...(params.height_to != null ? { heightMax: params.height_to } : {}),
       ...(params.activity_years_from != null ? { activityYearFrom: params.activity_years_from } : {}),
       ...(params.activity_years_to != null ? { activityYearTo: params.activity_years_to } : {}),
       ...(params.university_id ? { universityId: params.university_id } : {}),

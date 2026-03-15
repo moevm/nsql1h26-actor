@@ -10,9 +10,7 @@
 
     <div class="search-page__results-wrap">
       <div class="search-page__results">
-        @if (loading()) {
-          <p class="search-page__status">Загрузка...</p>
-        } @else if (error()) {
+        @if (error()) {
           <p class="search-page__status search-page__status--error">{{ error() }}</p>
         } @else if (actors().length === 0) {
           <p class="search-page__status">Ничего не найдено</p>
