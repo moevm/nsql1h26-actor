@@ -38,6 +38,31 @@ services:
     networks:
       - frontend-network
 
+  seed:
+    build:
+      context: ./src/backend
+      dockerfile: seed.Dockerfile
+    container_name: project-seed
+    depends_on:
+      - backend
+    environment:
+      WAIT_BACKEND: "1"
+      BASE_URL: "http://backend:8080/v1"
+    volumes:
+      - seed_done:/seed_done
+    networks:
+      - backend-network
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -f /seed_done/.done ]; then
+          echo "Seed уже выполнен, пропуск"
+          exit 0
+        fi
+        cd /seed && ./seed-data.sh "http://backend:8080/v1" && touch /seed_done/.done
+        echo "Seed завершён"
+
 networks:
   backend-network:
     driver: bridge
@@ -49,4 +74,6 @@ volumes:
   mongodb_data:
     driver: local
   mongodb_config:
+    driver: local
+  seed_done:
     driver: local
