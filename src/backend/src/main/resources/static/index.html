@@ -129,6 +129,10 @@
       a {
         color: var(--accent);
       }
+      a.link-delete {
+        color: var(--error);
+        margin-left: 4px;
+      }
       img.preview {
         max-width: 100%;
         max-height: 300px;
@@ -337,6 +341,18 @@
     <p style="color: var(--muted); margin-bottom: 24px">Бэкенд: <code id="apiBase">/v1</code> (тот же хост)</p>
 
     <section>
+      <h2>0. Вход (JWT)</h2>
+      <p style="color: var(--muted); font-size: 0.9rem">Токен нужен для создания вузов, актёров, загрузки медиа и удаления. Автовход при загрузке страницы.</p>
+      <div class="row">
+        <div><label>Email</label><input type="email" id="loginEmail" value="admin@example.com" placeholder="admin@example.com" style="width: 220px" /></div>
+        <div><label>Пароль</label><input type="password" id="loginPassword" value="admin" placeholder="admin" style="width: 120px" /></div>
+        <button type="button" id="btnLogin">Войти</button>
+        <button type="button" id="btnLogout">Выйти</button>
+      </div>
+      <div id="loginStatus" class="out" style="display: none; margin-top: 12px"></div>
+    </section>
+
+    <section>
       <h2>1. Создать вуз</h2>
       <label>Название *</label>
       <input type="text" id="uniName" placeholder="Московский государственный университет" />
@@ -363,6 +379,7 @@
     <section>
       <h2>3. Поиск актёров (фильтры)</h2>
       <div class="row">
+        <div><label>Имя (подстрока)</label><input type="text" id="filterName" placeholder="Иван, Петров…" style="width: 140px" /></div>
         <div>
           <label>Пол</label
           ><select id="filterGender">
@@ -377,6 +394,11 @@
         <div><label>Рост до (см)</label><input type="number" id="filterHeightMax" style="width: 80px" /></div>
         <div><label>Вес мин</label><input type="number" id="filterWeightMin" style="width: 80px" /></div>
         <div><label>Вес макс</label><input type="number" id="filterWeightMax" style="width: 80px" /></div>
+        <div><label>Год актив. от</label><input type="number" id="filterActivityYearFrom" placeholder="2010" style="width: 100px" /></div>
+        <div><label>Год актив. до</label><input type="number" id="filterActivityYearTo" placeholder="2025" style="width: 100px" /></div>
+        <div><label>Цвет волос</label><input type="text" id="filterHairColor" placeholder="каштановый" style="width: 110px" /></div>
+        <div><label>Цвет глаз</label><input type="text" id="filterEyeColor" placeholder="карий" style="width: 90px" /></div>
+        <div><label>Жанры (через запятую)</label><input type="text" id="filterGenres" placeholder="драма, комедия" style="width: 140px" /></div>
         <div><label>Театр (подстрока)</label><input type="text" id="filterTheatre" placeholder="Современник" style="width: 140px" /></div>
         <div>
           <label>Звание</label
@@ -408,13 +430,41 @@
         <div class="actor-json-toggle">
           <button type="button" id="btnShowCard" class="active">Карточка</button>
           <button type="button" id="btnShowJson">JSON</button>
+          <button type="button" id="btnDeleteActor">Удалить актёра</button>
         </div>
       </div>
       <div id="actorOut" class="out" style="display: none"></div>
     </section>
 
     <section>
-      <h2>5. Загрузить фото или видео для актёра</h2>
+      <h2>5. Создать актёра</h2>
+      <p style="color: var(--muted); font-size: 0.9rem">Требуется JWT. Обязательны: имя, фамилия. ID вуза — из раздела «Поиск вузов».</p>
+      <div class="row">
+        <div><label>Имя *</label><input type="text" id="createFirstName" placeholder="Иван" style="width: 120px" /></div>
+        <div><label>Фамилия *</label><input type="text" id="createLastName" placeholder="Петров" style="width: 120px" /></div>
+        <div><label>Отчество</label><input type="text" id="createMiddleName" placeholder="Сергеевич" style="width: 120px" /></div>
+        <div><label>Дата рождения</label><input type="text" id="createBirthDate" placeholder="1990-05-15" style="width: 120px" /></div>
+        <div><label>Пол</label><select id="createGender" style="width: 90px"><option value="">—</option><option value="male">male</option><option value="female">female</option></select></div>
+        <div><label>Рост (см)</label><input type="number" id="createHeight" style="width: 70px" /></div>
+        <div><label>Вес</label><input type="number" id="createWeight" style="width: 70px" /></div>
+        <div><label>Театр</label><input type="text" id="createTheatre" placeholder="МХТ им. Чехова" style="width: 140px" /></div>
+        <div><label>ID вуза</label><input type="text" id="createUniversityId" placeholder="ObjectId" style="width: 180px" /></div>
+        <div><label>Звание</label><select id="createTitle" style="width: 100px"><option value="">—</option><option value="honored">honored</option><option value="national">national</option><option value="none">none</option></select></div>
+      </div>
+      <div class="row" style="margin-top: 8px">
+        <div><label>Биография</label><textarea id="createBio" rows="2" placeholder="Краткая биография" style="width: 400px"></textarea></div>
+        <div><label>Телефон</label><input type="text" id="createPhone" placeholder="+7 999 123-45-67" style="width: 140px" /></div>
+        <div><label>Email</label><input type="email" id="createEmail" placeholder="actor@mail.ru" style="width: 180px" /></div>
+        <div><label>Цвет волос</label><input type="text" id="createHairColor" placeholder="каштановый" style="width: 100px" /></div>
+        <div><label>Цвет глаз</label><input type="text" id="createEyeColor" placeholder="карий" style="width: 90px" /></div>
+        <div><label>Жанры (через запятую)</label><input type="text" id="createGenres" placeholder="драма, комедия" style="width: 140px" /></div>
+      </div>
+      <button type="button" id="btnCreateActor">Создать актёра</button>
+      <div id="createActorOut" class="out" style="display: none"></div>
+    </section>
+
+    <section>
+      <h2>6. Загрузить фото или видео для актёра</h2>
       <label>ID актёра</label>
       <input type="text" id="uploadActorId" placeholder="69ae82ab8f69b57563344e0c" />
       <label>Тип медиа</label>
@@ -431,7 +481,7 @@
     </section>
 
     <section>
-      <h2>6. Получить фото/медиа</h2>
+      <h2>7. Получить фото/медиа</h2>
       <label>ID актёра</label>
       <input type="text" id="mediaActorId" placeholder="69ae82ab8f69b57563344e0c" />
       <label>ID медиа (из photos[].id или videos[].id)</label>
@@ -444,6 +494,57 @@
 
     <script>
       const API = window.location.origin + "/v1";
+      const JWT_KEY = "jwt";
+
+      async function doLogin(email, password) {
+        const res = await fetch(API + "/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim(), password }),
+        });
+        const data = res.ok ? await res.json() : null;
+        return { ok: res.ok, data };
+      }
+
+      function updateLoginStatus() {
+        const status = document.getElementById("loginStatus");
+        const token = localStorage.getItem(JWT_KEY);
+        if (token) {
+          status.style.display = "block";
+          status.textContent = "JWT есть (действует). Можно создавать/удалять.";
+          status.className = "out ok";
+        } else {
+          status.style.display = "block";
+          status.textContent = "JWT нет. Войдите для создания вузов, актёров, медиа и удаления.";
+          status.className = "out err";
+        }
+      }
+
+      document.getElementById("btnLogin").onclick = async () => {
+        const status = document.getElementById("loginStatus");
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        if (!email || !password) {
+          status.style.display = "block";
+          status.textContent = "Введите email и пароль";
+          status.className = "out err";
+          return;
+        }
+        const res = await doLogin(email, password);
+        if (res.ok && res.data && res.data.token) {
+          localStorage.setItem(JWT_KEY, res.data.token);
+          updateLoginStatus();
+        } else {
+          status.style.display = "block";
+          status.textContent = res.data ? JSON.stringify(res.data) : "Ошибка входа";
+          status.className = "out err";
+        }
+      };
+
+      document.getElementById("btnLogout").onclick = () => {
+        localStorage.removeItem(JWT_KEY);
+        updateLoginStatus();
+      };
 
       function showOut(el, text, isError) {
         el.style.display = "block";
@@ -458,8 +559,7 @@
       async function api(method, path, body, isBlob) {
         const opts = { method, headers: {} };
 
-        const token = localStorage.getItem("jwt");
-        console.log("TOKEN:", token);
+        const token = localStorage.getItem(JWT_KEY);
         if (token) {
           opts.headers["Authorization"] = "Bearer " + token;
         }
@@ -589,6 +689,8 @@
         const out = document.getElementById("searchOut");
         const table = document.getElementById("searchTable");
         const params = new URLSearchParams();
+        const name = document.getElementById("filterName").value.trim();
+        if (name) params.set("name", name);
         const gender = document.getElementById("filterGender").value;
         if (gender) params.set("gender", gender);
         const ageFrom = document.getElementById("filterAgeFrom").value;
@@ -603,6 +705,16 @@
         if (weightMin) params.set("weightMin", weightMin);
         const weightMax = document.getElementById("filterWeightMax").value;
         if (weightMax) params.set("weightMax", weightMax);
+        const activityYearFrom = document.getElementById("filterActivityYearFrom").value;
+        if (activityYearFrom) params.set("activityYearFrom", activityYearFrom);
+        const activityYearTo = document.getElementById("filterActivityYearTo").value;
+        if (activityYearTo) params.set("activityYearTo", activityYearTo);
+        const hairColor = document.getElementById("filterHairColor").value.trim();
+        if (hairColor) params.set("hairColor", hairColor);
+        const eyeColor = document.getElementById("filterEyeColor").value.trim();
+        if (eyeColor) params.set("eyeColor", eyeColor);
+        const genresRaw = document.getElementById("filterGenres").value.trim();
+        if (genresRaw) genresRaw.split(",").map(s => s.trim()).filter(Boolean).forEach(g => params.append("genres", g));
         const theatre = document.getElementById("filterTheatre").value.trim();
         if (theatre) params.set("theatre", theatre);
         const title = document.getElementById("filterTitle").value;
@@ -635,15 +747,26 @@
                   (a.title || "") +
                   '</td><td><a href="#" data-id="' +
                   (a.id || "") +
-                  '">Подставить в «Получить по ID»</a></td></tr>'
+                  '">Подставить</a> · <a href="#" data-delete-id="' +
+                  (a.id || "") +
+                  '" class="link-delete">Удалить</a></td></tr>'
                 );
               })
               .join("") +
             "</tbody></table>";
           table.querySelectorAll("a[data-id]").forEach((link) => {
-            link.onclick = (e) => {
+            link.onclick = (e) => { e.preventDefault(); document.getElementById("actorId").value = link.dataset.id; };
+          });
+          table.querySelectorAll("a[data-delete-id]").forEach((link) => {
+            link.onclick = async (e) => {
               e.preventDefault();
-              document.getElementById("actorId").value = link.dataset.id;
+              const id = link.dataset.deleteId;
+              if (!id || !confirm("Удалить актёра " + id + "?")) return;
+              const res = await api("DELETE", "/actors/" + encodeURIComponent(id));
+              if (res.ok) {
+                showOut(document.getElementById("searchOut"), "Удалено. Обновите поиск.");
+                document.getElementById("searchTable").innerHTML = "";
+              } else showOut(document.getElementById("searchOut"), res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
             };
           });
         } else {
@@ -827,7 +950,63 @@
         }
       };
 
-      // 5. Загрузка фото
+      document.getElementById("btnDeleteActor").onclick = async () => {
+        const id = document.getElementById("actorId").value.trim();
+        if (!id) { showOut(document.getElementById("actorOut"), "Введите ID актёра", true); return; }
+        if (!confirm("Удалить актёра " + id + "?")) return;
+        const res = await api("DELETE", "/actors/" + encodeURIComponent(id));
+        if (res.ok) {
+          actorCardWrap.classList.remove("visible");
+          document.getElementById("actorId").value = "";
+          showOut(document.getElementById("actorOut"), "Актёр удалён (204)");
+        } else {
+          showOut(document.getElementById("actorOut"), res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
+        }
+      };
+
+      // 5. Создать актёра
+      document.getElementById("btnCreateActor").onclick = async () => {
+        const out = document.getElementById("createActorOut");
+        const firstName = document.getElementById("createFirstName").value.trim();
+        const lastName = document.getElementById("createLastName").value.trim();
+        if (!firstName || !lastName) {
+          showOut(out, "Имя и фамилия обязательны", true);
+          return;
+        }
+        const body = {
+          firstName,
+          lastName,
+          middleName: document.getElementById("createMiddleName").value.trim() || null,
+          birthDate: document.getElementById("createBirthDate").value.trim() || null,
+          gender: document.getElementById("createGender").value || null,
+          height: document.getElementById("createHeight").value ? parseInt(document.getElementById("createHeight").value, 10) : null,
+          weight: document.getElementById("createWeight").value ? parseInt(document.getElementById("createWeight").value, 10) : null,
+          bio: document.getElementById("createBio").value.trim() || null,
+          phone: document.getElementById("createPhone").value.trim() || null,
+          email: document.getElementById("createEmail").value.trim() || null,
+          hairColor: document.getElementById("createHairColor").value.trim() || null,
+          eyeColor: document.getElementById("createEyeColor").value.trim() || null,
+          title: document.getElementById("createTitle").value || null,
+        };
+        const uniId = document.getElementById("createUniversityId").value.trim();
+        if (uniId) body.education = [{ uniId, graduationYear: null, name: null }];
+        const genresRaw = document.getElementById("createGenres").value.trim();
+        if (genresRaw) body.genres = genresRaw.split(",").map(s => s.trim()).filter(Boolean);
+        const theatre = document.getElementById("createTheatre").value.trim();
+        if (theatre) body.theatrePlayItems = [{ name: theatre, years: null, plays: [] }];
+        const res = await api("POST", "/actors", body);
+        if (res.ok && res.data) {
+          const id = res.data.id;
+          showOut(out, id ? "Создан. ID: " + id : JSON.stringify(res.data));
+          if (id) {
+            document.getElementById("actorId").value = id;
+          }
+        } else {
+          showOut(out, res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
+        }
+      };
+
+      // 6. Загрузка фото
       document.getElementById("btnUpload").onclick = async () => {
         const out = document.getElementById("uploadOut");
         const actorId = document.getElementById("uploadActorId").value.trim();
@@ -897,6 +1076,23 @@
           showOut(out, res.status === 404 ? "Медиа не найдено" : "HTTP " + res.status, true);
         }
       };
+
+      // Автовход при загрузке
+      (async function autoLogin() {
+        if (localStorage.getItem(JWT_KEY)) {
+          updateLoginStatus();
+          return;
+        }
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        if (email && password) {
+          const res = await doLogin(email, password);
+          if (res.ok && res.data && res.data.token) {
+            localStorage.setItem(JWT_KEY, res.data.token);
+          }
+        }
+        updateLoginStatus();
+      })();
     </script>
   </body>
 </html>
