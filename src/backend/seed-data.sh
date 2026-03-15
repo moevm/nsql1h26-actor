@@ -3,7 +3,7 @@
 # Перед запуском подними бэкенд: ./gradlew bootRun
 
 BASE="${1:-http://localhost:8080/v1}"
-TOKEN="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2OWFlZDg3YmIyMDg2YjMwZTYyZmJjNzkiLCJleHAiOjE3NzMxNTM1NzR9.xNknUaIJJXqTeM5OpldyRzmOORTLLQH7s-rLFZwXCqE"
+TOKEN="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2OWFlYjUzNWRhNmY3YzdiNGQwNTM4MDgiLCJleHAiOjE3NzM2NTA0Mjd9._PWRJDyOndFWN2J-9XUIaA-gBS5ktHp-B_BGbhpH0hE"
 AUTH_HEADER="Authorization: Bearer $TOKEN"
 
 echo "=== Создаём вузы ==="

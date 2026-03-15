@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import org.bson.Document
 import java.time.Instant
 import java.time.OffsetDateTime
 
@@ -84,14 +85,40 @@ class ActorService(
         val criteria = mutableListOf<Criteria>()
 
         name?.trim()?.takeIf { it.isNotEmpty() }?.let { n ->
-            val pattern = ".*" + Regex.escape(n) + ".*"
-            criteria.add(
-                Criteria().orOperator(
-                    Criteria.where("firstName").regex(pattern, "i"),
-                    Criteria.where("lastName").regex(pattern, "i"),
-                    Criteria.where("middleName").regex(pattern, "i")
+            val escaped = Regex.escape(n)
+            val pattern = ".*$escaped.*"
+            val fullNameOrder1 = Document(
+                "\$trim", Document(
+                    "input", Document(
+                        "\$concat", listOf(
+                            Document("\$ifNull", listOf("\$firstName", "")),
+                            " ",
+                            Document("\$ifNull", listOf("\$lastName", "")),
+                            " ",
+                            Document("\$ifNull", listOf("\$middleName", ""))
+                        )
+                    )
                 )
             )
+            val fullNameOrder2 = Document(
+                "\$trim", Document(
+                    "input", Document(
+                        "\$concat", listOf(
+                            Document("\$ifNull", listOf("\$lastName", "")),
+                            " ",
+                            Document("\$ifNull", listOf("\$firstName", "")),
+                            " ",
+                            Document("\$ifNull", listOf("\$middleName", ""))
+                        )
+                    )
+                )
+            )
+            val fullNameExpr = Document("\$concat", listOf(fullNameOrder1, " ", fullNameOrder2))
+            val regexMatchDoc = Document(
+                "input", fullNameExpr
+            ).append("regex", pattern).append("options", "i")
+            val exprField = "\$expr"
+            criteria.add(Criteria.where(exprField).`is`(Document("\$regexMatch", regexMatchDoc)))
         }
 
         gender?.let { criteria.add(Criteria.where("gender").`is`(it)) }

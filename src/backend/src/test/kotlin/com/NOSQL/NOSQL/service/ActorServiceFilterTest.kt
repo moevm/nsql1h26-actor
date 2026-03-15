@@ -65,6 +65,7 @@ class ActorServiceFilterTest {
     private lateinit var idFemale35: String
     private lateinit var idMale25: String
     private lateinit var idOleg: String
+    private lateinit var idWithMiddleName: String
 
     @BeforeEach
     fun setUp() {
@@ -168,6 +169,22 @@ class ActorServiceFilterTest {
             )
         )
         idOleg = create4.id!!
+
+        // Актёр с отчеством — для тестов полного ФИО
+        val create5 = actorService.create(
+            ActorCreate(
+                firstName = "Николай",
+                lastName = "Иванов",
+                middleName = "Михайлович",
+                birthDate = now.minusYears(28),
+                gender = Gender.male,
+                education = null,
+                films = null,
+                theatrePlayItems = null,
+                genres = null
+            )
+        )
+        idWithMiddleName = create5.id!!
     }
 
     private fun findAll(
@@ -210,10 +227,10 @@ class ActorServiceFilterTest {
     @DisplayName("Без фильтров")
     inner class NoFilters {
         @Test
-        fun `findAll без фильтров возвращает всех четырёх`() {
+        fun `findAll без фильтров возвращает всех пяти`() {
             val list = findAll()
-            assertThat(list).hasSize(4)
-            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idFemale35, idMale25, idOleg)
+            assertThat(list).hasSize(5)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idFemale35, idMale25, idOleg, idWithMiddleName)
         }
 
         @Test
@@ -221,7 +238,7 @@ class ActorServiceFilterTest {
             assertThat(findAll(limit = 2, offset = 0)).hasSize(2)
             assertThat(findAll(limit = 2, offset = 1)).hasSize(2)
             assertThat(findAll(limit = 2, offset = 2)).hasSize(2)
-            assertThat(findAll(limit = 1, offset = 3)).hasSize(1)
+            assertThat(findAll(limit = 1, offset = 4)).hasSize(1)
             assertThat(findAll(limit = 1, offset = 0)).hasSize(1)
         }
     }
@@ -230,10 +247,10 @@ class ActorServiceFilterTest {
     @DisplayName("Фильтр по полу")
     inner class GenderFilter {
         @Test
-        fun `gender male — три актёра`() {
+        fun `gender male — четыре актёра`() {
             val list = findAll(gender = Gender.male)
-            assertThat(list).hasSize(3)
-            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idMale25, idOleg)
+            assertThat(list).hasSize(4)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idMale25, idOleg, idWithMiddleName)
         }
 
         @Test
@@ -255,10 +272,10 @@ class ActorServiceFilterTest {
         }
 
         @Test
-        fun `ageTo 30 — два актёра 25 и 30 лет`() {
+        fun `ageTo 30 — три актёра 25, 28 и 30 лет`() {
             val list = findAll(ageTo = 30)
-            assertThat(list).hasSize(2)
-            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale25, idOleg)
+            assertThat(list).hasSize(3)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale25, idOleg, idWithMiddleName)
         }
 
         @Test
@@ -443,20 +460,108 @@ class ActorServiceFilterTest {
     }
 
     @Nested
-    @DisplayName("Фильтр по ФИО (подстрока)")
+    @DisplayName("Фильтр по ФИО (подстрока и полное имя)")
     inner class NameFilter {
         @Test
-        fun `name Олег находит Олега`() {
+        fun `name Олег находит по имени`() {
             val list = findAll(name = "Олег")
             assertThat(list).hasSize(1)
             assertThat(list[0].firstName).isEqualTo("Олег")
         }
 
         @Test
-        fun `name Смирн находит Смирнова`() {
+        fun `name Смирн находит по части фамилии`() {
             val list = findAll(name = "Смирн")
             assertThat(list).hasSize(1)
             assertThat(list[0].lastName).isEqualTo("Смирнов")
+        }
+
+        @Test
+        fun `name Иван Петров находит по имени и фамилии`() {
+            val list = findAll(name = "Иван Петров")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idMale40)
+        }
+
+        @Test
+        fun `name Петров Иван находит по фамилии и имени (ФИО)`() {
+            val list = findAll(name = "Петров Иван")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idMale40)
+        }
+
+        @Test
+        fun `name Мария Сидорова находит актрису`() {
+            val list = findAll(name = "Мария Сидорова")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idFemale35)
+        }
+
+        @Test
+        fun `name Олег Смирнов находит по полному имени без отчества`() {
+            val list = findAll(name = "Олег Смирнов")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idOleg)
+        }
+
+        @Test
+        fun `name Смирнов Олег находит по ФИО порядку`() {
+            val list = findAll(name = "Смирнов Олег")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idOleg)
+        }
+
+        @Test
+        fun `name Иванов Николай Михайлович находит по полному ФИО`() {
+            val list = findAll(name = "Иванов Николай Михайлович")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idWithMiddleName)
+        }
+
+        @Test
+        fun `name Николай Иванов Михайлович находит по имени фамилии отчеству`() {
+            val list = findAll(name = "Николай Иванов Михайлович")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idWithMiddleName)
+        }
+
+        @Test
+        fun `name Иванов Михайлович находит по фамилии и отчеству`() {
+            val list = findAll(name = "Иванов Михайлович")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idWithMiddleName)
+        }
+
+        @Test
+        fun `name иван петров регистронезависимый поиск`() {
+            val list = findAll(name = "иван петров")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idMale40)
+        }
+
+        @Test
+        fun `name пустая строка не фильтрует`() {
+            val list = findAll(name = "")
+            assertThat(list).hasSize(5)
+        }
+
+        @Test
+        fun `name пробелы обрезаются`() {
+            val list = findAll(name = "  Иван Петров  ")
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idMale40)
+        }
+
+        @Test
+        fun `name несуществующее ФИО — ноль результатов`() {
+            val list = findAll(name = "Несуществующий Актёр")
+            assertThat(list).isEmpty()
+        }
+
+        @Test
+        fun `name перепутанное ФИО Петров Мария — ноль результатов`() {
+            val list = findAll(name = "Петров Мария")
+            assertThat(list).isEmpty()
         }
     }
 
@@ -464,9 +569,10 @@ class ActorServiceFilterTest {
     @DisplayName("Комбинации фильтров")
     inner class CombinedFilters {
         @Test
-        fun `male + театр Современник — два`() {
+        fun `male + театр Современник — два актёра`() {
             val list = findAll(gender = Gender.male, theatre = "Современник")
             assertThat(list).hasSize(2)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idMale25)
         }
 
         @Test
