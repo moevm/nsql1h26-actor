@@ -21,6 +21,11 @@
         <dd>{{ fullEducationString }}</dd>
       </dl>
       <div class="line"></div>
+      <div class="genres">
+        @for (genre of actor?.genres; track $index + '-' + genre) {
+          <p class="genre">{{ capitalize(genre) }}</p>
+        }
+      </div>
       <div class="profile-contacts">
         <h3>Контакты</h3>
         <p class="profile-contacts_phone">{{ actor?.phone ?? '-' }}</p>
