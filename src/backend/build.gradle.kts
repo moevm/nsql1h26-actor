@@ -12,7 +12,7 @@ description = "NOSQL backend"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
+		languageVersion = JavaLanguageVersion.of(24)
 	}
 }
 
@@ -40,7 +40,7 @@ dependencies {
 }
 
 kotlin {
-	jvmToolchain(25)
+	jvmToolchain(24)
 	compilerOptions {
 		freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
 	}
@@ -57,7 +57,7 @@ tasks.withType<Test> {
 
 openApiGenerate {
 	generatorName.set("kotlin-spring")
-	inputSpec.set("${project.projectDir.parent}/spec/api.yaml")
+	inputSpec.set("${project.projectDir}/spec/api.yaml")
 	outputDir.set("$buildDir/generated")
 	apiPackage.set("com.NOSQL.NOSQL.api")
 	modelPackage.set("com.NOSQL.NOSQL.model.generated")
