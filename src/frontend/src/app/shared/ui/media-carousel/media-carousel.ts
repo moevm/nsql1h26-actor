@@ -1,4 +1,4 @@
-﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 export type MediaCarouselItem = {
   id: string;
@@ -21,6 +21,7 @@ export class MediaCarousel implements OnChanges {
   @Input() itemHeight = 190;
 
   currentPage = 0;
+  zoomedItem: MediaCarouselItem | null = null;
   private readonly playingVideoIds = new Set<string>();
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -31,6 +32,7 @@ export class MediaCarousel implements OnChanges {
 
     if (changes['items'] || changes['mediaType']) {
       this.playingVideoIds.clear();
+      this.closeZoom();
     }
   }
 
@@ -78,6 +80,25 @@ export class MediaCarousel implements OnChanges {
 
   onVideoPause(itemId: string): void {
     this.playingVideoIds.delete(itemId);
+  }
+
+  openZoom(item: MediaCarouselItem): void {
+    this.zoomedItem = item;
+  }
+
+  closeZoom(): void {
+    this.zoomedItem = null;
+  }
+
+  stopZoomClose(event: Event): void {
+    event.stopPropagation();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.zoomedItem) {
+      this.closeZoom();
+    }
   }
 
   private getItemsPerPage(): number {

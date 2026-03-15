@@ -53,6 +53,7 @@
     position: relative;
     border-radius: 5px;
     overflow: hidden;
+    cursor: zoom-in;
   }
 
   .item_image {
@@ -90,6 +91,60 @@
       0 2px 6px rgba(28, 26, 24, 0.14),
       0 12px 24px rgba(28, 26, 24, 0.18);
     transition: filter 0.3s ease;
+  }
+
+  .zoom-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(12, 12, 14, 0.86);
+    backdrop-filter: blur(3px);
+  }
+
+  .zoom-content {
+    max-width: min(96vw, 1400px);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .zoom-image,
+  .zoom-video {
+    max-width: min(96vw, 1400px);
+    max-height: calc(90vh - 48px);
+    border-radius: 10px;
+    box-shadow:
+      0 16px 50px rgba(0, 0, 0, 0.4),
+      0 6px 20px rgba(0, 0, 0, 0.28);
+    background: #000;
+  }
+
+  .zoom-caption {
+    margin: 0;
+    color: #f6f3ef;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .zoom-close {
+    position: fixed;
+    top: 16px;
+    right: 18px;
+    z-index: 1201;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
   }
 
   .item_playButton {
