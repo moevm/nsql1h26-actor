@@ -2,7 +2,7 @@
 # Скрипт заполнения БД: вузы и 20 актёров через API. Запуск: ./seed-data.sh
 # Перед запуском подними бэкенд: ./gradlew bootRun
 
-BASE="${1:-http://localhost:8080/v1}"
+BASE="${1:-http://localhost:8081/v1}"
 TOKEN="eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2OWFlYjUzNWRhNmY3YzdiNGQwNTM4MDgiLCJleHAiOjE3NzM2NTA0Mjd9._PWRJDyOndFWN2J-9XUIaA-gBS5ktHp-B_BGbhpH0hE"
 AUTH_HEADER="Authorization: Bearer $TOKEN"
 
