@@ -7,8 +7,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import { finalize, Subscription } from 'rxjs';
 import { MediaApi } from '../../../../core/services/media-api';
+import { ActorsApi } from '../../../../core/services/actors-api';
 import { components } from '../../../../shared/api/types';
 import { capitalize, getAgeFromDob, ageWord } from '../../../../shared/utils/actorFormatter';
 import { AuthSessionService } from '../../../../core/services/auth-session-service';
@@ -24,13 +26,19 @@ type Actor = components['schemas']['Actor'];
 export class ProfileInfo implements OnChanges, OnDestroy {
   @Input() actor: Actor | null = null;
   private readonly mediaApi = inject(MediaApi);
+  private readonly actorsApi = inject(ActorsApi);
+  private readonly router = inject(Router);
   readonly authSessionService = inject(AuthSessionService);
   private readonly fallbackImage = '/images/profile.jpg';
   private photoRequestSub?: Subscription;
+  private deleteRequestSub?: Subscription;
   private currentObjectUrl: string | null = null;
   readonly capitalize = capitalize;
 
   readonly firstPhotoUrl = signal<string | null>(null);
+  readonly showDeleteModal = signal(false);
+  readonly isDeleting = signal(false);
+  readonly deleteError = signal<string | null>(null);
 
   private readonly genderLabels: Record<NonNullable<Actor['gender']>, string> = {
     male: 'Мужчина',
@@ -78,7 +86,46 @@ export class ProfileInfo implements OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.photoRequestSub?.unsubscribe();
+    this.deleteRequestSub?.unsubscribe();
     this.clearFirstPhotoUrl();
+  }
+
+  openDeleteModal(): void {
+    this.deleteError.set(null);
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal(): void {
+    if (this.isDeleting()) {
+      return;
+    }
+    this.showDeleteModal.set(false);
+    this.deleteError.set(null);
+  }
+
+  confirmDelete(): void {
+    const actorId = this.actor?.id;
+    if (!actorId || this.isDeleting()) {
+      return;
+    }
+
+    this.isDeleting.set(true);
+    this.deleteError.set(null);
+
+    this.deleteRequestSub?.unsubscribe();
+    this.deleteRequestSub = this.actorsApi
+      .deleteActorById(actorId)
+      .pipe(finalize(() => this.isDeleting.set(false)))
+      .subscribe({
+        next: () => {
+          this.showDeleteModal.set(false);
+          this.router.navigate(['/search']);
+        },
+        error: (error) => {
+          console.error('[ProfileInfo] Failed to delete actor:', error);
+          this.deleteError.set('Не удалось удалить актёра. Попробуйте ещё раз.');
+        },
+      });
   }
 
   private loadFirstPhoto(): void {

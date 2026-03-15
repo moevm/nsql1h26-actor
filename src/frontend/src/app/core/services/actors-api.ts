@@ -5,7 +5,10 @@ import { components, operations } from '../../shared/api/types';
 
 type Actor = components['schemas']['Actor'];
 type ActorsSearchQuery = operations['v1ActorsGet']['parameters']['query'];
-type ActorsSearchResponse = operations['v1ActorsGet']['responses'][200]['content']['application/json'];
+type ActorsSearchResponse =
+  operations['v1ActorsGet']['responses'][200]['content']['application/json'];
+
+type ActorDeleteResponse = operations['v1ActorByIdDelete'];
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +21,7 @@ export class ActorsApi {
     return this.http.get<Actor>(`${this.apiPrefix}/actors/${encodeURIComponent(actorId)}`);
   }
 
-  getActorbyLimit(limit: number): Observable<Actor[]>{
+  getActorbyLimit(limit: number): Observable<Actor[]> {
     return this.http.get<Actor[]>(`${this.apiPrefix}/actors?limit=${limit}`);
   }
 
@@ -32,7 +35,9 @@ export class ActorsApi {
         ...(request?.weightMax != null ? { weightMax: request.weightMax } : {}),
         ...(request?.heightMin != null ? { heightMin: request.heightMin } : {}),
         ...(request?.heightMax != null ? { heightMax: request.heightMax } : {}),
-        ...(request?.activityYearFrom != null ? { activityYearFrom: request.activityYearFrom } : {}),
+        ...(request?.activityYearFrom != null
+          ? { activityYearFrom: request.activityYearFrom }
+          : {}),
         ...(request?.activityYearTo != null ? { activityYearTo: request.activityYearTo } : {}),
         ...(request?.universityId ? { universityId: request.universityId } : {}),
         ...(request?.theatre ? { theatre: request.theatre } : {}),
@@ -45,5 +50,9 @@ export class ActorsApi {
         ...(request?.offset != null ? { offset: request.offset } : {}),
       },
     });
+  }
+
+  deleteActorById(actorId: string): Observable<void> {
+    return this.http.delete<void>(`/v1/actors/${actorId}`);
   }
 }

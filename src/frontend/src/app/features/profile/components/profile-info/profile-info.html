@@ -36,8 +36,51 @@
     <div class="profile-admin">
       @if (authSessionService.isLoggedIn) {
         <button class="admin-edit"></button>
-        <button class="admin-delete"></button>
+        <button
+          class="admin-delete"
+          type="button"
+          aria-label="Удалить актёра"
+          (click)="openDeleteModal()"
+        ></button>
       }
     </div>
   </div>
+
+  @if (showDeleteModal()) {
+    <div class="delete-modal" (click)="closeDeleteModal()">
+      <div
+        class="delete-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-actor-title"
+        (click)="$event.stopPropagation()"
+      >
+        <h3 id="delete-actor-title">Удалить актёра?</h3>
+        <p>Это действие нельзя отменить.</p>
+
+        @if (deleteError()) {
+          <p class="delete-modal__error">{{ deleteError() }}</p>
+        }
+
+        <div class="delete-modal__actions">
+          <button
+            type="button"
+            class="delete-modal__btn delete-modal__btn--danger"
+            (click)="confirmDelete()"
+            [disabled]="isDeleting()"
+          >
+            {{ isDeleting() ? 'Удаление...' : 'Удалить' }}
+          </button>
+          <button
+            type="button"
+            class="delete-modal__btn delete-modal__btn--ghost"
+            (click)="closeDeleteModal()"
+            [disabled]="isDeleting()"
+          >
+            Отмена
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </section>
