@@ -373,6 +373,8 @@
         </div>
         <div><label>Возраст от</label><input type="number" id="filterAgeFrom" placeholder="25" style="width: 80px" /></div>
         <div><label>Возраст до</label><input type="number" id="filterAgeTo" placeholder="50" style="width: 80px" /></div>
+        <div><label>Рост от (см)</label><input type="number" id="filterHeightMin" style="width: 80px" /></div>
+        <div><label>Рост до (см)</label><input type="number" id="filterHeightMax" style="width: 80px" /></div>
         <div><label>Вес мин</label><input type="number" id="filterWeightMin" style="width: 80px" /></div>
         <div><label>Вес макс</label><input type="number" id="filterWeightMax" style="width: 80px" /></div>
         <div><label>Театр (подстрока)</label><input type="text" id="filterTheatre" placeholder="Современник" style="width: 140px" /></div>
@@ -593,6 +595,10 @@
         if (ageFrom) params.set("ageFrom", ageFrom);
         const ageTo = document.getElementById("filterAgeTo").value;
         if (ageTo) params.set("ageTo", ageTo);
+        const heightMin = document.getElementById("filterHeightMin").value;
+        if (heightMin) params.set("heightMin", heightMin);
+        const heightMax = document.getElementById("filterHeightMax").value;
+        if (heightMax) params.set("heightMax", heightMax);
         const weightMin = document.getElementById("filterWeightMin").value;
         if (weightMin) params.set("weightMin", weightMin);
         const weightMax = document.getElementById("filterWeightMax").value;

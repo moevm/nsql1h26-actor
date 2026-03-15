@@ -138,6 +138,16 @@ paths:
           in: query
           schema:
             type: integer
+        - name: heightMin
+          in: query
+          schema:
+            type: integer
+          description: Рост от (см)
+        - name: heightMax
+          in: query
+          schema:
+            type: integer
+          description: Рост до (см)
         - name: activityYearFrom
           in: query
           schema:

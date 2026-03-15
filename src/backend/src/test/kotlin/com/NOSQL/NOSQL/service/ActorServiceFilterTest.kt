@@ -193,6 +193,8 @@ class ActorServiceFilterTest {
         ageTo: Int? = null,
         weightMin: Int? = null,
         weightMax: Int? = null,
+        heightMin: Int? = null,
+        heightMax: Int? = null,
         activityYearFrom: Int? = null,
         activityYearTo: Int? = null,
         universityId: String? = null,
@@ -210,6 +212,8 @@ class ActorServiceFilterTest {
         ageTo = ageTo,
         weightMin = weightMin,
         weightMax = weightMax,
+        heightMin = heightMin,
+        heightMax = heightMax,
         activityYearFrom = activityYearFrom,
         activityYearTo = activityYearTo,
         universityId = universityId,
@@ -281,6 +285,31 @@ class ActorServiceFilterTest {
         @Test
         fun `ageFrom 36 — один актёр 40 лет`() {
             val list = findAll(ageFrom = 36)
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idMale40)
+        }
+    }
+
+    @Nested
+    @DisplayName("Фильтр по росту")
+    inner class HeightFilter {
+        @Test
+        fun `heightMin 170 heightMax 185 — два актёра с ростом 180 и 178`() {
+            val list = findAll(heightMin = 170, heightMax = 185)
+            assertThat(list).hasSize(2)
+            assertThat(list.map { it.id }).containsExactlyInAnyOrder(idMale40, idMale25)
+        }
+
+        @Test
+        fun `heightMax 170 — один актёр с ростом 165`() {
+            val list = findAll(heightMax = 170)
+            assertThat(list).hasSize(1)
+            assertThat(list[0].id).isEqualTo(idFemale35)
+        }
+
+        @Test
+        fun `heightMin 179 — один с ростом 180`() {
+            val list = findAll(heightMin = 179)
             assertThat(list).hasSize(1)
             assertThat(list[0].id).isEqualTo(idMale40)
         }

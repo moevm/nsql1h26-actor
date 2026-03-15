@@ -68,6 +68,8 @@ class ActorService(
         ageTo: Int?,
         weightMin: Int?,
         weightMax: Int?,
+        heightMin: Int?,
+        heightMax: Int?,
         activityYearFrom: Int?,
         activityYearTo: Int?,
         universityId: String?,
@@ -124,6 +126,8 @@ class ActorService(
         gender?.let { criteria.add(Criteria.where("gender").`is`(it)) }
         weightMin?.let { criteria.add(Criteria.where("weight").gte(it)) }
         weightMax?.let { criteria.add(Criteria.where("weight").lte(it)) }
+        heightMin?.let { criteria.add(Criteria.where("height").gte(it)) }
+        heightMax?.let { criteria.add(Criteria.where("height").lte(it)) }
         hairColor?.let { criteria.add(Criteria.where("hairColor").`is`(it)) }
         eyeColor?.let { criteria.add(Criteria.where("eyeColor").`is`(it)) }
         title?.let { criteria.add(Criteria.where("title").`is`(it)) }
