@@ -1,6 +1,7 @@
 package com.NOSQL.NOSQL.mapping
 
 import com.NOSQL.NOSQL.model.ActorDocument
+import com.NOSQL.NOSQL.model.domain.ContactLinkItem as DomainContactLinkItem
 import com.NOSQL.NOSQL.model.domain.EducationItem as DomainEducationItem
 import com.NOSQL.NOSQL.model.domain.FilmPlayItem as DomainFilmPlayItem
 import com.NOSQL.NOSQL.model.domain.Gender as DomainGender
@@ -11,6 +12,7 @@ import com.NOSQL.NOSQL.model.domain.VideoItem as DomainVideoItem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.net.URI
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -33,6 +35,12 @@ class MappingToApiTest {
             eyeColor = "карий",
             bio = "Био",
             title = DomainTitle.national,
+            phone = "+7 999 000-00-00",
+            email = "test@example.com",
+            links = listOf(
+                DomainContactLinkItem(name = "ВК", url = "https://vk.com/id"),
+                DomainContactLinkItem(name = "Личный сайт", url = "https://site.ru")
+            ),
             education = listOf(DomainEducationItem(uniId = "uni1", graduationYear = 2012, name = "Актёр")),
             films = listOf(DomainFilmPlayItem(title = "Фильм", year = 2020, role = "Роль", director = "Реж")),
             theatrePlayItems = listOf(
@@ -58,6 +66,13 @@ class MappingToApiTest {
         assertThat(actor.weight).isEqualTo(75)
         assertThat(actor.gender?.name).isEqualTo("male")
         assertThat(actor.title?.name).isEqualTo("national")
+        assertThat(actor.phone).isEqualTo("+7 999 000-00-00")
+        assertThat(actor.email).isEqualTo("test@example.com")
+        assertThat(actor.links).hasSize(2)
+        assertThat(actor.links!![0].name).isEqualTo("ВК")
+        assertThat(actor.links!![0].url).isEqualTo(URI("https://vk.com/id"))
+        assertThat(actor.links!![1].name).isEqualTo("Личный сайт")
+        assertThat(actor.links!![1].url).isEqualTo(URI("https://site.ru"))
         assertThat(actor.education).hasSize(1)
         assertThat(actor.education!![0].uniId).isEqualTo("uni1")
         assertThat(actor.education!![0].university).isNull()
@@ -86,6 +101,9 @@ class MappingToApiTest {
         assertThat(actor.middleName).isNull()
         assertThat(actor.birthDate).isNull()
         assertThat(actor.gender).isNull()
+        assertThat(actor.phone).isNull()
+        assertThat(actor.email).isNull()
+        assertThat(actor.links).isNull()
         assertThat(actor.education).isNull()
         assertThat(actor.photos).isNull()
         assertThat(actor.videos).isNull()

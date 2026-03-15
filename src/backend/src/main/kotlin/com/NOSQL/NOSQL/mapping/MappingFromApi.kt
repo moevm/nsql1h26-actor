@@ -1,6 +1,7 @@
 package com.NOSQL.NOSQL.mapping
 
 import com.NOSQL.NOSQL.model.ActorDocument
+import com.NOSQL.NOSQL.model.domain.ContactLinkItem as DomainContactLinkItem
 import com.NOSQL.NOSQL.model.domain.EducationItem as DomainEducationItem
 import com.NOSQL.NOSQL.model.domain.FilmPlayItem as DomainFilmPlayItem
 import com.NOSQL.NOSQL.model.domain.Gender as DomainGender
@@ -24,6 +25,9 @@ object MappingFromApi {
             eyeColor = actorCreate.eyeColor,
             bio = actorCreate.bio,
             title = actorCreate.title?.let { DomainTitle.valueOf(it.name) },
+            phone = actorCreate.phone,
+            email = actorCreate.email,
+            links = actorCreate.links?.map(::contactLinkItemToDomain),
             education = actorCreate.education?.map(::educationItemToDomain),
             films = actorCreate.films?.map(::filmPlayItemToDomain),
             theatrePlayItems = actorCreate.theatrePlayItems?.map(::theatrePlayItemToDomain),
@@ -33,6 +37,9 @@ object MappingFromApi {
             createdAt = createdAt.toInstant(),
             updatedAt = updatedAt.toInstant()
         )
+
+    private fun contactLinkItemToDomain(it: com.NOSQL.NOSQL.model.generated.ContactLinkItem): DomainContactLinkItem =
+        DomainContactLinkItem(name = it.name, url = it.url?.toString())
 
     private fun educationItemToDomain(it: com.NOSQL.NOSQL.model.generated.EducationItem): DomainEducationItem =
         DomainEducationItem(

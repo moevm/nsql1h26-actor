@@ -1,5 +1,6 @@
 package com.NOSQL.NOSQL.model
 
+import com.NOSQL.NOSQL.model.domain.ContactLinkItem
 import com.NOSQL.NOSQL.model.domain.EducationItem
 import com.NOSQL.NOSQL.model.domain.FilmPlayItem
 import com.NOSQL.NOSQL.model.domain.Gender
@@ -27,6 +28,9 @@ data class ActorDocument(
     val eyeColor: String? = null,
     val bio: String? = null,
     val title: Title? = null,
+    val phone: String? = null,
+    val email: String? = null,
+    val links: List<ContactLinkItem>? = null,
     val education: List<EducationItem>? = null,
     val films: List<FilmPlayItem>? = null,
     val theatrePlayItems: List<TheatrePlayItem>? = null,

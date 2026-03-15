@@ -125,6 +125,18 @@ components:
           type: string
           nullable: true
 
+    ContactLinkItem:
+      type: object
+      description: "Ссылка контакта (ВК, Макс, Рутуб, личный сайт и т.п.)"
+      properties:
+        name:
+          type: string
+          description: "Название (например ВК, Макс, Рутуб)"
+        url:
+          type: string
+          format: uri
+          description: "URL ссылки"
+
     TheatrePlayItem:
       type: object
       description: "Элемент списка — театр и его пьесы (название, годы, пьесы)"
@@ -178,6 +190,21 @@ components:
           nullable: true
         title:
           $ref: '#/components/schemas/Title'
+        phone:
+          type: string
+          nullable: true
+          description: "Телефонный номер"
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: "Электронная почта"
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactLinkItem'
+          nullable: true
+          description: "Ссылки (ВК, Макс, Рутуб, личный сайт и т.п.)"
         education:
           type: array
           items:
@@ -248,6 +275,21 @@ components:
           nullable: true
         title:
           $ref: '#/components/schemas/Title'
+        phone:
+          type: string
+          nullable: true
+          description: "Телефонный номер"
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: "Электронная почта"
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactLinkItem'
+          nullable: true
+          description: "Ссылки (ВК, Макс, Рутуб, личный сайт и т.п.)"
         education:
           type: array
           items:

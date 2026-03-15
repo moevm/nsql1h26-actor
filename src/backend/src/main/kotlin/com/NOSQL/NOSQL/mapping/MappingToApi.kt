@@ -1,6 +1,7 @@
 package com.NOSQL.NOSQL.mapping
 
 import com.NOSQL.NOSQL.model.ActorDocument
+import com.NOSQL.NOSQL.model.domain.ContactLinkItem as DomainContactLinkItem
 import com.NOSQL.NOSQL.model.domain.EducationItem as DomainEducationItem
 import com.NOSQL.NOSQL.model.domain.FilmPlayItem as DomainFilmPlayItem
 import com.NOSQL.NOSQL.model.domain.Gender as DomainGender
@@ -16,6 +17,7 @@ import com.NOSQL.NOSQL.model.generated.PhotoItem
 import com.NOSQL.NOSQL.model.generated.TheatrePlayItem
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.model.generated.VideoItem
+import java.net.URI
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -35,6 +37,9 @@ object MappingToApi {
             eyeColor = doc.eyeColor,
             bio = doc.bio,
             title = doc.title?.let { Title.valueOf(it.name) },
+            phone = doc.phone,
+            email = doc.email,
+            links = doc.links?.map(::contactLinkItemToApi),
             education = doc.education?.map(::educationItemToApi),
             films = doc.films?.map(::filmPlayItemToApi),
             theatrePlayItems = doc.theatrePlayItems?.map(::theatrePlayItemToApi),
@@ -44,6 +49,9 @@ object MappingToApi {
             createdAt = doc.createdAt?.let { OffsetDateTime.ofInstant(it, ZoneOffset.UTC) },
             updatedAt = doc.updatedAt?.let { OffsetDateTime.ofInstant(it, ZoneOffset.UTC) }
         )
+
+    private fun contactLinkItemToApi(it: DomainContactLinkItem): com.NOSQL.NOSQL.model.generated.ContactLinkItem =
+        com.NOSQL.NOSQL.model.generated.ContactLinkItem(name = it.name, url = it.url?.let { URI.create(it) })
 
     private fun educationItemToApi(it: DomainEducationItem): EducationItem =
         EducationItem(

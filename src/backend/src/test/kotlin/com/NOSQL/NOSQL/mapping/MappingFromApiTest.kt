@@ -1,6 +1,7 @@
 package com.NOSQL.NOSQL.mapping
 
 import com.NOSQL.NOSQL.model.generated.ActorCreate
+import com.NOSQL.NOSQL.model.generated.ContactLinkItem
 import com.NOSQL.NOSQL.model.generated.EducationItem
 import com.NOSQL.NOSQL.model.generated.FilmPlayItem
 import com.NOSQL.NOSQL.model.generated.Gender
@@ -9,6 +10,7 @@ import com.NOSQL.NOSQL.model.generated.Title
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.net.URI
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
@@ -32,6 +34,12 @@ class MappingFromApiTest {
             eyeColor = "карий",
             bio = "Био",
             title = Title.national,
+            phone = "+7 999 123-45-67",
+            email = "actor@test.ru",
+            links = listOf(
+                ContactLinkItem(name = "ВК", url = URI("https://vk.com/actor")),
+                ContactLinkItem(name = "Рутуб", url = URI("https://rutube.ru/actor"))
+            ),
             education = listOf(
                 EducationItem(uniId = "507f1f77bcf86cd799439011", graduationYear = 2012, name = "Актёр")
             ),
@@ -53,6 +61,13 @@ class MappingFromApiTest {
         assertThat(doc.eyeColor).isEqualTo("карий")
         assertThat(doc.bio).isEqualTo("Био")
         assertThat(doc.title?.name).isEqualTo("national")
+        assertThat(doc.phone).isEqualTo("+7 999 123-45-67")
+        assertThat(doc.email).isEqualTo("actor@test.ru")
+        assertThat(doc.links).hasSize(2)
+        assertThat(doc.links!![0].name).isEqualTo("ВК")
+        assertThat(doc.links!![0].url).isEqualTo("https://vk.com/actor")
+        assertThat(doc.links!![1].name).isEqualTo("Рутуб")
+        assertThat(doc.links!![1].url).isEqualTo("https://rutube.ru/actor")
         assertThat(doc.education).hasSize(1)
         assertThat(doc.education!![0].uniId).isEqualTo("507f1f77bcf86cd799439011")
         assertThat(doc.education!![0].graduationYear).isEqualTo(2012)
@@ -79,6 +94,9 @@ class MappingFromApiTest {
         assertThat(doc.birthDate).isNull()
         assertThat(doc.gender).isNull()
         assertThat(doc.title).isNull()
+        assertThat(doc.phone).isNull()
+        assertThat(doc.email).isNull()
+        assertThat(doc.links).isNull()
         assertThat(doc.education).isNull()
         assertThat(doc.films).isNull()
         assertThat(doc.theatrePlayItems).isNull()

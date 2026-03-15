@@ -1,6 +1,7 @@
 package com.NOSQL.NOSQL.service
 
 import com.NOSQL.NOSQL.model.generated.ActorCreate
+import com.NOSQL.NOSQL.model.generated.ContactLinkItem
 import com.NOSQL.NOSQL.model.generated.EducationItem
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.Title
@@ -24,6 +25,7 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.net.URI
 import java.time.LocalDate
 
 @Testcontainers
@@ -79,6 +81,12 @@ class ActorServiceTest {
                 lastName = "Петров",
                 birthDate = LocalDate.of(1990, 1, 1),
                 gender = Gender.male,
+                phone = "+7 999 123-45-67",
+                email = "ivan@example.com",
+                links = listOf(
+                    ContactLinkItem(name = "ВК", url = URI("https://vk.com/ivan")),
+                    ContactLinkItem(name = "Рутуб", url = URI("https://rutube.ru/ivan"))
+                ),
                 education = listOf(EducationItem(uniId = validUniId, graduationYear = 2012, name = "Актёр"))
             )
             val response = actorService.create(create)
@@ -113,10 +121,16 @@ class ActorServiceTest {
     @DisplayName("getById")
     inner class GetById {
         @Test
-        fun `успех — возвращает актёра с обогащённым education university`() {
+        fun `успех — возвращает актёра с обогащённым education university и контактами`() {
             val create = ActorCreate(
                 firstName = "Иван",
                 lastName = "Петров",
+                phone = "+7 999 111-22-33",
+                email = "actor@mail.ru",
+                links = listOf(
+                    ContactLinkItem(name = "ВК", url = URI("https://vk.com/ivan_petrov")),
+                    ContactLinkItem(name = "Личный сайт", url = URI("https://ivan-actor.ru"))
+                ),
                 education = listOf(EducationItem(uniId = validUniId, graduationYear = 2012, name = "Актёр"))
             )
             val id = actorService.create(create).id!!
@@ -124,6 +138,13 @@ class ActorServiceTest {
             assertThat(actor.id).isEqualTo(id)
             assertThat(actor.firstName).isEqualTo("Иван")
             assertThat(actor.lastName).isEqualTo("Петров")
+            assertThat(actor.phone).isEqualTo("+7 999 111-22-33")
+            assertThat(actor.email).isEqualTo("actor@mail.ru")
+            assertThat(actor.links).hasSize(2)
+            assertThat(actor.links!![0].name).isEqualTo("ВК")
+            assertThat(actor.links!![0].url).isEqualTo(URI("https://vk.com/ivan_petrov"))
+            assertThat(actor.links!![1].name).isEqualTo("Личный сайт")
+            assertThat(actor.links!![1].url).isEqualTo(URI("https://ivan-actor.ru"))
             assertThat(actor.education).hasSize(1)
             assertThat(actor.education!![0].university).isNotNull
             assertThat(actor.education!![0].university!!.name).isEqualTo("Вуз")

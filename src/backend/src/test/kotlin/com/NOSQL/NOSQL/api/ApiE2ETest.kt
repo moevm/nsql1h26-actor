@@ -131,9 +131,11 @@ class ApiE2ETest {
         val uniJson = mapper.readTree(uniRes.response.contentAsString)
         val uniId = uniJson["id"].asText()
 
-        // 2) Создать актёра с этим вузом — POST /v1/actors
+        // 2) Создать актёра с этим вузом и контактами — POST /v1/actors
         val createActorBody = """
             {"firstName":"Иван","lastName":"Петров","birthDate":"1990-01-15","gender":"male","title":"national",
+             "phone":"+7 999 000-11-22","email":"ivan.petrov@example.com",
+             "links":[{"name":"ВК","url":"https://vk.com/ivan"},{"name":"Макс","url":"https://max.ru/ivan"}],
              "education":[{"uniId":"$uniId","graduationYear":2012,"name":"Актёр"}],
              "films":[{"title":"Фильм","year":2020,"role":"Роль","director":"Реж"}],
              "genres":["драма"]}
@@ -150,7 +152,7 @@ class ApiE2ETest {
             .andReturn()
         val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
 
-        // 3) Поиск по фильтрам — GET /v1/actors
+        // 3) Поиск по фильтрам — GET /v1/actors (контакты в списке)
         mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/actors")
                 .param("gender", "male")
@@ -160,13 +162,22 @@ class ApiE2ETest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].id").value(actorId))
             .andExpect(jsonPath("$[0].firstName").value("Иван"))
+            .andExpect(jsonPath("$[0].phone").value("+7 999 000-11-22"))
+            .andExpect(jsonPath("$[0].email").value("ivan.petrov@example.com"))
+            .andExpect(jsonPath("$[0].links[0].name").value("ВК"))
             .andExpect(jsonPath("$[0].education[0].university.name").value("ГИТИС"))
 
-        // 4) Получить актёра по id с обогащённым education — GET /v1/actors/{id}
+        // 4) Получить актёра по id с обогащённым education и контактами — GET /v1/actors/{id}
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/$actorId"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(actorId))
             .andExpect(jsonPath("$.lastName").value("Петров"))
+            .andExpect(jsonPath("$.phone").value("+7 999 000-11-22"))
+            .andExpect(jsonPath("$.email").value("ivan.petrov@example.com"))
+            .andExpect(jsonPath("$.links[0].name").value("ВК"))
+            .andExpect(jsonPath("$.links[0].url").value("https://vk.com/ivan"))
+            .andExpect(jsonPath("$.links[1].name").value("Макс"))
+            .andExpect(jsonPath("$.links[1].url").value("https://max.ru/ivan"))
             .andExpect(jsonPath("$.education[0].university.shortName").value("ГИТИС"))
             .andExpect(jsonPath("$.films[0].title").value("Фильм"))
 
