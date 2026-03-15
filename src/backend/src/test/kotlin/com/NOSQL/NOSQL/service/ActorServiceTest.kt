@@ -61,6 +61,9 @@ class ActorServiceTest {
     @Autowired
     lateinit var universityRepository: UniversityRepository
 
+    @Autowired
+    lateinit var mediaService: MediaService
+
     private lateinit var validUniId: String
 
     @BeforeEach
@@ -212,6 +215,52 @@ class ActorServiceTest {
         @Test
         fun `false когда нет`() {
             assertThat(actorService.existsById("000000000000000000000000")).isFalse()
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteById")
+    inner class DeleteById {
+        @Test
+        fun `успех — удаляет актёра из БД`() {
+            val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
+            assertThat(actorRepository.existsById(id)).isTrue()
+            actorService.deleteById(id)
+            assertThat(actorRepository.existsById(id)).isFalse()
+        }
+
+        @Test
+        fun `успех — удаляет медиа актёра из GridFS`() {
+            val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
+            val file = org.springframework.mock.web.MockMultipartFile("file", "photo.jpg", "image/jpeg", "image bytes".toByteArray())
+            val uploadRes = mediaService.upload(id, file.inputStream, "photo.jpg", "image/jpeg", com.NOSQL.NOSQL.model.generated.ActorMediaType.photo, null)
+            val mediaId = uploadRes.mediaId!!
+            assertThat(mediaService.getResource(id, mediaId).exists()).isTrue()
+            actorService.deleteById(id)
+            assertThat(actorRepository.existsById(id)).isFalse()
+            val ex = assertThrows<ResponseStatusException> { mediaService.getResource(id, mediaId) }
+            assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        }
+
+        @Test
+        fun `успех — удаляет все медиа (фото и видео) актёра`() {
+            val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
+            val photoFile = org.springframework.mock.web.MockMultipartFile("file", "photo.jpg", "image/jpeg", "photo".toByteArray())
+            val videoFile = org.springframework.mock.web.MockMultipartFile("file", "video.mp4", "video/mp4", "video".toByteArray())
+            val photoRes = mediaService.upload(id, photoFile.inputStream, "photo.jpg", "image/jpeg", com.NOSQL.NOSQL.model.generated.ActorMediaType.photo, null)
+            val videoRes = mediaService.upload(id, videoFile.inputStream, "video.mp4", "video/mp4", com.NOSQL.NOSQL.model.generated.ActorMediaType.video, null)
+            actorService.deleteById(id)
+            assertThrows<ResponseStatusException> { mediaService.getResource(id, photoRes.mediaId!!) }
+            assertThrows<ResponseStatusException> { mediaService.getResource(id, videoRes.mediaId!!) }
+        }
+
+        @Test
+        fun `несуществующий id — 404`() {
+            val ex = assertThrows<ResponseStatusException> {
+                actorService.deleteById("000000000000000000000000")
+            }
+            assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+            assertThat(ex.reason).contains("Актёр не найден")
         }
     }
 }

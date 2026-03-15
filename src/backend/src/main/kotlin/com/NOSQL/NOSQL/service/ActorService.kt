@@ -10,6 +10,7 @@ import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.model.generated.UniversityInfo
 import com.NOSQL.NOSQL.repository.ActorRepository
+import com.NOSQL.NOSQL.repository.MediaRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Sort
@@ -27,7 +28,8 @@ import java.time.OffsetDateTime
 class ActorService(
     private val actorRepository: ActorRepository,
     private val mongoTemplate: MongoTemplate,
-    private val universityRepository: UniversityRepository
+    private val universityRepository: UniversityRepository,
+    private val mediaRepository: MediaRepository
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -193,4 +195,15 @@ class ActorService(
     }
 
     fun existsById(id: String): Boolean = actorRepository.existsById(id)
+
+    fun deleteById(id: String) {
+        log.info("Deleting actor: id={}", id)
+        if (!actorRepository.existsById(id)) {
+            log.warn("Actor not found for delete: {}", id)
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден")
+        }
+        mediaRepository.deleteByActorId(id)
+        actorRepository.deleteById(id)
+        log.info("Actor deleted: id={}", id)
+    }
 }

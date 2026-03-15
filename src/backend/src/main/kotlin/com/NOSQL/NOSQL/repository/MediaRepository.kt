@@ -39,6 +39,13 @@ class MediaRepository(
         return objectId.toHexString()
     }
 
+    fun deleteByActorId(actorId: String) {
+        log.debug("Deleting media for actorId={}", actorId)
+        val query = Query.query(Criteria.where("metadata.actorId").`is`(actorId))
+        gridFsOperations.delete(query)
+        log.debug("Media deleted for actorId={}", actorId)
+    }
+
     fun findOne(actorId: String, mediaId: String): GridFsResource? {
         log.debug("findOne: actorId={}, mediaId={}", actorId, mediaId)
         val objectId = try {

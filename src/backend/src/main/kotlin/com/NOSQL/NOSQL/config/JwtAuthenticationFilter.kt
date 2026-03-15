@@ -45,12 +45,12 @@ class JwtAuthenticationFilter(
     }
 
     private fun isProtectedPath(request: HttpServletRequest): Boolean {
-        if (request.method != "POST") return false
         val path = request.requestURI?.removePrefix(request.contextPath.orEmpty())?.takeUnless { it.isEmpty() } ?: request.requestURI ?: return false
         return when {
-            path == "/v1/universities" -> true
-            path == "/v1/actors" -> true
-            path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}/media$")) -> true
+            request.method == "POST" && path == "/v1/universities" -> true
+            request.method == "POST" && path == "/v1/actors" -> true
+            request.method == "POST" && path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}/media$")) -> true
+            request.method == "DELETE" && path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}$")) -> true
             else -> false
         }
     }

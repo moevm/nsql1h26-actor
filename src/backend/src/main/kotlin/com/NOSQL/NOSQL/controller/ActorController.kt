@@ -35,6 +35,12 @@ class ActorController(
         return ResponseEntity.ok(actor)
     }
 
+    override fun v1ActorByIdDelete(id: String): ResponseEntity<Unit> {
+        log.info("DELETE /v1/actors/{}", id)
+        actorService.deleteById(id)
+        return ResponseEntity.noContent().build()
+    }
+
     override fun v1ActorsGet(
         gender: Gender?,
         ageFrom: Int?,

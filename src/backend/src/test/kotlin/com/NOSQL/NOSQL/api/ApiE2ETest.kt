@@ -320,4 +320,124 @@ class ApiE2ETest {
         )
             .andExpect(status().isUnauthorized())
     }
+
+    @Test
+    @DisplayName("DELETE /v1/actors/{id} с JWT — удаляет актёра 204")
+    fun deleteActorWithJwtReturns204() {
+        val token = getToken()
+        val uniRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/universities")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"Вуз"}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val uniId = mapper.readTree(uniRes.response.contentAsString)["id"].asText()
+        val actorRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/actors")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"firstName":"Удаляемый","lastName":"Актёр","education":[{"uniId":"$uniId"}]}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/v1/actors/$actorId")
+                .header("Authorization", "Bearer $token")
+        ).andExpect(status().isNoContent())
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/$actorId"))
+            .andExpect(status().isNotFound())
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/actors/{id} — медиа актёра тоже удаляется")
+    fun deleteActorRemovesMedia() {
+        val token = getToken()
+        val uniRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/universities")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"Вуз"}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val uniId = mapper.readTree(uniRes.response.contentAsString)["id"].asText()
+        val actorRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/actors")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"firstName":"С","lastName":"Медиа","education":[{"uniId":"$uniId"}]}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
+        val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", "image bytes".toByteArray())
+        val uploadRes = mockMvc.perform(
+            MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
+                .header("Authorization", "Bearer $token")
+                .file(file)
+                .param("type", "photo")
+        ).andExpect(status().isCreated()).andReturn()
+        val mediaId = mapper.readTree(uploadRes.response.contentAsString)["mediaId"].asText()
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/$actorId/media/$mediaId"))
+            .andExpect(status().isOk())
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/v1/actors/$actorId")
+                .header("Authorization", "Bearer $token")
+        ).andExpect(status().isNoContent())
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/$actorId/media/$mediaId"))
+            .andExpect(status().isNotFound())
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/actors/{id} без JWT возвращает 401")
+    fun deleteActorWithoutJwtReturns401() {
+        val token = getToken()
+        val uniRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/universities")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"Вуз"}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val uniId = mapper.readTree(uniRes.response.contentAsString)["id"].asText()
+        val actorRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/actors")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"firstName":"Х","lastName":"У","education":[{"uniId":"$uniId"}]}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
+        mockMvc.perform(MockMvcRequestBuilders.delete("/v1/actors/$actorId"))
+            .andExpect(status().isUnauthorized())
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/actors/{id} несуществующего — 404")
+    fun deleteNonExistentActorReturns404() {
+        val token = getToken()
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/v1/actors/000000000000000000000000")
+                .header("Authorization", "Bearer $token")
+        ).andExpect(status().isNotFound())
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/actors/{id} с протухшим JWT возвращает 401")
+    fun deleteActorWithExpiredJwtReturns401() {
+        val admin = adminRepository.findByEmail(testAdminEmail)!!
+        val expiredToken = jwtService.generateToken(admin.id!!, -3600)
+        val token = getToken()
+        val uniRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/universities")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"Вуз"}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val uniId = mapper.readTree(uniRes.response.contentAsString)["id"].asText()
+        val actorRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/actors")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"firstName":"Х","lastName":"У","education":[{"uniId":"$uniId"}]}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/v1/actors/$actorId")
+                .header("Authorization", "Bearer $expiredToken")
+        ).andExpect(status().isUnauthorized())
+    }
 }
