@@ -3,6 +3,7 @@ package com.NOSQL.NOSQL.service
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ContactLinkItem
+import com.NOSQL.NOSQL.model.generated.EducationCreateItem
 import com.NOSQL.NOSQL.model.generated.EducationItem
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.FilmPlayItem
@@ -92,7 +93,7 @@ class ActorServiceTest {
                     ContactLinkItem(name = "ВК", url = URI("https://vk.com/ivan")),
                     ContactLinkItem(name = "Рутуб", url = URI("https://rutube.ru/ivan"))
                 ),
-                education = listOf(EducationItem(uniId = validUniId, graduationYear = 2012, name = "Актёр"))
+                education = listOf(EducationCreateItem(uniId = validUniId))
             )
             val response = actorService.create(create)
             assertThat(response.status).isEqualTo(com.NOSQL.NOSQL.model.generated.ActorCreateResponse.Status.ok)
@@ -106,7 +107,7 @@ class ActorServiceTest {
             val create = ActorCreate(
                 firstName = "Иван",
                 lastName = "Петров",
-                education = listOf(EducationItem(uniId = "000000000000000000000000", graduationYear = 2012, name = "Актёр"))
+                education = listOf(EducationCreateItem(uniId = "000000000000000000000000"))
             )
             val ex = assertThrows<ResponseStatusException> { actorService.create(create) }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -137,7 +138,7 @@ class ActorServiceTest {
                     gender = Gender.male,
                     title = Title.national,
                     phone = "+7 900 000-00-00",
-                    education = listOf(EducationItem(uniId = validUniId, graduationYear = 2012, name = "Актёр"))
+                    education = listOf(EducationCreateItem(uniId = validUniId))
                 )
             ).id!!
             val updated = actorService.update(id, ActorUpdate(firstName = "Пётр"))
@@ -273,7 +274,7 @@ class ActorServiceTest {
                     ContactLinkItem(name = "ВК", url = URI("https://vk.com/ivan_petrov")),
                     ContactLinkItem(name = "Личный сайт", url = URI("https://ivan-actor.ru"))
                 ),
-                education = listOf(EducationItem(uniId = validUniId, graduationYear = 2012, name = "Актёр"))
+                education = listOf(EducationCreateItem(uniId = validUniId))
             )
             val id = actorService.create(create).id!!
             val actor = actorService.getById(id)

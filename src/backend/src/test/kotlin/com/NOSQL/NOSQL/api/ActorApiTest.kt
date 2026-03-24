@@ -2,7 +2,7 @@ package com.NOSQL.NOSQL.api
 
 import com.NOSQL.NOSQL.model.AdminDocument
 import com.NOSQL.NOSQL.model.generated.ActorCreate
-import com.NOSQL.NOSQL.model.generated.EducationItem
+import com.NOSQL.NOSQL.model.generated.EducationCreateItem
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.repository.ActorRepository
@@ -124,7 +124,7 @@ class ActorApiTest {
             birthDate = LocalDate.of(1990, 1, 1),
             gender = Gender.male,
             title = Title.national,
-            education = listOf(EducationItem(uniId = uniId, graduationYear = 2012, name = "Актёр"))
+            education = listOf(EducationCreateItem(uniId = uniId))
         )
         val createRes = mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/actors")
@@ -163,7 +163,7 @@ class ActorApiTest {
 
         @Test
         fun `400 — несуществующий uniId`() {
-            val body = """{"firstName":"Иван","lastName":"П","education":[{"uniId":"000000000000000000000000","graduationYear":2012}]}"""
+            val body = """{"firstName":"Иван","lastName":"П","education":[{"uniId":"000000000000000000000000"}]}"""
             mockMvc.perform(
                 MockMvcRequestBuilders.post("/v1/actors")
                     .header("Authorization", "Bearer $token")

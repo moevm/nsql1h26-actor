@@ -9,6 +9,7 @@ import com.NOSQL.NOSQL.model.domain.TheatrePlayItem as DomainTheatrePlayItem
 import com.NOSQL.NOSQL.model.domain.Title as DomainTitle
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
+import com.NOSQL.NOSQL.model.generated.EducationCreateItem
 import java.time.OffsetDateTime
 
 object MappingFromApi {
@@ -29,7 +30,7 @@ object MappingFromApi {
             phone = actorCreate.phone,
             email = actorCreate.email,
             links = actorCreate.links?.map(::contactLinkItemToDomain),
-            education = actorCreate.education?.map(::educationItemToDomain),
+            education = actorCreate.education?.map(::educationCreateItemToDomain),
             films = actorCreate.films?.map(::filmPlayItemToDomain),
             theatrePlayItems = actorCreate.theatrePlayItems?.map(::theatrePlayItemToDomain),
             photos = emptyList(),
@@ -64,6 +65,9 @@ object MappingFromApi {
 
     private fun contactLinkItemToDomain(it: com.NOSQL.NOSQL.model.generated.ContactLinkItem): DomainContactLinkItem =
         DomainContactLinkItem(name = it.name, url = it.url?.toString())
+
+    private fun educationCreateItemToDomain(it: EducationCreateItem): DomainEducationItem =
+        DomainEducationItem(uniId = it.uniId, graduationYear = null, name = null)
 
     private fun educationItemToDomain(it: com.NOSQL.NOSQL.model.generated.EducationItem): DomainEducationItem =
         DomainEducationItem(

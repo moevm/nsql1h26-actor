@@ -1,7 +1,7 @@
 package com.NOSQL.NOSQL.service
 
 import com.NOSQL.NOSQL.model.generated.ActorCreate
-import com.NOSQL.NOSQL.model.generated.EducationItem
+import com.NOSQL.NOSQL.model.generated.EducationCreateItem
 import com.NOSQL.NOSQL.model.generated.FilmPlayItem
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.TheatrePlayItem
@@ -94,7 +94,7 @@ class ActorServiceFilterTest {
                 eyeColor = "карий",
                 bio = null,
                 title = Title.national,
-                education = listOf(EducationItem(uniId = uniA, graduationYear = 2005, name = "Актёр")),
+                education = listOf(EducationCreateItem(uniId = uniA)),
                 films = listOf(
                     FilmPlayItem(title = "Фильм 1", year = 2010, role = "Роль 1", director = "Реж 1"),
                     FilmPlayItem(title = "Фильм 2", year = 2015, role = "Роль 2", director = "Реж 2")
@@ -121,7 +121,7 @@ class ActorServiceFilterTest {
                 eyeColor = "голубой",
                 bio = null,
                 title = Title.honored,
-                education = listOf(EducationItem(uniId = uniB, graduationYear = 2010, name = "Актёр")),
+                education = listOf(EducationCreateItem(uniId = uniB)),
                 films = listOf(FilmPlayItem(title = "Комедия", year = 2012, role = "Главная", director = "Реж")),
                 theatrePlayItems = listOf(
                     TheatrePlayItem(name = "Ленком", years = "2010–", plays = listOf(FilmPlayItem(title = "Пьеса", year = 2011, role = "Роль", director = null)))

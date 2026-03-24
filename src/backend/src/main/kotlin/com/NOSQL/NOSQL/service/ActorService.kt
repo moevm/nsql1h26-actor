@@ -43,11 +43,9 @@ class ActorService(
     fun create(actorCreate: ActorCreate): ActorCreateResponse {
         log.info("Creating actor: {} {}", actorCreate.firstName, actorCreate.lastName)
         actorCreate.education?.forEach { item ->
-            item.uniId?.let { uniId ->
-                if (!universityRepository.existsById(uniId)) {
-                    log.warn("University not found on actor create: uniId={}", uniId)
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "University not found: $uniId")
-                }
+            if (!universityRepository.existsById(item.uniId)) {
+                log.warn("University not found on actor create: uniId={}", item.uniId)
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "University not found: ${item.uniId}")
             }
         }
         val now = OffsetDateTime.now()

@@ -136,7 +136,7 @@ class ApiE2ETest {
             {"firstName":"Иван","lastName":"Петров","birthDate":"1990-01-15","gender":"male","title":"national",
              "phone":"+7 999 000-11-22","email":"ivan.petrov@example.com",
              "links":[{"name":"ВК","url":"https://vk.com/ivan"},{"name":"Макс","url":"https://max.ru/ivan"}],
-             "education":[{"uniId":"$uniId","graduationYear":2012,"name":"Актёр"}],
+             "education":[{"uniId":"$uniId"}],
              "films":[{"title":"Фильм","year":2020,"role":"Роль","director":"Реж"}],
              "genres":["драма"]}
         """.trimIndent()

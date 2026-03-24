@@ -83,6 +83,16 @@ components:
             type: string
           nullable: true
 
+    EducationCreateItem:
+      type: object
+      description: "При создании актёра указывается только id вуза; название и год подтягиваются из справочника при ответе."
+      additionalProperties: false
+      required: [uniId]
+      properties:
+        uniId:
+          $ref: '#/components/schemas/MongoId'
+          description: "Id вуза из каталога университетов"
+
     EducationItem:
       type: object
       properties:
@@ -309,7 +319,9 @@ components:
         education:
           type: array
           items:
-            $ref: '#/components/schemas/EducationItem'
+            $ref: '#/components/schemas/EducationCreateItem'
+          nullable: true
+          description: "Только id вуза на каждую запись; остальное берётся из каталога при чтении актёра"
         films:
           type: array
           items:
