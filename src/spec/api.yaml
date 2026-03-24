@@ -322,6 +322,11 @@ paths:
       responses:
         '200':
           description: Файл (image/* или video/*)
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: max-age=300
           content:
             image/*:
               schema:

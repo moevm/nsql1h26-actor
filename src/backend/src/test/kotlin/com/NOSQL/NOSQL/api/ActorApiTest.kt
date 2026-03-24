@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.junit.jupiter.api.DisplayName
@@ -214,6 +215,7 @@ class ActorApiTest {
             val mediaId = photos?.get(0)?.get("id")?.asText() ?: return
             val getRes = mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/$actorId/media/$mediaId"))
                 .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "max-age=100"))
                 .andReturn()
             assertThat(getRes.response.contentAsByteArray.size).isPositive()
         }

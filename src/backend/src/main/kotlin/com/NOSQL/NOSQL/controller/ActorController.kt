@@ -11,14 +11,19 @@ import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.service.ActorService
 import com.NOSQL.NOSQL.service.MediaService
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
+import org.springframework.http.CacheControl
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
+import java.util.concurrent.TimeUnit
 
 @RestController
 class ActorController(
     private val actorService: ActorService,
-    private val mediaService: MediaService
+    private val mediaService: MediaService,
+    @param:Value("\${app.http.cache-control.media-max-age-seconds:300}")
+    private val mediaCacheMaxAgeSeconds: Long
 ) : ActorsApi {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -112,6 +117,12 @@ class ActorController(
     override fun v1MediaByIdGet(actorId: String, mediaId: String): ResponseEntity<Resource> {
         log.info("GET /v1/actors/{}/media/{}", actorId, mediaId)
         val resource = mediaService.getResource(actorId, mediaId)
-        return ResponseEntity.ok(resource)
+        return if (mediaCacheMaxAgeSeconds > 0) {
+            ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(mediaCacheMaxAgeSeconds, TimeUnit.SECONDS))
+                .body(resource)
+        } else {
+            ResponseEntity.ok(resource)
+        }
     }
 }
