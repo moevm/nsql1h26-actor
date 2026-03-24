@@ -59,7 +59,7 @@ class MediaService(
         return mediaRepository.findOne(actorId, mediaId)
             ?: run {
                 log.warn("Media not found: actorId={}, mediaId={}", actorId, mediaId)
-                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Медиа не найдено")
+                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found")
             }
     }
 }

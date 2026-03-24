@@ -108,7 +108,7 @@ class ActorServiceTest {
             )
             val ex = assertThrows<ResponseStatusException> { actorService.create(create) }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-            assertThat(ex.reason).contains("Вуз не найден")
+            assertThat(ex.reason).contains("University not found")
         }
 
         @Test
@@ -160,7 +160,7 @@ class ActorServiceTest {
                 actorService.getById("000000000000000000000000")
             }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-            assertThat(ex.reason).contains("Актёр не найден")
+            assertThat(ex.reason).contains("Actor not found")
         }
     }
 
@@ -260,7 +260,7 @@ class ActorServiceTest {
                 actorService.deleteById("000000000000000000000000")
             }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-            assertThat(ex.reason).contains("Актёр не найден")
+            assertThat(ex.reason).contains("Actor not found")
         }
     }
 }

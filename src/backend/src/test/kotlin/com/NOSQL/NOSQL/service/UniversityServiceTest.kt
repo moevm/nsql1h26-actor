@@ -1,11 +1,14 @@
 package com.NOSQL.NOSQL.service
 
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
+import com.NOSQL.NOSQL.model.generated.UniversityUpdate
 import com.NOSQL.NOSQL.repository.UniversityRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.springframework.web.server.ResponseStatusException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -137,5 +140,34 @@ class UniversityServiceTest {
         universityService.create(UniversityCreate(name = "Вуз В", shortName = "В", oldNames = null))
         val list = universityService.search("Вуз", 2)
         assertThat(list).hasSize(2)
+    }
+
+    @Test
+    @DisplayName("update — частичное изменение name")
+    fun updateName() {
+        val id = universityService.create(UniversityCreate(name = "Старое", shortName = "С", oldNames = listOf("А"))).id!!
+        val res = universityService.update(id, UniversityUpdate(name = "Новое"))
+        assertThat(res.status).isEqualTo(com.NOSQL.NOSQL.model.generated.UniversityCreateResponse.Status.ok)
+        val doc = universityRepository.findById(id).get()
+        assertThat(doc.name).isEqualTo("Новое")
+        assertThat(doc.shortName).isEqualTo("С")
+        assertThat(doc.oldNames).containsExactly("А")
+    }
+
+    @Test
+    @DisplayName("update — 404 если id не найден")
+    fun updateNotFound() {
+        assertThrows<ResponseStatusException> {
+            universityService.update("000000000000000000000000", UniversityUpdate(name = "X"))
+        }
+    }
+
+    @Test
+    @DisplayName("update — 400 если нет полей")
+    fun updateEmpty() {
+        val id = universityService.create(UniversityCreate(name = "МГУ")).id!!
+        assertThrows<ResponseStatusException> {
+            universityService.update(id, UniversityUpdate())
+        }
     }
 }

@@ -45,7 +45,7 @@ class ActorService(
             item.uniId?.let { uniId ->
                 if (!universityRepository.existsById(uniId)) {
                     log.warn("University not found on actor create: uniId={}", uniId)
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Вуз не найден: $uniId")
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "University not found: $uniId")
                 }
             }
         }
@@ -65,7 +65,7 @@ class ActorService(
         val doc = actorRepository.findById(id)
             .orElseThrow {
                 log.warn("Actor not found: {}", id)
-                ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден")
+                ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found")
             }
         return enrichWithUniversities(MappingToApi.documentToActor(doc))
     }
@@ -185,7 +185,7 @@ class ActorService(
     fun updatePhotos(actorId: String, photoId: String, caption: String?) {
         log.debug("Adding photo to actor: actorId={}, photoId={}", actorId, photoId)
         val actor = actorRepository.findById(actorId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found") }
         val photos = (actor.photos ?: emptyList()).toMutableList()
         photos.add(com.NOSQL.NOSQL.model.domain.PhotoItem(id = photoId, caption = caption))
         actorRepository.save(actor.copy(photos = photos, updatedAt = Instant.now()))
@@ -194,7 +194,7 @@ class ActorService(
     fun updateVideos(actorId: String, videoId: String, caption: String?) {
         log.debug("Adding video to actor: actorId={}, videoId={}", actorId, videoId)
         val actor = actorRepository.findById(actorId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found") }
         val videos = (actor.videos ?: emptyList()).toMutableList()
         videos.add(com.NOSQL.NOSQL.model.domain.VideoItem(id = videoId, caption = caption))
         actorRepository.save(actor.copy(videos = videos, updatedAt = Instant.now()))
@@ -206,7 +206,7 @@ class ActorService(
         log.info("Deleting actor: id={}", id)
         if (!actorRepository.existsById(id)) {
             log.warn("Actor not found for delete: {}", id)
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found")
         }
         mediaRepository.deleteByActorId(id)
         actorRepository.deleteById(id)

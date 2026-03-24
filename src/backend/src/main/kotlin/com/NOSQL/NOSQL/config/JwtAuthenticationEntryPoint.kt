@@ -20,7 +20,7 @@ class JwtAuthenticationEntryPoint : AuthenticationEntryPoint {
         authException: AuthenticationException
     ) {
         val message = request.getAttribute(ATTR_ERROR_MESSAGE) as? String
-            ?: "Требуется заголовок Authorization: Bearer <token>"
+            ?: "Authorization header required: Bearer <token>"
         val body = UnauthorizedError(error = "Unauthorized", message = message)
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = MediaType.APPLICATION_JSON_VALUE

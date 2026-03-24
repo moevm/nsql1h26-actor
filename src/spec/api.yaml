@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Actor API
-  description: API каталога актёров
+  description: Actor catalog API
   version: 1.0.0
 
 servers:
@@ -11,7 +11,7 @@ servers:
 paths:
   /auth/login:
     post:
-      summary: Вход (получить JWT)
+      summary: Login (get JWT)
       operationId: v1AuthLoginPost
       tags: [auth]
       requestBody:
@@ -22,17 +22,17 @@ paths:
               $ref: './schemas.yaml#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: JWT для заголовка Authorization Bearer (только для операций изменения данных)
+          description: JWT for Authorization Bearer header (mutating operations only)
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/LoginResponse'
         '401':
-          description: Неверный email или пароль
+          description: Invalid email or password
 
   /universities:
     post:
-      summary: Создать вуз
+      summary: Create university
       operationId: v1UniversityCreatePost
       tags: [universities]
       security:
@@ -45,13 +45,13 @@ paths:
               $ref: './schemas.yaml#/components/schemas/UniversityCreate'
       responses:
         '201':
-          description: Результат создания (id + status ok/failed + errorCode)
+          description: Create result (id + status ok/failed + errorCode)
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/UniversityCreateResponse'
         '401':
-          description: Нет или невалидный JWT
+          description: Missing or invalid JWT
           content:
             application/json:
               schema:
@@ -59,7 +59,7 @@ paths:
 
   /universities/search:
     get:
-      summary: Поиск вузов
+      summary: Search universities
       operationId: v1UniversitiesSearchGet
       tags: [universities]
       parameters:
@@ -68,16 +68,16 @@ paths:
           required: true
           schema:
             type: string
-          description: Строка поиска (по name, shortName, oldNames)
+          description: Search string (name, shortName, oldNames)
         - name: limit
           in: query
           schema:
             type: integer
             default: 10
-          description: Максимум результатов
+          description: Max number of results
       responses:
         '200':
-          description: Список подходящих вузов (id, name, shortName, oldNames)
+          description: Matching universities (id, name, shortName, oldNames)
           content:
             application/json:
               schema:
@@ -85,9 +85,47 @@ paths:
                 items:
                   $ref: './schemas.yaml#/components/schemas/UniversitySearchItem'
 
+  /universities/{id}:
+    patch:
+      summary: Update university by id
+      operationId: v1UniversityByIdPatch
+      tags: [universities]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: './schemas.yaml#/components/schemas/MongoId'
+          description: University id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/UniversityUpdate'
+      responses:
+        '200':
+          description: Update result
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/UniversityCreateResponse'
+        '400':
+          description: No fields to update or invalid body
+        '401':
+          description: Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
+        '404':
+          description: University not found
+
   /actors:
     post:
-      summary: Создать актёра
+      summary: Create actor
       operationId: v1ActorCreatePost
       tags: [actors]
       security:
@@ -100,20 +138,20 @@ paths:
               $ref: './schemas.yaml#/components/schemas/ActorCreate'
       responses:
         '201':
-          description: Результат создания (id + status ok/failed + errorCode)
+          description: Create result (id + status ok/failed + errorCode)
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/ActorCreateResponse'
         '401':
-          description: Нет или невалидный JWT
+          description: Missing or invalid JWT
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
 
     get:
-      summary: Получить актёров по фильтрам
+      summary: List actors with filters
       operationId: v1ActorsGet
       tags: [actors]
       parameters:
@@ -125,7 +163,7 @@ paths:
           in: query
           schema:
             type: integer
-          description: Возраст от (лет)
+          description: Minimum age (years)
         - name: ageTo
           in: query
           schema:
@@ -142,17 +180,17 @@ paths:
           in: query
           schema:
             type: integer
-          description: Рост от (см)
+          description: Minimum height (cm)
         - name: heightMax
           in: query
           schema:
             type: integer
-          description: Рост до (см)
+          description: Maximum height (cm)
         - name: activityYearFrom
           in: query
           schema:
             type: integer
-          description: Годы активности от
+          description: Activity year from
         - name: activityYearTo
           in: query
           schema:
@@ -161,7 +199,7 @@ paths:
           in: query
           schema:
             $ref: './schemas.yaml#/components/schemas/MongoId'
-          description: ID вуза
+          description: University id
         - name: theatre
           in: query
           schema:
@@ -188,7 +226,7 @@ paths:
           in: query
           schema:
             type: string
-          description: Подстрока по ФИО (firstName, lastName, middleName), без учёта регистра
+          description: Substring match on full name (firstName, lastName, middleName), case-insensitive
         - name: limit
           in: query
           schema:
@@ -201,7 +239,7 @@ paths:
             default: 0
       responses:
         '200':
-          description: Список актёров
+          description: List of actors
           content:
             application/json:
               schema:
@@ -211,12 +249,12 @@ paths:
 
   /actors/count:
     get:
-      summary: Общее число актёров в каталоге
+      summary: Total actor count in catalog
       operationId: v1ActorsCountGet
       tags: [actors]
       responses:
         '200':
-          description: Количество актёров
+          description: Actor count
           content:
             application/json:
               schema:
@@ -224,7 +262,7 @@ paths:
 
   /actors/{id}:
     get:
-      summary: Получить актёра по ID
+      summary: Get actor by id
       operationId: v1ActorByIdGet
       tags: [actors]
       parameters:
@@ -235,16 +273,16 @@ paths:
             $ref: './schemas.yaml#/components/schemas/MongoId'
       responses:
         '200':
-          description: Актёр
+          description: Actor
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/Actor'
         '404':
-          description: Не найден
+          description: Not found
 
     delete:
-      summary: Удалить страницу актёра
+      summary: Delete actor profile
       operationId: v1ActorByIdDelete
       tags: [actors]
       security:
@@ -257,19 +295,19 @@ paths:
             $ref: './schemas.yaml#/components/schemas/MongoId'
       responses:
         '204':
-          description: Актёр удалён
+          description: Actor deleted
         '401':
-          description: Нет или невалидный JWT
+          description: Missing or invalid JWT
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
         '404':
-          description: Актёр не найден
+          description: Actor not found
 
   /actors/{id}/media:
     post:
-      summary: Загрузить медиа актёра (фото или видео в GridFS)
+      summary: Upload actor media (photo or video to GridFS)
       operationId: v1ActorMediaUploadPost
       tags: [media]
       security:
@@ -280,7 +318,7 @@ paths:
           required: true
           schema:
             $ref: './schemas.yaml#/components/schemas/MongoId'
-          description: ID актёра
+          description: Actor id
       requestBody:
         required: true
         content:
@@ -299,25 +337,25 @@ paths:
                   nullable: true
       responses:
         '201':
-          description: Результат загрузки (mediaId + status ok/failed + errorCode)
+          description: Upload result (mediaId + status ok/failed + errorCode)
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/MediaUploadResponse'
         '401':
-          description: Нет или невалидный JWT
+          description: Missing or invalid JWT
           content:
             application/json:
               schema:
                 $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
         '400':
-          description: Ошибка запроса
+          description: Bad request
         '404':
-          description: Актёр не найден
+          description: Actor not found
 
   /actors/{actorId}/media/{mediaId}:
     get:
-      summary: Получить медиафайл по id (бинарный контент из GridFS)
+      summary: Get media file by id (binary body from GridFS)
       operationId: v1MediaByIdGet
       tags: [media]
       parameters:
@@ -331,10 +369,10 @@ paths:
           required: true
           schema:
             $ref: './schemas.yaml#/components/schemas/MongoId'
-          description: ID элемента в photos или videos
+          description: Media id from photos or videos list
       responses:
         '200':
-          description: Файл (image/* или video/*)
+          description: File (image/* or video/*)
           headers:
             Cache-Control:
               schema:
@@ -354,7 +392,7 @@ paths:
                 type: string
                 format: binary
         '404':
-          description: Медиа не найдено
+          description: Media not found
 
 components:
   securitySchemes:
@@ -362,4 +400,4 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT для операций, изменяющих данные (POST университетов, актёров, медиа)
+      description: JWT for mutating operations (POST universities, actors, media; PATCH universities; DELETE actors)

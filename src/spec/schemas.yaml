@@ -3,38 +3,38 @@ components:
     Gender:
       type: string
       enum: [male, female]
-      description: Пол
+      description: Gender
 
     Title:
       type: string
-      description: Звание
+      description: Title / rank
       enum: [honored, national, none]
 
     ActorMediaType:
       type: string
       enum: [photo, video]
-      description: Тип медиа при загрузке
+      description: Media type on upload
 
     MongoId:
       type: string
       pattern: "^[0-9a-fA-F]{24}$"
-      description: "ID для поиска в MongoDB (ObjectId, 24 hex-символа)"
+      description: "MongoDB ObjectId (24 hex characters)"
 
     ActorCountResponse:
       type: object
       required: [total]
-      description: "Общее число актёров в каталоге"
+      description: "Total number of actors in the catalog"
       properties:
         total:
           type: integer
           format: int64
           minimum: 0
-          description: "Число документов в коллекции actors"
+          description: "Number of documents in the actors collection"
 
     LoginRequest:
       type: object
       required: [email, password]
-      description: Учётные данные для входа (админ)
+      description: Admin login credentials
       properties:
         email:
           type: string
@@ -46,30 +46,30 @@ components:
 
     LoginResponse:
       type: object
-      description: Успешный логин — JWT для заголовка Authorization Bearer
+      description: Successful login — JWT for Authorization Bearer header
       properties:
         token:
           type: string
           description: JWT
         expiresIn:
           type: integer
-          description: Срок жизни токена в секундах
+          description: Token lifetime in seconds
           nullable: true
 
     UnauthorizedError:
       type: object
-      description: Ответ 401 при отсутствии или невалидном JWT
+      description: 401 response when JWT is missing or invalid
       properties:
         error:
           type: string
           example: Unauthorized
         message:
           type: string
-          description: Описание причины (например, требуется токен или токен истёк)
+          description: Reason (e.g. token required or token expired)
 
     UniversityInfo:
       type: object
-      description: "Данные вуза (агрегация при отдаче актёра)"
+      description: "University data (aggregated when returning an actor)"
       readOnly: true
       properties:
         name:
@@ -88,7 +88,7 @@ components:
       properties:
         uniId:
           $ref: '#/components/schemas/MongoId'
-          description: "ObjectId вуза"
+          description: "University ObjectId"
         graduationYear:
           type: integer
           nullable: true
@@ -97,7 +97,7 @@ components:
           nullable: true
         university:
           $ref: '#/components/schemas/UniversityInfo'
-          description: "Вуз (заполняется при отдаче актёра, фронту не ходить отдельно)"
+          description: "University (filled when returning actor; no extra request needed)"
           readOnly: true
           nullable: true
 
@@ -138,32 +138,32 @@ components:
 
     ContactLinkItem:
       type: object
-      description: "Ссылка контакта (ВК, Макс, Рутуб, личный сайт и т.п.)"
+      description: "Contact link (social, personal site, etc.)"
       properties:
         name:
           type: string
-          description: "Название (например ВК, Макс, Рутуб)"
+          description: "Label (e.g. VK, Rutube)"
         url:
           type: string
           format: uri
-          description: "URL ссылки"
+          description: "Link URL"
 
     TheatrePlayItem:
       type: object
-      description: "Элемент списка — театр и его пьесы (название, годы, пьесы)"
+      description: "Theatre entry — name, years, plays"
       properties:
         name:
           type: string
-          description: "Название театра"
+          description: "Theatre name"
         years:
           type: string
           nullable: true
-          description: "Годы (например 2010–2015)"
+          description: "Years (e.g. 2010–2015)"
         plays:
           type: array
           items:
             $ref: '#/components/schemas/FilmPlayItem'
-          description: "Пьесы"
+          description: "Plays"
 
     Actor:
       type: object
@@ -204,18 +204,18 @@ components:
         phone:
           type: string
           nullable: true
-          description: "Телефонный номер"
+          description: "Phone number"
         email:
           type: string
           format: email
           nullable: true
-          description: "Электронная почта"
+          description: "Email"
         links:
           type: array
           items:
             $ref: '#/components/schemas/ContactLinkItem'
           nullable: true
-          description: "Ссылки (ВК, Макс, Рутуб, личный сайт и т.п.)"
+          description: "Contact links (social, site, etc.)"
         education:
           type: array
           items:
@@ -228,7 +228,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TheatrePlayItem'
-          description: "Театры и пьесы (для фронта)"
+          description: "Theatres and plays (for clients)"
         photos:
           type: array
           items:
@@ -237,7 +237,7 @@ components:
           $ref: '#/components/schemas/MongoId'
           nullable: true
           readOnly: true
-          description: "ObjectId медиа главной фотографии (задаётся при обновлении актёра, не при создании)"
+          description: "ObjectId of main photo media (set on actor update, not on create)"
         videos:
           type: array
           items:
@@ -294,18 +294,18 @@ components:
         phone:
           type: string
           nullable: true
-          description: "Телефонный номер"
+          description: "Phone number"
         email:
           type: string
           format: email
           nullable: true
-          description: "Электронная почта"
+          description: "Email"
         links:
           type: array
           items:
             $ref: '#/components/schemas/ContactLinkItem'
           nullable: true
-          description: "Ссылки (ВК, Макс, Рутуб, личный сайт и т.п.)"
+          description: "Contact links (social, site, etc.)"
         education:
           type: array
           items:
@@ -330,14 +330,14 @@ components:
         id:
           $ref: '#/components/schemas/MongoId'
           nullable: true
-          description: "ID актёра при status=ok"
+          description: "Actor id when status=ok"
         status:
           type: string
           enum: [ok, failed]
         errorCode:
           type: string
           nullable: true
-          description: "Код ошибки при status=failed"
+          description: "Error code when status=failed"
 
     MediaUploadResponse:
       type: object
@@ -352,6 +352,7 @@ components:
         errorCode:
           type: string
           nullable: true
+          description: "Error code when status=failed (e.g. ACTOR_NOT_FOUND)"
 
     UniversityCreate:
       type: object
@@ -359,17 +360,35 @@ components:
       properties:
         name:
           type: string
-          description: "Название вуза"
+          description: "University full name"
         shortName:
           type: string
           nullable: true
-          description: "Короткое название"
+          description: "Short name"
         oldNames:
           type: array
           items:
             type: string
           nullable: true
-          description: "Старые названия"
+          description: "Former names"
+
+    UniversityUpdate:
+      type: object
+      description: "Partial update: send at least one field. Empty string for shortName clears it; empty array for oldNames clears the list."
+      properties:
+        name:
+          type: string
+          description: "New full name"
+        shortName:
+          type: string
+          nullable: true
+          description: "Short name; empty string clears"
+        oldNames:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: "Replaces old names list entirely"
 
     UniversityCreateResponse:
       type: object
@@ -378,17 +397,18 @@ components:
         id:
           $ref: '#/components/schemas/MongoId'
           nullable: true
-          description: "ID вуза при status=ok"
+          description: "University id when status=ok"
         status:
           type: string
           enum: [ok, failed]
         errorCode:
           type: string
           nullable: true
+          description: "Error code when status=failed"
 
     UniversitySearchItem:
       type: object
-      description: "Элемент результата поиска вузов (id + название и варианты)"
+      description: "University search result row (id + names)"
       properties:
         id:
           $ref: '#/components/schemas/MongoId'
@@ -402,4 +422,3 @@ components:
           items:
             type: string
           nullable: true
-

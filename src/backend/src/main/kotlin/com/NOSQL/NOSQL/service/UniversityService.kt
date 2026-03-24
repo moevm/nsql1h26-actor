@@ -4,12 +4,15 @@ import com.NOSQL.NOSQL.model.UniversityDocument
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
 import com.NOSQL.NOSQL.model.generated.UniversityCreateResponse
 import com.NOSQL.NOSQL.model.generated.UniversitySearchItem
+import com.NOSQL.NOSQL.model.generated.UniversityUpdate
 import com.NOSQL.NOSQL.repository.UniversityRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UniversityService(
@@ -70,6 +73,40 @@ class UniversityService(
         )
         val saved = universityRepository.save(doc)
         log.info("University created with id={}", saved.id)
+        return UniversityCreateResponse(
+            id = saved.id,
+            status = UniversityCreateResponse.Status.ok,
+            errorCode = null
+        )
+    }
+
+    fun update(id: String, update: UniversityUpdate): UniversityCreateResponse {
+        log.info("Updating university id={}", id)
+        if (update.name == null && update.shortName == null && update.oldNames == null) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Provide at least one field to update")
+        }
+        val doc = universityRepository.findById(id)
+            .orElseThrow {
+                log.warn("University not found: id={}", id)
+                ResponseStatusException(HttpStatus.NOT_FOUND, "University not found")
+            }
+        val newName = update.name ?: doc.name
+        val newShort = when {
+            update.shortName != null -> update.shortName.ifBlank { null }
+            else -> doc.shortName
+        }
+        val newOldNames = when {
+            update.oldNames != null -> update.oldNames
+            else -> doc.oldNames
+        }
+        val saved = universityRepository.save(
+            doc.copy(
+                name = newName,
+                shortName = newShort,
+                oldNames = newOldNames
+            )
+        )
+        log.info("University updated id={}", saved.id)
         return UniversityCreateResponse(
             id = saved.id,
             status = UniversityCreateResponse.Status.ok,

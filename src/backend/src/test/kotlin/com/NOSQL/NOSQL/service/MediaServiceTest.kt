@@ -148,7 +148,7 @@ class MediaServiceTest {
                 mediaService.getResource(actorId, "000000000000000000000000")
             }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-            assertThat(ex.reason).contains("Медиа не найдено")
+            assertThat(ex.reason).contains("Media not found")
         }
 
         @Test
