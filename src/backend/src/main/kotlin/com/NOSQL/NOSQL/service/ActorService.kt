@@ -33,6 +33,12 @@ class ActorService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
+    fun countTotal(): Long {
+        val count = actorRepository.count()
+        log.debug("countTotal: $count")
+        return count
+    }
+
     fun create(actorCreate: ActorCreate): ActorCreateResponse {
         log.info("Creating actor: {} {}", actorCreate.firstName, actorCreate.lastName)
         actorCreate.education?.forEach { item ->

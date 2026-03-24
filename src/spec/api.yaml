@@ -209,6 +209,19 @@ paths:
                 items:
                   $ref: './schemas.yaml#/components/schemas/Actor'
 
+  /actors/count:
+    get:
+      summary: Общее число актёров в каталоге
+      operationId: v1ActorsCountGet
+      tags: [actors]
+      responses:
+        '200':
+          description: Количество актёров
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/ActorCountResponse'
+
   /actors/{id}:
     get:
       summary: Получить актёра по ID

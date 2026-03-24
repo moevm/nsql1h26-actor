@@ -2,6 +2,7 @@ package com.NOSQL.NOSQL.controller
 
 import com.NOSQL.NOSQL.api.ActorsApi
 import com.NOSQL.NOSQL.model.generated.Actor
+import com.NOSQL.NOSQL.model.generated.ActorCountResponse
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
@@ -88,6 +89,11 @@ class ActorController(
             offset = offset
         )
         return ResponseEntity.ok(list)
+    }
+
+    override fun v1ActorsCountGet(): ResponseEntity<ActorCountResponse> {
+        log.info("GET /v1/actors/count")
+        return ResponseEntity.ok(ActorCountResponse(total = actorService.countTotal()))
     }
 
     override fun v1ActorMediaUploadPost(

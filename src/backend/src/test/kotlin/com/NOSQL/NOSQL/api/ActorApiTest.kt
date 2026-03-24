@@ -150,6 +150,17 @@ class ActorApiTest {
     }
 
     @Nested
+    @DisplayName("GET /v1/actors/count")
+    inner class GetActorsCount {
+        @Test
+        fun `200 — total совпадает с числом актёров`() {
+            mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/count"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+        }
+    }
+
+    @Nested
     @DisplayName("GET /v1/actors/{id}")
     inner class GetActorById {
         @Test
