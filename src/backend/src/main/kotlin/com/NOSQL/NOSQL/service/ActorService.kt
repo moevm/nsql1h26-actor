@@ -6,6 +6,7 @@ import com.NOSQL.NOSQL.model.ActorDocument
 import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
+import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.model.generated.UniversityInfo
@@ -58,6 +59,50 @@ class ActorService(
             id = saved.id,
             errorCode = null
         )
+    }
+
+    fun update(id: String, update: ActorUpdate): Actor {
+        log.info("Updating actor id={}", id)
+        if (!hasAnyUpdateField(update)) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Provide at least one field to update")
+        }
+        update.education?.forEach { item ->
+            item.uniId?.let { uniId ->
+                if (!universityRepository.existsById(uniId)) {
+                    log.warn("University not found on actor update: uniId={}", uniId)
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "University not found: $uniId")
+                }
+            }
+        }
+        val doc = actorRepository.findById(id)
+            .orElseThrow {
+                log.warn("Actor not found for update: {}", id)
+                ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found")
+            }
+        val merged = MappingFromApi.mergeActorDocument(doc, update)
+        validateMainPhoto(merged)
+        val saved = actorRepository.save(merged.copy(updatedAt = Instant.now()))
+        log.info("Actor updated id={}", saved.id)
+        return enrichWithUniversities(MappingToApi.documentToActor(saved))
+    }
+
+    private fun hasAnyUpdateField(u: ActorUpdate): Boolean =
+        u.firstName != null || u.lastName != null || u.middleName != null ||
+            u.birthDate != null || u.height != null || u.weight != null ||
+            u.gender != null || u.hairColor != null || u.eyeColor != null ||
+            u.bio != null || u.title != null || u.phone != null || u.email != null ||
+            u.links != null || u.education != null || u.films != null ||
+            u.theatrePlayItems != null || u.genres != null || u.mainPhotoId != null
+
+    private fun validateMainPhoto(doc: ActorDocument) {
+        val mainId = doc.mainPhotoId ?: return
+        val photoIds = doc.photos?.mapNotNull { it.id }?.toSet() ?: emptySet()
+        if (mainId !in photoIds) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "mainPhotoId must reference an existing photo id from photos"
+            )
+        }
     }
 
     fun getById(id: String): Actor {

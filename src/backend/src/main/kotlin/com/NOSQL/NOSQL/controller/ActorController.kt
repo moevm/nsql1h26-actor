@@ -5,6 +5,7 @@ import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorCountResponse
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
+import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.MediaUploadResponse
@@ -45,6 +46,12 @@ class ActorController(
         log.info("DELETE /v1/actors/{}", id)
         actorService.deleteById(id)
         return ResponseEntity.noContent().build()
+    }
+
+    override fun v1ActorByIdPatch(id: String, actorUpdate: ActorUpdate): ResponseEntity<Actor> {
+        log.info("PATCH /v1/actors/{}", id)
+        val actor = actorService.update(id, actorUpdate)
+        return ResponseEntity.ok(actor)
     }
 
     override fun v1ActorsGet(

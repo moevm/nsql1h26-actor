@@ -35,6 +35,7 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/v1/universities").authenticated()
                     .requestMatchers(HttpMethod.PATCH, "/v1/universities/*").authenticated()
                     .requestMatchers(HttpMethod.POST, "/v1/actors").authenticated()
+                    .requestMatchers(HttpMethod.PATCH, "/v1/actors/*").authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/v1/actors/*").authenticated()
                     .requestMatchers(HttpMethod.POST, "/v1/actors/*/media").authenticated()
                     .anyRequest().permitAll()

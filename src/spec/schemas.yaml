@@ -323,6 +323,80 @@ components:
           items:
             type: string
 
+    ActorUpdate:
+      type: object
+      description: |
+        Partial update (PATCH): send at least one field. Omitted fields keep previous values.
+        List fields (links, education, films, theatrePlayItems, genres) replace the entire list when provided (use [] to clear).
+        mainPhotoId must be one of the actor's photo ids from photos[].id; omit to leave unchanged.
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+          nullable: true
+        birthDate:
+          type: string
+          format: date
+          nullable: true
+        height:
+          type: integer
+          nullable: true
+        weight:
+          type: integer
+          nullable: true
+        gender:
+          $ref: '#/components/schemas/Gender'
+        hairColor:
+          type: string
+          nullable: true
+        eyeColor:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        title:
+          $ref: '#/components/schemas/Title'
+        phone:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactLinkItem'
+          nullable: true
+        education:
+          type: array
+          items:
+            $ref: '#/components/schemas/EducationItem'
+          nullable: true
+        films:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilmPlayItem'
+          nullable: true
+        theatrePlayItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/TheatrePlayItem'
+          nullable: true
+        genres:
+          type: array
+          items:
+            type: string
+          nullable: true
+        mainPhotoId:
+          $ref: '#/components/schemas/MongoId'
+          nullable: true
+          description: "Must match an existing photos[].id; send null in JSON only if your client distinguishes omit vs null (otherwise omit)"
+
     ActorCreateResponse:
       type: object
       required: [status]

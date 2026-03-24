@@ -406,6 +406,32 @@ class ApiE2ETest {
     }
 
     @Test
+    @DisplayName("PATCH /v1/actors/{id} без JWT возвращает 401")
+    fun patchActorWithoutJwtReturns401() {
+        val token = getToken()
+        val uniRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/universities")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"ВузПатч"}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val uniId = mapper.readTree(uniRes.response.contentAsString)["id"].asText()
+        val actorRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/actors")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"firstName":"П","lastName":"Ч","education":[{"uniId":"$uniId"}]}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
+        mockMvc.perform(
+            MockMvcRequestBuilders.patch("/v1/actors/$actorId")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"lastName":"Новый"}""")
+        )
+            .andExpect(status().isUnauthorized())
+    }
+
+    @Test
     @DisplayName("DELETE /v1/actors/{id} несуществующего — 404")
     fun deleteNonExistentActorReturns404() {
         val token = getToken()

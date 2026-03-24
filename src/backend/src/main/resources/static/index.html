@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Тест API актёров</title>
+    <title>Actor API test</title>
     <style>
       :root {
         --bg: #0f0f12;
@@ -140,7 +140,7 @@
         margin-top: 8px;
       }
 
-      /* Карточка актёра */
+      /* Actor card */
       .actor-card-wrap {
         margin-top: 16px;
         display: none;
@@ -337,71 +337,71 @@
     </style>
   </head>
   <body>
-    <h1>Тест API каталога актёров</h1>
-    <p style="color: var(--muted); margin-bottom: 24px">Бэкенд: <code id="apiBase">/v1</code> (тот же хост)</p>
+    <h1>Actor catalog API test</h1>
+    <p style="color: var(--muted); margin-bottom: 24px">Backend: <code id="apiBase">/v1</code> (same host)</p>
 
     <section>
-      <h2>0. Вход (JWT)</h2>
-      <p style="color: var(--muted); font-size: 0.9rem">Токен нужен для создания вузов, актёров, загрузки медиа и удаления. Автовход при загрузке страницы.</p>
+      <h2>0. Login (JWT)</h2>
+      <p style="color: var(--muted); font-size: 0.9rem">JWT is required to create universities, actors, upload media, and delete. Auto-login on page load.</p>
       <div class="row">
         <div><label>Email</label><input type="email" id="loginEmail" value="admin@example.com" placeholder="admin@example.com" style="width: 220px" /></div>
-        <div><label>Пароль</label><input type="password" id="loginPassword" value="admin" placeholder="admin" style="width: 120px" /></div>
-        <button type="button" id="btnLogin">Войти</button>
-        <button type="button" id="btnLogout">Выйти</button>
+        <div><label>Password</label><input type="password" id="loginPassword" value="admin" placeholder="admin" style="width: 120px" /></div>
+        <button type="button" id="btnLogin">Sign in</button>
+        <button type="button" id="btnLogout">Sign out</button>
       </div>
       <div id="loginStatus" class="out" style="display: none; margin-top: 12px"></div>
     </section>
 
     <section>
-      <h2>1. Создать вуз</h2>
-      <label>Название *</label>
-      <input type="text" id="uniName" placeholder="Московский государственный университет" />
-      <label>Короткое название</label>
-      <input type="text" id="uniShortName" placeholder="МГУ" />
-      <label>Старые названия (через запятую)</label>
-      <input type="text" id="uniOldNames" placeholder="Императорский Московский университет" />
-      <button type="button" id="btnCreateUni">Создать вуз</button>
+      <h2>1. Create university</h2>
+      <label>Name *</label>
+      <input type="text" id="uniName" placeholder="Moscow State University" />
+      <label>Short name</label>
+      <input type="text" id="uniShortName" placeholder="MSU" />
+      <label>Former names (comma-separated)</label>
+      <input type="text" id="uniOldNames" placeholder="Imperial Moscow University" />
+      <button type="button" id="btnCreateUni">Create university</button>
       <div id="uniOut" class="out" style="display: none"></div>
     </section>
 
     <section>
-      <h2>2. Поиск вузов</h2>
-      <p style="color: var(--muted); font-size: 0.9rem">По полному, краткому и старым названиям. Результаты можно подставить в фильтр актёров.</p>
+      <h2>2. Search universities</h2>
+      <p style="color: var(--muted); font-size: 0.9rem">Matches full name, short name, and former names. Use results in actor filters.</p>
       <div class="row">
-        <div><label>Строка поиска</label><input type="text" id="uniSearchQ" placeholder="ГИТИС, МХАТ, Щука…" style="width: 220px" /></div>
-        <div><label>Макс. результатов</label><input type="number" id="uniSearchLimit" value="10" min="1" max="100" style="width: 70px" /></div>
-        <button type="button" id="btnSearchUni">Искать вузы</button>
+        <div><label>Search query</label><input type="text" id="uniSearchQ" placeholder="GITIS, MHAT…" style="width: 220px" /></div>
+        <div><label>Max results</label><input type="number" id="uniSearchLimit" value="10" min="1" max="100" style="width: 70px" /></div>
+        <button type="button" id="btnSearchUni">Search universities</button>
       </div>
       <div id="uniSearchOut" class="out" style="display: none"></div>
       <div id="uniSearchTable"></div>
     </section>
 
     <section>
-      <h2>3. Поиск актёров (фильтры)</h2>
+      <h2>3. Search actors (filters)</h2>
       <div class="row">
-        <div><label>Имя (подстрока)</label><input type="text" id="filterName" placeholder="Иван, Петров…" style="width: 140px" /></div>
+        <div><label>Name (substring)</label><input type="text" id="filterName" placeholder="John, Doe…" style="width: 140px" /></div>
         <div>
-          <label>Пол</label
+          <label>Gender</label
           ><select id="filterGender">
             <option value="">—</option>
             <option value="male">male</option>
             <option value="female">female</option>
           </select>
         </div>
-        <div><label>Возраст от</label><input type="number" id="filterAgeFrom" placeholder="25" style="width: 80px" /></div>
-        <div><label>Возраст до</label><input type="number" id="filterAgeTo" placeholder="50" style="width: 80px" /></div>
-        <div><label>Рост от (см)</label><input type="number" id="filterHeightMin" style="width: 80px" /></div>
-        <div><label>Рост до (см)</label><input type="number" id="filterHeightMax" style="width: 80px" /></div>
-        <div><label>Вес мин</label><input type="number" id="filterWeightMin" style="width: 80px" /></div>
-        <div><label>Вес макс</label><input type="number" id="filterWeightMax" style="width: 80px" /></div>
-        <div><label>Год актив. от</label><input type="number" id="filterActivityYearFrom" placeholder="2010" style="width: 100px" /></div>
-        <div><label>Год актив. до</label><input type="number" id="filterActivityYearTo" placeholder="2025" style="width: 100px" /></div>
-        <div><label>Цвет волос</label><input type="text" id="filterHairColor" placeholder="каштановый" style="width: 110px" /></div>
-        <div><label>Цвет глаз</label><input type="text" id="filterEyeColor" placeholder="карий" style="width: 90px" /></div>
-        <div><label>Жанры (через запятую)</label><input type="text" id="filterGenres" placeholder="драма, комедия" style="width: 140px" /></div>
-        <div><label>Театр (подстрока)</label><input type="text" id="filterTheatre" placeholder="Современник" style="width: 140px" /></div>
+        <div><label>Age from</label><input type="number" id="filterAgeFrom" placeholder="25" style="width: 80px" /></div>
+        <div><label>Age to</label><input type="number" id="filterAgeTo" placeholder="50" style="width: 80px" /></div>
+        <div><label>Height min (cm)</label><input type="number" id="filterHeightMin" style="width: 80px" /></div>
+        <div><label>Height max (cm)</label><input type="number" id="filterHeightMax" style="width: 80px" /></div>
+        <div><label>Weight min</label><input type="number" id="filterWeightMin" style="width: 80px" /></div>
+        <div><label>Weight max</label><input type="number" id="filterWeightMax" style="width: 80px" /></div>
+        <div><label>Activity year from</label><input type="number" id="filterActivityYearFrom" placeholder="2010" style="width: 100px" /></div>
+        <div><label>Activity year to</label><input type="number" id="filterActivityYearTo" placeholder="2025" style="width: 100px" /></div>
+        <div><label>Hair color</label><input type="text" id="filterHairColor" placeholder="brown" style="width: 110px" /></div>
+        <div><label>Eye color</label><input type="text" id="filterEyeColor" placeholder="blue" style="width: 90px" /></div>
+        <div><label>Genres (comma-separated)</label><input type="text" id="filterGenres" placeholder="drama, comedy" style="width: 140px" /></div>
+        <div><label>Theatre (substring)</label><input type="text" id="filterTheatre" placeholder="Contemporary" style="width: 140px" /></div>
         <div>
-          <label>Звание</label
+          <label>Title</label
           ><select id="filterTitle">
             <option value="">—</option>
             <option value="honored">honored</option>
@@ -409,84 +409,84 @@
             <option value="none">none</option>
           </select>
         </div>
-        <div><label>ID вуза</label><input type="text" id="filterUniversityId" placeholder="24 hex" style="width: 180px" /></div>
+        <div><label>University id</label><input type="text" id="filterUniversityId" placeholder="24 hex" style="width: 180px" /></div>
         <div><label>limit</label><input type="number" id="filterLimit" value="20" min="1" style="width: 70px" /></div>
         <div><label>offset</label><input type="number" id="filterOffset" value="0" min="0" style="width: 70px" /></div>
       </div>
-      <button type="button" id="btnSearch">Искать</button>
+      <button type="button" id="btnSearch">Search</button>
       <div id="searchOut" class="out" style="display: none"></div>
       <div id="searchTable"></div>
     </section>
 
     <section>
-      <h2>4. Получить актёра по ID</h2>
-      <label>ID актёра (Mongo ObjectId)</label>
+      <h2>4. Get actor by id</h2>
+      <label>Actor id (Mongo ObjectId)</label>
       <div class="row">
         <input type="text" id="actorId" placeholder="69ae82ab8f69b57563344e0c" style="max-width: 280px" />
-        <button type="button" id="btnGetActor">Загрузить</button>
+        <button type="button" id="btnGetActor">Load</button>
       </div>
       <div id="actorCardWrap" class="actor-card-wrap">
         <div id="actorCard" class="actor-card"></div>
         <div class="actor-json-toggle">
-          <button type="button" id="btnShowCard" class="active">Карточка</button>
+          <button type="button" id="btnShowCard" class="active">Card</button>
           <button type="button" id="btnShowJson">JSON</button>
-          <button type="button" id="btnDeleteActor">Удалить актёра</button>
+          <button type="button" id="btnDeleteActor">Delete actor</button>
         </div>
       </div>
       <div id="actorOut" class="out" style="display: none"></div>
     </section>
 
     <section>
-      <h2>5. Создать актёра</h2>
-      <p style="color: var(--muted); font-size: 0.9rem">Требуется JWT. Обязательны: имя, фамилия. ID вуза — из раздела «Поиск вузов».</p>
+      <h2>5. Create actor</h2>
+      <p style="color: var(--muted); font-size: 0.9rem">JWT required. First and last name are required. University id from university search.</p>
       <div class="row">
-        <div><label>Имя *</label><input type="text" id="createFirstName" placeholder="Иван" style="width: 120px" /></div>
-        <div><label>Фамилия *</label><input type="text" id="createLastName" placeholder="Петров" style="width: 120px" /></div>
-        <div><label>Отчество</label><input type="text" id="createMiddleName" placeholder="Сергеевич" style="width: 120px" /></div>
-        <div><label>Дата рождения</label><input type="text" id="createBirthDate" placeholder="1990-05-15" style="width: 120px" /></div>
-        <div><label>Пол</label><select id="createGender" style="width: 90px"><option value="">—</option><option value="male">male</option><option value="female">female</option></select></div>
-        <div><label>Рост (см)</label><input type="number" id="createHeight" style="width: 70px" /></div>
-        <div><label>Вес</label><input type="number" id="createWeight" style="width: 70px" /></div>
-        <div><label>Театр</label><input type="text" id="createTheatre" placeholder="МХТ им. Чехова" style="width: 140px" /></div>
-        <div><label>ID вуза</label><input type="text" id="createUniversityId" placeholder="ObjectId" style="width: 180px" /></div>
-        <div><label>Звание</label><select id="createTitle" style="width: 100px"><option value="">—</option><option value="honored">honored</option><option value="national">national</option><option value="none">none</option></select></div>
+        <div><label>First name *</label><input type="text" id="createFirstName" placeholder="John" style="width: 120px" /></div>
+        <div><label>Last name *</label><input type="text" id="createLastName" placeholder="Doe" style="width: 120px" /></div>
+        <div><label>Middle name</label><input type="text" id="createMiddleName" placeholder="Sergeevich" style="width: 120px" /></div>
+        <div><label>Birth date</label><input type="text" id="createBirthDate" placeholder="1990-05-15" style="width: 120px" /></div>
+        <div><label>Gender</label><select id="createGender" style="width: 90px"><option value="">—</option><option value="male">male</option><option value="female">female</option></select></div>
+        <div><label>Height (cm)</label><input type="number" id="createHeight" style="width: 70px" /></div>
+        <div><label>Weight</label><input type="number" id="createWeight" style="width: 70px" /></div>
+        <div><label>Theatre</label><input type="text" id="createTheatre" placeholder="Chekhov Moscow Art Theatre" style="width: 140px" /></div>
+        <div><label>University id</label><input type="text" id="createUniversityId" placeholder="ObjectId" style="width: 180px" /></div>
+        <div><label>Title</label><select id="createTitle" style="width: 100px"><option value="">—</option><option value="honored">honored</option><option value="national">national</option><option value="none">none</option></select></div>
       </div>
       <div class="row" style="margin-top: 8px">
-        <div><label>Биография</label><textarea id="createBio" rows="2" placeholder="Краткая биография" style="width: 400px"></textarea></div>
-        <div><label>Телефон</label><input type="text" id="createPhone" placeholder="+7 999 123-45-67" style="width: 140px" /></div>
-        <div><label>Email</label><input type="email" id="createEmail" placeholder="actor@mail.ru" style="width: 180px" /></div>
-        <div><label>Цвет волос</label><input type="text" id="createHairColor" placeholder="каштановый" style="width: 100px" /></div>
-        <div><label>Цвет глаз</label><input type="text" id="createEyeColor" placeholder="карий" style="width: 90px" /></div>
-        <div><label>Жанры (через запятую)</label><input type="text" id="createGenres" placeholder="драма, комедия" style="width: 140px" /></div>
+        <div><label>Bio</label><textarea id="createBio" rows="2" placeholder="Short bio" style="width: 400px"></textarea></div>
+        <div><label>Phone</label><input type="text" id="createPhone" placeholder="+1 555 123-4567" style="width: 140px" /></div>
+        <div><label>Email</label><input type="email" id="createEmail" placeholder="actor@example.com" style="width: 180px" /></div>
+        <div><label>Hair color</label><input type="text" id="createHairColor" placeholder="brown" style="width: 100px" /></div>
+        <div><label>Eye color</label><input type="text" id="createEyeColor" placeholder="blue" style="width: 90px" /></div>
+        <div><label>Genres (comma-separated)</label><input type="text" id="createGenres" placeholder="drama, comedy" style="width: 140px" /></div>
       </div>
-      <button type="button" id="btnCreateActor">Создать актёра</button>
+      <button type="button" id="btnCreateActor">Create actor</button>
       <div id="createActorOut" class="out" style="display: none"></div>
     </section>
 
     <section>
-      <h2>6. Загрузить фото или видео для актёра</h2>
-      <label>ID актёра</label>
+      <h2>6. Upload photo or video for actor</h2>
+      <label>Actor id</label>
       <input type="text" id="uploadActorId" placeholder="69ae82ab8f69b57563344e0c" />
-      <label>Тип медиа</label>
+      <label>Media type</label>
       <select id="uploadType">
-        <option value="photo">Фото</option>
-        <option value="video">Видео</option>
+        <option value="photo">Photo</option>
+        <option value="video">Video</option>
       </select>
-      <label>Файл</label>
+      <label>File</label>
       <input type="file" id="uploadFile" accept="image/*,video/*" />
-      <label>Подпись (caption)</label>
-      <input type="text" id="uploadCaption" placeholder="Портрет / Описание" />
-      <button type="button" id="btnUpload">Загрузить</button>
+      <label>Caption</label>
+      <input type="text" id="uploadCaption" placeholder="Portrait / description" />
+      <button type="button" id="btnUpload">Upload</button>
       <div id="uploadOut" class="out" style="display: none"></div>
     </section>
 
     <section>
-      <h2>7. Получить фото/медиа</h2>
-      <label>ID актёра</label>
+      <h2>7. Get photo / media</h2>
+      <label>Actor id</label>
       <input type="text" id="mediaActorId" placeholder="69ae82ab8f69b57563344e0c" />
-      <label>ID медиа (из photos[].id или videos[].id)</label>
-      <input type="text" id="mediaId" placeholder="ObjectId файла в GridFS" />
-      <button type="button" id="btnGetMedia">Показать</button>
+      <label>Media id (from photos[].id or videos[].id)</label>
+      <input type="text" id="mediaId" placeholder="GridFS file ObjectId" />
+      <button type="button" id="btnGetMedia">Show</button>
       <div id="mediaOut" class="out" style="display: none"></div>
       <img id="mediaPreview" class="preview" alt="" style="display: none" />
       <video id="mediaVideo" class="preview" controls style="display: none"></video>
@@ -511,11 +511,11 @@
         const token = localStorage.getItem(JWT_KEY);
         if (token) {
           status.style.display = "block";
-          status.textContent = "JWT есть (действует). Можно создавать/удалять.";
+          status.textContent = "JWT present. You can create and delete.";
           status.className = "out ok";
         } else {
           status.style.display = "block";
-          status.textContent = "JWT нет. Войдите для создания вузов, актёров, медиа и удаления.";
+          status.textContent = "No JWT. Sign in to create universities, actors, media, and to delete.";
           status.className = "out err";
         }
       }
@@ -526,7 +526,7 @@
         const password = document.getElementById("loginPassword").value;
         if (!email || !password) {
           status.style.display = "block";
-          status.textContent = "Введите email и пароль";
+          status.textContent = "Enter email and password";
           status.className = "out err";
           return;
         }
@@ -536,7 +536,7 @@
           updateLoginStatus();
         } else {
           status.style.display = "block";
-          status.textContent = res.data ? JSON.stringify(res.data) : "Ошибка входа";
+          status.textContent = res.data ? JSON.stringify(res.data) : "Login failed";
           status.className = "out err";
         }
       };
@@ -598,12 +598,12 @@
         };
       }
 
-      // 1. Создать вуз
+      // 1. Create university
       document.getElementById("btnCreateUni").onclick = async () => {
         const out = document.getElementById("uniOut");
         const name = document.getElementById("uniName").value.trim();
         if (!name) {
-          showOut(out, "Введите название вуза", true);
+          showOut(out, "Enter university name", true);
           return;
         }
         const shortName = document.getElementById("uniShortName").value.trim() || null;
@@ -632,27 +632,27 @@
         }
       };
 
-      // 2. Поиск вузов
+      // 2. Search universities
       document.getElementById("btnSearchUni").onclick = async () => {
         const out = document.getElementById("uniSearchOut");
         const table = document.getElementById("uniSearchTable");
         const q = document.getElementById("uniSearchQ").value.trim();
         const limit = document.getElementById("uniSearchLimit").value || "10";
         if (!q) {
-          showOut(out, "Введите строку поиска", true);
+          showOut(out, "Enter search query", true);
           table.innerHTML = "";
           return;
         }
         const res = await api("GET", "/universities/search?q=" + encodeURIComponent(q) + "&limit=" + encodeURIComponent(limit));
         if (res.ok && Array.isArray(res.data)) {
           const list = res.data;
-          showOut(out, "Найдено: " + list.length);
+          showOut(out, "Found: " + list.length);
           if (list.length === 0) {
             table.innerHTML = "";
             return;
           }
           table.innerHTML =
-            "<table><thead><tr><th>ID</th><th>Название</th><th>Краткое</th><th>Старые названия</th><th></th></tr></thead><tbody>" +
+            "<table><thead><tr><th>ID</th><th>Name</th><th>Short</th><th>Former names</th><th></th></tr></thead><tbody>" +
             list
               .map((u) => {
                 const oldStr = u.oldNames && u.oldNames.length ? u.oldNames.join(", ") : "—";
@@ -667,7 +667,7 @@
                   esc(oldStr) +
                   '</td><td><a href="#" data-uni-id="' +
                   esc(u.id || "") +
-                  '">Подставить в «ID вуза»</a></td></tr>'
+                  '">Use as university id</a></td></tr>'
                 );
               })
               .join("") +
@@ -684,7 +684,7 @@
         }
       };
 
-      // 3. Поиск актёров
+      // 3. Search actors
       document.getElementById("btnSearch").onclick = async () => {
         const out = document.getElementById("searchOut");
         const table = document.getElementById("searchTable");
@@ -726,13 +726,13 @@
         const res = await api("GET", "/actors?" + params.toString());
         if (res.ok) {
           const list = Array.isArray(res.data) ? res.data : [];
-          showOut(out, "Найдено: " + list.length);
+          showOut(out, "Found: " + list.length);
           if (list.length === 0) {
             table.innerHTML = "";
             return;
           }
           table.innerHTML =
-            "<table><thead><tr><th>ID</th><th>Имя</th><th>Дата рождения</th><th>Звание</th><th></th></tr></thead><tbody>" +
+            "<table><thead><tr><th>ID</th><th>Name</th><th>Birth date</th><th>Title</th><th></th></tr></thead><tbody>" +
             list
               .map((a) => {
                 const name = [a.lastName, a.firstName, a.middleName].filter(Boolean).join(" ");
@@ -747,9 +747,9 @@
                   (a.title || "") +
                   '</td><td><a href="#" data-id="' +
                   (a.id || "") +
-                  '">Подставить</a> · <a href="#" data-delete-id="' +
+                  '">Use id</a> · <a href="#" data-delete-id="' +
                   (a.id || "") +
-                  '" class="link-delete">Удалить</a></td></tr>'
+                  '" class="link-delete">Delete</a></td></tr>'
                 );
               })
               .join("") +
@@ -761,10 +761,10 @@
             link.onclick = async (e) => {
               e.preventDefault();
               const id = link.dataset.deleteId;
-              if (!id || !confirm("Удалить актёра " + id + "?")) return;
+              if (!id || !confirm("Delete actor " + id + "?")) return;
               const res = await api("DELETE", "/actors/" + encodeURIComponent(id));
               if (res.ok) {
-                showOut(document.getElementById("searchOut"), "Удалено. Обновите поиск.");
+                showOut(document.getElementById("searchOut"), "Deleted. Refresh search.");
                 document.getElementById("searchTable").innerHTML = "";
               } else showOut(document.getElementById("searchOut"), res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
             };
@@ -779,16 +779,16 @@
         if (s == null || s === undefined) return "";
         return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
       }
-      const titleLabels = { honored: "Заслуженный артист", national: "Народный артист", none: "" };
+      const titleLabels = { honored: "Honored Artist", national: "People's Artist", none: "" };
 
       function renderActorCard(a, actorId) {
         const name = [a.lastName, a.firstName, a.middleName].filter(Boolean).join(" ");
         const titleText = a.title && titleLabels[a.title] ? titleLabels[a.title] : "";
         const meta = [];
-        if (a.birthDate) meta.push("Род. " + esc(a.birthDate));
-        if (a.gender) meta.push(a.gender === "female" ? "ж" : "м");
-        if (a.height != null) meta.push(esc(a.height) + " см");
-        if (a.weight != null) meta.push(esc(a.weight) + " кг");
+        if (a.birthDate) meta.push("b. " + esc(a.birthDate));
+        if (a.gender) meta.push(a.gender === "female" ? "f" : "m");
+        if (a.height != null) meta.push(esc(a.height) + " cm");
+        if (a.weight != null) meta.push(esc(a.weight) + " kg");
         if (a.hairColor) meta.push(esc(a.hairColor));
         if (a.eyeColor) meta.push(esc(a.eyeColor));
         const firstPhoto = a.photos && a.photos[0] ? a.photos[0] : null;
@@ -801,7 +801,7 @@
               "/media/" +
               encodeURIComponent(firstPhoto.id) +
               '" alt="">'
-            : '<div class="actor-card-avatar placeholder">Нет фото</div>';
+            : '<div class="actor-card-avatar placeholder">No photo</div>';
         let html =
           '<div class="actor-card-header">' +
           avatarHtml +
@@ -815,7 +815,7 @@
           "</div></div></div>";
         if (a.bio) html += '<div class="actor-card-bio">' + esc(a.bio) + "</div>";
         if (a.education && a.education.length) {
-          html += '<div class="actor-card-section"><h3>Образование</h3>';
+          html += '<div class="actor-card-section"><h3>Education</h3>';
           a.education.forEach((e) => {
             const uni =
               e.university && (e.university.shortName || e.university.name)
@@ -834,7 +834,7 @@
           html += "</div>";
         }
         if (a.films && a.films.length) {
-          html += '<div class="actor-card-section"><h3>Кино</h3>';
+          html += '<div class="actor-card-section"><h3>Film</h3>';
           a.films.forEach((f) => {
             html +=
               '<div class="actor-film-item"><span class="actor-film-title">' +
@@ -842,13 +842,13 @@
               "</span>" +
               (f.year ? " (" + esc(f.year) + ")" : "") +
               (f.role ? " — " + esc(f.role) : "") +
-              (f.director ? ", реж. " + esc(f.director) : "") +
+              (f.director ? ", dir. " + esc(f.director) : "") +
               "</div>";
           });
           html += "</div>";
         }
         if (a.theatrePlayItems && a.theatrePlayItems.length) {
-          html += '<div class="actor-card-section"><h3>Театр</h3>';
+          html += '<div class="actor-card-section"><h3>Theatre</h3>';
           a.theatrePlayItems.forEach((t) => {
             html += '<div class="actor-theatre"><div class="actor-theatre-name">' + esc(t.name) + "</div>";
             if (t.years) html += '<div class="actor-theatre-years">' + esc(t.years) + "</div>";
@@ -871,12 +871,12 @@
         }
         if (a.genres && a.genres.length) {
           html +=
-            '<div class="actor-card-section"><h3>Жанры</h3><div class="actor-genres">' +
+            '<div class="actor-card-section"><h3>Genres</h3><div class="actor-genres">' +
             a.genres.map((g) => '<span class="actor-genre">' + esc(g) + "</span>").join("") +
             "</div></div>";
         }
         if ((a.photos && a.photos.length) || (a.videos && a.videos.length)) {
-          html += '<div class="actor-card-section"><h3>Фото и видео</h3><div class="actor-media-grid">';
+          html += '<div class="actor-card-section"><h3>Photos and video</h3><div class="actor-media-grid">';
           (a.photos || []).forEach((p) => {
             if (p.id)
               html +=
@@ -899,14 +899,14 @@
                 encodeURIComponent(actorId) +
                 "/media/" +
                 encodeURIComponent(v.id) +
-                '" target="_blank">▶ Видео</a></div>';
+                '" target="_blank">▶ Video</a></div>';
           });
           html += "</div></div>";
         }
         return html;
       }
 
-      // 4. Получить актёра по ID
+      // 4. Get actor by id
       const actorCardWrap = document.getElementById("actorCardWrap");
       const actorCard = document.getElementById("actorCard");
       document.getElementById("btnShowCard").onclick = () => {
@@ -926,7 +926,7 @@
         const out = document.getElementById("actorOut");
         const id = document.getElementById("actorId").value.trim();
         if (!id) {
-          showOut(out, "Введите ID актёра", true);
+          showOut(out, "Enter actor id", true);
           actorCardWrap.classList.remove("visible");
           return;
         }
@@ -946,31 +946,31 @@
           if (a.id) document.getElementById("mediaActorId").value = a.id;
         } else {
           actorCardWrap.classList.remove("visible");
-          showOut(out, res.status === 404 ? "Актёр не найден" : res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
+          showOut(out, res.status === 404 ? "Actor not found" : res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
         }
       };
 
       document.getElementById("btnDeleteActor").onclick = async () => {
         const id = document.getElementById("actorId").value.trim();
-        if (!id) { showOut(document.getElementById("actorOut"), "Введите ID актёра", true); return; }
-        if (!confirm("Удалить актёра " + id + "?")) return;
+        if (!id) { showOut(document.getElementById("actorOut"), "Enter actor id", true); return; }
+        if (!confirm("Delete actor " + id + "?")) return;
         const res = await api("DELETE", "/actors/" + encodeURIComponent(id));
         if (res.ok) {
           actorCardWrap.classList.remove("visible");
           document.getElementById("actorId").value = "";
-          showOut(document.getElementById("actorOut"), "Актёр удалён (204)");
+          showOut(document.getElementById("actorOut"), "Actor deleted (204)");
         } else {
           showOut(document.getElementById("actorOut"), res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
         }
       };
 
-      // 5. Создать актёра
+      // 5. Create actor
       document.getElementById("btnCreateActor").onclick = async () => {
         const out = document.getElementById("createActorOut");
         const firstName = document.getElementById("createFirstName").value.trim();
         const lastName = document.getElementById("createLastName").value.trim();
         if (!firstName || !lastName) {
-          showOut(out, "Имя и фамилия обязательны", true);
+          showOut(out, "First and last name are required", true);
           return;
         }
         const body = {
@@ -997,7 +997,7 @@
         const res = await api("POST", "/actors", body);
         if (res.ok && res.data) {
           const id = res.data.id;
-          showOut(out, id ? "Создан. ID: " + id : JSON.stringify(res.data));
+          showOut(out, id ? "Created. ID: " + id : JSON.stringify(res.data));
           if (id) {
             document.getElementById("actorId").value = id;
           }
@@ -1006,19 +1006,19 @@
         }
       };
 
-      // 6. Загрузка фото
+      // 6. Upload media
       document.getElementById("btnUpload").onclick = async () => {
         const out = document.getElementById("uploadOut");
         const actorId = document.getElementById("uploadActorId").value.trim();
         const file = document.getElementById("uploadFile").files[0];
 
         if (!actorId) {
-          showOut(out, "Введите ID актёра", true);
+          showOut(out, "Enter actor id", true);
           return;
         }
 
         if (!file) {
-          showOut(out, "Выберите файл", true);
+          showOut(out, "Choose a file", true);
           return;
         }
 
@@ -1032,13 +1032,13 @@
         const res = await api("POST", "/actors/" + encodeURIComponent(actorId) + "/media", fd);
 
         if (res.ok && res.data && res.data.status === "ok") {
-          showOut(out, "Загружено. mediaId: " + (res.data.mediaId || ""));
+          showOut(out, "Uploaded. mediaId: " + (res.data.mediaId || ""));
         } else {
           showOut(out, JSON.stringify(res.data || res.status), true);
         }
       };
       
-      // 6. Получить медиа
+      // 7. Get media
       let lastMediaUrl = null;
       document.getElementById("btnGetMedia").onclick = async () => {
         const out = document.getElementById("mediaOut");
@@ -1047,7 +1047,7 @@
         const actorId = document.getElementById("mediaActorId").value.trim();
         const mediaId = document.getElementById("mediaId").value.trim();
         if (!actorId || !mediaId) {
-          showOut(out, "Введите ID актёра и ID медиа", true);
+          showOut(out, "Enter actor id and media id", true);
           img.style.display = "none";
           video.style.display = "none";
           return;
@@ -1068,16 +1068,16 @@
             video.style.display = "block";
             showOut(out, "Content-Type: " + ct);
           } else {
-            showOut(out, "Content-Type: " + ct + " (не фото/видео)");
+            showOut(out, "Content-Type: " + ct + " (not image/video)");
           }
         } else {
           img.style.display = "none";
           video.style.display = "none";
-          showOut(out, res.status === 404 ? "Медиа не найдено" : "HTTP " + res.status, true);
+          showOut(out, res.status === 404 ? "Media not found" : "HTTP " + res.status, true);
         }
       };
 
-      // Автовход при загрузке
+      // Auto-login on load
       (async function autoLogin() {
         if (localStorage.getItem(JWT_KEY)) {
           updateLoginStatus();

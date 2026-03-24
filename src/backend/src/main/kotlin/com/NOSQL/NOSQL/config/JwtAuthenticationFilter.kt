@@ -50,6 +50,7 @@ class JwtAuthenticationFilter(
             request.method == "POST" && path == "/v1/universities" -> true
             request.method == "PATCH" && path.matches(Regex("^/v1/universities/[0-9a-fA-F]{24}$")) -> true
             request.method == "POST" && path == "/v1/actors" -> true
+            request.method == "PATCH" && path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}$")) -> true
             request.method == "POST" && path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}/media$")) -> true
             request.method == "DELETE" && path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}$")) -> true
             else -> false

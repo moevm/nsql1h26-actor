@@ -221,6 +221,89 @@ class ActorApiTest {
     }
 
     @Nested
+    @DisplayName("PATCH /v1/actors/{id}")
+    inner class PatchActorById {
+        @Test
+        fun `200 — частичное обновление имени, остальные поля без изменений`() {
+            mockMvc.perform(
+                MockMvcRequestBuilders.patch("/v1/actors/$actorId")
+                    .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"firstName":"Алексей"}""")
+            )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(actorId))
+                .andExpect(jsonPath("$.firstName").value("Алексей"))
+                .andExpect(jsonPath("$.lastName").value("Петров"))
+                .andExpect(jsonPath("$.education[0].university.name").value("Вуз"))
+        }
+
+        @Test
+        fun `200 — genres заменяются целиком, пустой массив очищает`() {
+            mockMvc.perform(
+                MockMvcRequestBuilders.patch("/v1/actors/$actorId")
+                    .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"genres":["драма","комедия"]}""")
+            ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.genres.length()").value(2))
+            mockMvc.perform(
+                MockMvcRequestBuilders.patch("/v1/actors/$actorId")
+                    .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"genres":[]}""")
+            )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.genres.length()").value(0))
+        }
+
+        @Test
+        fun `400 — пустой объект без полей`() {
+            mockMvc.perform(
+                MockMvcRequestBuilders.patch("/v1/actors/$actorId")
+                    .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{}")
+            )
+                .andExpect(status().isBadRequest())
+        }
+
+        @Test
+        fun `401 — без JWT`() {
+            mockMvc.perform(
+                MockMvcRequestBuilders.patch("/v1/actors/$actorId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"lastName":"Сидоров"}""")
+            )
+                .andExpect(status().isUnauthorized())
+        }
+
+        @Test
+        fun `404 — несуществующий актёр`() {
+            mockMvc.perform(
+                MockMvcRequestBuilders.patch("/v1/actors/000000000000000000000000")
+                    .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"lastName":"X"}""")
+            )
+                .andExpect(status().isNotFound())
+        }
+
+        @Test
+        fun `400 — несуществующий uniId в education`() {
+            mockMvc.perform(
+                MockMvcRequestBuilders.patch("/v1/actors/$actorId")
+                    .header("Authorization", "Bearer $token")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """{"education":[{"uniId":"000000000000000000000000","graduationYear":2010,"name":"X"}]}"""
+                    )
+            )
+                .andExpect(status().isBadRequest())
+        }
+    }
+
+    @Nested
     @DisplayName("POST /v1/actors/{id}/media")
     inner class PostMedia {
         @Test

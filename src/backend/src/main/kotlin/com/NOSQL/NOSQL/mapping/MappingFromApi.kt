@@ -8,6 +8,7 @@ import com.NOSQL.NOSQL.model.domain.Gender as DomainGender
 import com.NOSQL.NOSQL.model.domain.TheatrePlayItem as DomainTheatrePlayItem
 import com.NOSQL.NOSQL.model.domain.Title as DomainTitle
 import com.NOSQL.NOSQL.model.generated.ActorCreate
+import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import java.time.OffsetDateTime
 
 object MappingFromApi {
@@ -36,6 +37,29 @@ object MappingFromApi {
             genres = actorCreate.genres,
             createdAt = createdAt.toInstant(),
             updatedAt = updatedAt.toInstant()
+        )
+
+    fun mergeActorDocument(doc: ActorDocument, update: ActorUpdate): ActorDocument =
+        doc.copy(
+            firstName = update.firstName ?: doc.firstName,
+            lastName = update.lastName ?: doc.lastName,
+            middleName = update.middleName ?: doc.middleName,
+            birthDate = update.birthDate ?: doc.birthDate,
+            height = update.height ?: doc.height,
+            weight = update.weight ?: doc.weight,
+            gender = if (update.gender != null) DomainGender.valueOf(update.gender.name) else doc.gender,
+            hairColor = update.hairColor ?: doc.hairColor,
+            eyeColor = update.eyeColor ?: doc.eyeColor,
+            bio = update.bio ?: doc.bio,
+            title = if (update.title != null) DomainTitle.valueOf(update.title.name) else doc.title,
+            phone = update.phone ?: doc.phone,
+            email = update.email ?: doc.email,
+            links = update.links?.map(::contactLinkItemToDomain) ?: doc.links,
+            education = update.education?.map(::educationItemToDomain) ?: doc.education,
+            films = update.films?.map(::filmPlayItemToDomain) ?: doc.films,
+            theatrePlayItems = update.theatrePlayItems?.map(::theatrePlayItemToDomain) ?: doc.theatrePlayItems,
+            genres = update.genres ?: doc.genres,
+            mainPhotoId = update.mainPhotoId ?: doc.mainPhotoId,
         )
 
     private fun contactLinkItemToDomain(it: com.NOSQL.NOSQL.model.generated.ContactLinkItem): DomainContactLinkItem =
