@@ -222,6 +222,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PhotoItem'
+        mainPhotoId:
+          $ref: '#/components/schemas/MongoId'
+          nullable: true
+          readOnly: true
+          description: "ObjectId медиа главной фотографии (задаётся при обновлении актёра, не при создании)"
         videos:
           type: array
           items:

@@ -35,6 +35,7 @@ data class ActorDocument(
     val films: List<FilmPlayItem>? = null,
     val theatrePlayItems: List<TheatrePlayItem>? = null,
     val photos: List<PhotoItem>? = null,
+    val mainPhotoId: String? = null,
     val videos: List<VideoItem>? = null,
     val genres: List<String>? = null,
     val createdAt: Instant? = null,
