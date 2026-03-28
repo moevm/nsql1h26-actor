@@ -244,6 +244,24 @@ class ActorService(
         actorRepository.save(actor.copy(videos = videos, updatedAt = Instant.now()))
     }
 
+    fun removeMediaReferences(actorId: String, mediaId: String) {
+        val actor = actorRepository.findById(actorId)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found") }
+        val newPhotos = actor.photos
+            ?.filterNot { it.id == mediaId }
+            ?.takeIf { it.isNotEmpty() }
+        val newVideos = actor.videos
+            ?.filterNot { it.id == mediaId }
+            ?.takeIf { it.isNotEmpty() }
+        val newMain = if (actor.mainPhotoId == mediaId) null else actor.mainPhotoId
+        if (newPhotos == actor.photos && newVideos == actor.videos && newMain == actor.mainPhotoId) {
+            return
+        }
+        actorRepository.save(
+            actor.copy(photos = newPhotos, videos = newVideos, mainPhotoId = newMain, updatedAt = Instant.now())
+        )
+    }
+
     fun existsById(id: String): Boolean = actorRepository.existsById(id)
 
     fun deleteById(id: String) {

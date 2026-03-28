@@ -366,4 +366,35 @@ class ActorApiTest {
                 .andExpect(status().isNotFound())
         }
     }
+
+    @Nested
+    @DisplayName("DELETE /v1/actors/{actorId}/media/{mediaId}")
+    inner class DeleteMedia {
+        @Test
+        fun `204 — удаление медиа`() {
+            val file = MockMultipartFile("file", "p.jpg", "image/jpeg", "bytes".toByteArray())
+            val upload = mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
+                    .file(file)
+                    .header("Authorization", "Bearer $token")
+                    .param("type", "photo")
+            ).andReturn()
+            val mediaId = objectMapper.readTree(upload.response.contentAsString).get("mediaId").asText()
+            mockMvc.perform(
+                MockMvcRequestBuilders.delete("/v1/actors/$actorId/media/$mediaId")
+                    .header("Authorization", "Bearer $token")
+            )
+                .andExpect(status().isNoContent())
+            mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/$actorId/media/$mediaId"))
+                .andExpect(status().isNotFound())
+        }
+
+        @Test
+        fun `401 — без JWT`() {
+            mockMvc.perform(
+                MockMvcRequestBuilders.delete("/v1/actors/$actorId/media/000000000000000000000001")
+            )
+                .andExpect(status().isUnauthorized())
+        }
+    }
 }

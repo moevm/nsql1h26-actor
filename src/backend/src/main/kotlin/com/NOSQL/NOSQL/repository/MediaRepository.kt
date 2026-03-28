@@ -60,4 +60,20 @@ class MediaRepository(
         val file = gridFsOperations.findOne(query) ?: return null
         return gridFsOperations.getResource(file)
     }
+
+    fun deleteOne(actorId: String, mediaId: String): Boolean {
+        val objectId = try {
+            ObjectId(mediaId)
+        } catch (_: Exception) {
+            log.warn("Invalid mediaId format: {}", mediaId)
+            return false
+        }
+        val query = Query.query(
+            Criteria.where("_id").`is`(objectId).and("metadata.actorId").`is`(actorId)
+        )
+        if (gridFsOperations.findOne(query) == null) return false
+        gridFsOperations.delete(query)
+        log.debug("Deleted GridFS file: actorId={}, mediaId={}", actorId, mediaId)
+        return true
+    }
 }

@@ -138,4 +138,10 @@ class ActorController(
             ResponseEntity.ok(resource)
         }
     }
+
+    override fun v1MediaByIdDelete(actorId: String, mediaId: String): ResponseEntity<Unit> {
+        log.info("DELETE /v1/actors/{}/media/{}", actorId, mediaId)
+        mediaService.delete(actorId, mediaId)
+        return ResponseEntity.noContent().build()
+    }
 }
