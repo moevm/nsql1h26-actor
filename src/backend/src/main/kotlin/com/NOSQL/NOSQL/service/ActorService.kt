@@ -186,8 +186,9 @@ class ActorService(
         universityId?.let { criteria.add(Criteria.where("education.uniId").`is`(it)) }
 
         if (ageFrom != null || ageTo != null) {
-            val fromDate = ageTo?.let { java.time.LocalDate.now().minusYears(it.toLong()) }
-            val toDate = ageFrom?.let { java.time.LocalDate.now().minusYears(it.toLong()) }
+            val today = java.time.LocalDate.now()
+            val fromDate = ageTo?.let { today.minusYears(it.toLong() + 1).plusDays(1) }
+            val toDate = ageFrom?.let { today.minusYears(it.toLong()) }
             if (fromDate != null) criteria.add(Criteria.where("birthDate").gte(fromDate))
             if (toDate != null) criteria.add(Criteria.where("birthDate").lte(toDate))
         }

@@ -288,6 +288,27 @@ class ActorServiceFilterTest {
             assertThat(list).hasSize(1)
             assertThat(list[0].id).isEqualTo(idMale40)
         }
+
+        @Test
+        fun `ageTo включает ровесников с датой рождения до годовщины в текущем году`() {
+            val now = LocalDate.now()
+            val res = actorService.create(
+                ActorCreate(
+                    firstName = "Граница",
+                    lastName = "Возраста",
+                    middleName = null,
+                    birthDate = now.minusYears(48).minusDays(1),
+                    gender = Gender.male,
+                    education = null,
+                    films = null,
+                    theatrePlayItems = null,
+                    genres = null
+                )
+            )
+            val idBoundary = res.id!!
+            assertThat(findAll(ageTo = 48).map { it.id }).contains(idBoundary)
+            assertThat(findAll(ageTo = 47).map { it.id }).doesNotContain(idBoundary)
+        }
     }
 
     @Nested
