@@ -54,6 +54,8 @@ class JwtAuthenticationFilter(
             request.method == "POST" && path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}/media$")) -> true
             request.method == "DELETE" && path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}$")) -> true
             request.method == "DELETE" && path.matches(Regex("^/v1/actors/[0-9a-fA-F]{24}/media/[0-9a-fA-F]{24}$")) -> true
+            request.method == "GET" && path == "/v1/catalog/export" -> true
+            request.method == "POST" && path == "/v1/catalog/import" -> true
             else -> false
         }
     }

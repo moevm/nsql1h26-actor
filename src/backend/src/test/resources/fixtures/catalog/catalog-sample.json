@@ -1,0 +1,52 @@
+{
+  "format": "nsql1-catalog",
+  "version": 1,
+  "universities": [
+    {
+      "id": "507f1f77bcf86cd799439011",
+      "name": "Тестовый университет",
+      "shortName": "ТУ",
+      "oldNames": ["Старое имя"]
+    }
+  ],
+  "actors": [
+    {
+      "id": "507f1f77bcf86cd799439012",
+      "firstName": "Анна",
+      "lastName": "Экспорт",
+      "middleName": null,
+      "birthDate": "1992-06-15",
+      "height": null,
+      "weight": null,
+      "gender": "female",
+      "photos": [
+        {
+          "id": "507f1f77bcf86cd799439014",
+          "caption": "Портрет"
+        }
+      ],
+      "mainPhotoId": null,
+      "videos": null,
+      "genres": null
+    }
+  ],
+  "admins": [
+    {
+      "id": "507f1f77bcf86cd799439013",
+      "email": "fixture-admin@example.com",
+      "passwordHash": "$2a$10$fixtureHashNotUsedForLoginTests",
+      "createdAt": "2024-01-01T12:00:00Z"
+    }
+  ],
+  "media": [
+    {
+      "id": "507f1f77bcf86cd799439014",
+      "actorId": "507f1f77bcf86cd799439012",
+      "filename": "photo.png",
+      "contentType": "image/png",
+      "type": "photo",
+      "caption": "Портрет",
+      "dataBase64": "Zml4dHVyZS1ieXRlcw=="
+    }
+  ]
+}

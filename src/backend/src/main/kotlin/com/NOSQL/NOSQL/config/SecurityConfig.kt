@@ -39,6 +39,8 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.DELETE, "/v1/actors/*").authenticated()
                     .requestMatchers(HttpMethod.POST, "/v1/actors/*/media").authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/v1/actors/*/media/*").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/v1/catalog/export").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/v1/catalog/import").authenticated()
                     .anyRequest().permitAll()
             }
         return http.build()

@@ -469,4 +469,4 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT for mutating operations (POST universities, actors, media; PATCH universities; DELETE actors and actor media)
+      description: JWT for mutating operations (POST universities, actors, media; PATCH universities; DELETE actors and actor media; GET/POST /v1/catalog/export|import)
