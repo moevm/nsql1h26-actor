@@ -113,10 +113,10 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("Полный сценарий только через эндпоинты: вуз → актёр → поиск → по id → загрузка медиа → получение медиа")
+    @DisplayName("Full flow via endpoints only: university → actor → search → by id → upload media → get media")
     fun fullFlowOnlyEndpoints() {
         val token = getToken()
-        // 1) Создать вуз — дергаем POST /v1/universities
+        // 1) Create university — POST /v1/universities
         val createUniBody = """{"name":"ГИТИС","shortName":"ГИТИС","oldNames":["ГИТИС"]}"""
         val uniRes = mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")
@@ -131,7 +131,7 @@ class ApiE2ETest {
         val uniJson = mapper.readTree(uniRes.response.contentAsString)
         val uniId = uniJson["id"].asText()
 
-        // 2) Создать актёра с этим вузом и контактами — POST /v1/actors
+        // 2) Create actor with university and contacts — POST /v1/actors
         val createActorBody = """
             {"firstName":"Иван","lastName":"Петров","birthDate":"1990-01-15","gender":"male","title":"national",
              "phone":"+7 999 000-11-22","email":"ivan.petrov@example.com",
@@ -152,7 +152,7 @@ class ApiE2ETest {
             .andReturn()
         val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
 
-        // 3) Поиск по фильтрам — GET /v1/actors (контакты в списке)
+        // 3) Filtered search — GET /v1/actors (contacts in list)
         mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/actors")
                 .param("gender", "male")
@@ -160,14 +160,15 @@ class ApiE2ETest {
                 .param("offset", "0")
         )
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].id").value(actorId))
-            .andExpect(jsonPath("$[0].firstName").value("Иван"))
-            .andExpect(jsonPath("$[0].phone").value("+7 999 000-11-22"))
-            .andExpect(jsonPath("$[0].email").value("ivan.petrov@example.com"))
-            .andExpect(jsonPath("$[0].links[0].name").value("ВК"))
-            .andExpect(jsonPath("$[0].education[0].university.name").value("ГИТИС"))
+            .andExpect(jsonPath("$.total").value(1))
+            .andExpect(jsonPath("$.actors[0].id").value(actorId))
+            .andExpect(jsonPath("$.actors[0].firstName").value("Иван"))
+            .andExpect(jsonPath("$.actors[0].phone").value("+7 999 000-11-22"))
+            .andExpect(jsonPath("$.actors[0].email").value("ivan.petrov@example.com"))
+            .andExpect(jsonPath("$.actors[0].links[0].name").value("ВК"))
+            .andExpect(jsonPath("$.actors[0].education[0].university.name").value("ГИТИС"))
 
-        // 4) Получить актёра по id с обогащённым education и контактами — GET /v1/actors/{id}
+        // 4) Get actor by id with enriched education and contacts — GET /v1/actors/{id}
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/$actorId"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(actorId))
@@ -181,7 +182,7 @@ class ApiE2ETest {
             .andExpect(jsonPath("$.education[0].university.shortName").value("ГИТИС"))
             .andExpect(jsonPath("$.films[0].title").value("Фильм"))
 
-        // 5) Загрузить фото — POST /v1/actors/{id}/media
+        // 5) Upload photo — POST /v1/actors/{id}/media
         val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", "image bytes".toByteArray())
         val uploadRes = mockMvc.perform(
             MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
@@ -196,7 +197,7 @@ class ApiE2ETest {
             .andReturn()
         val mediaId = mapper.readTree(uploadRes.response.contentAsString)["mediaId"].asText()
 
-        // 6) Получить медиа по id — GET /v1/actors/{actorId}/media/{mediaId}
+        // 6) Get media by id — GET /v1/actors/{actorId}/media/{mediaId}
         val mediaResult = mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/actors/$actorId/media/$mediaId")
         )
@@ -206,10 +207,10 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("Только эндпоинты: 400 при несуществующем вузе, 404 по id и по медиа")
+    @DisplayName("Endpoints only: 400 for missing university, 404 for actor id and media")
     fun errorScenariosOnlyEndpoints() {
         val token = getToken()
-        // 400 — создание актёра с несуществующим uniId
+        // 400 — create actor with non-existent uniId
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/actors")
                 .header("Authorization", "Bearer $token")
@@ -218,13 +219,13 @@ class ApiE2ETest {
         )
             .andExpect(status().isBadRequest())
 
-        // 404 — актёр не найден
+        // 404 — actor not found
         mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/actors/000000000000000000000000")
         )
             .andExpect(status().isNotFound())
 
-        // Создаём вуз и актёра для проверки 404 по медиа
+        // Create university and actor to test 404 on media
         val uniRes = mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")
                 .header("Authorization", "Bearer $token")
@@ -240,13 +241,13 @@ class ApiE2ETest {
         ).andReturn()
         val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
 
-        // 404 — медиа не найдено
+        // 404 — media not found
         mockMvc.perform(
             MockMvcRequestBuilders.get("/v1/actors/$actorId/media/000000000000000000000000")
         )
             .andExpect(status().isNotFound())
 
-        // 404 — загрузка медиа для несуществующего актёра
+        // 404 — upload media for non-existent actor
         val file = MockMultipartFile("file", "x", "image/jpeg", "x".toByteArray())
         mockMvc.perform(
             MockMvcRequestBuilders.multipart("/v1/actors/000000000000000000000000/media")
@@ -259,7 +260,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("POST /v1/universities без JWT возвращает 401")
+    @DisplayName("POST /v1/universities without JWT returns 401")
     fun postUniversitiesWithoutJwtReturns401() {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")
@@ -270,7 +271,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("POST /v1/actors без JWT возвращает 401")
+    @DisplayName("POST /v1/actors without JWT returns 401")
     fun postActorsWithoutJwtReturns401() {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/actors")
@@ -281,7 +282,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("POST /v1/actors/{id}/media без JWT возвращает 401")
+    @DisplayName("POST /v1/actors/{id}/media without JWT returns 401")
     fun postMediaWithoutJwtReturns401() {
         val token = getToken()
         val uniRes = mockMvc.perform(
@@ -308,7 +309,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("POST /v1/universities с протухшим JWT возвращает 401")
+    @DisplayName("POST /v1/universities with expired JWT returns 401")
     fun postUniversitiesWithExpiredJwtReturns401() {
         val admin = adminRepository.findByEmail(testAdminEmail)!!
         val expiredToken = jwtService.generateToken(admin.id!!, -3600)
@@ -322,7 +323,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("DELETE /v1/actors/{id} с JWT — удаляет актёра 204")
+    @DisplayName("DELETE /v1/actors/{id} with JWT deletes actor 204")
     fun deleteActorWithJwtReturns204() {
         val token = getToken()
         val uniRes = mockMvc.perform(
@@ -348,7 +349,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("DELETE /v1/actors/{id} — медиа актёра тоже удаляется")
+    @DisplayName("DELETE /v1/actors/{id} — actor media is removed too")
     fun deleteActorRemovesMedia() {
         val token = getToken()
         val uniRes = mockMvc.perform(
@@ -384,7 +385,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("DELETE /v1/actors/{id} без JWT возвращает 401")
+    @DisplayName("DELETE /v1/actors/{id} without JWT returns 401")
     fun deleteActorWithoutJwtReturns401() {
         val token = getToken()
         val uniRes = mockMvc.perform(
@@ -406,7 +407,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("PATCH /v1/actors/{id} без JWT возвращает 401")
+    @DisplayName("PATCH /v1/actors/{id} without JWT returns 401")
     fun patchActorWithoutJwtReturns401() {
         val token = getToken()
         val uniRes = mockMvc.perform(
@@ -432,7 +433,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("DELETE /v1/actors/{id} несуществующего — 404")
+    @DisplayName("DELETE /v1/actors/{id} non-existent — 404")
     fun deleteNonExistentActorReturns404() {
         val token = getToken()
         mockMvc.perform(
@@ -442,7 +443,7 @@ class ApiE2ETest {
     }
 
     @Test
-    @DisplayName("DELETE /v1/actors/{id} с протухшим JWT возвращает 401")
+    @DisplayName("DELETE /v1/actors/{id} with expired JWT returns 401")
     fun deleteActorWithExpiredJwtReturns401() {
         val admin = adminRepository.findByEmail(testAdminEmail)!!
         val expiredToken = jwtService.generateToken(admin.id!!, -3600)

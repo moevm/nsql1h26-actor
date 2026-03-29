@@ -349,13 +349,13 @@
       <a href="/swagger-ui.html" target="_blank" rel="noopener">Swagger UI</a>
     </p>
     <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 24px">
-      Эта страница покрывает все REST-операции: auth, вузы (create/search/PATCH), актёры (list/count/get/create/PATCH/delete), медиа (upload/get/delete), каталог (export/import JSON).
+      This page exercises all REST operations: auth, universities (create/search/PATCH/delete), actors (list with total/includeItems, get/create/PATCH/delete), media (upload/get/delete), catalog (export/import JSON).
     </p>
 
     <section>
       <h2>0. Login (JWT)</h2>
       <p style="color: var(--muted); font-size: 0.9rem">
-        JWT нужен для записи (вузы, актёры, медиа, PATCH, каталог import/export). При открытии страницы выполняется автологин по полям ниже.
+        JWT is required for writes (universities, actors, media, PATCH, catalog import/export). On page load, auto-login runs using the fields below.
       </p>
       <div class="row">
         <div><label>Email</label><input type="email" id="loginEmail" value="admin@example.com" placeholder="admin@example.com" style="width: 220px" /></div>
@@ -392,6 +392,7 @@
 
     <section>
       <h2>3. Search actors (filters)</h2>
+      <p style="color: var(--muted); font-size: 0.9rem">JSON response: <code>total</code> (count matching filters) and <code>actors</code> (page). With <code>includeItems=false</code>, only <code>total</code> is returned.</p>
       <div class="row">
         <div><label>Name (substring)</label><input type="text" id="filterName" placeholder="John, Doe…" style="width: 140px" /></div>
         <div>
@@ -507,45 +508,38 @@
     </section>
 
     <section>
-      <h2>8. Actors total count</h2>
-      <p style="color: var(--muted); font-size: 0.9rem"><code>GET /v1/actors/count</code> — публично, JWT не нужен.</p>
-      <button type="button" id="btnActorsCount">Get count</button>
-      <div id="actorsCountOut" class="out" style="display: none"></div>
-    </section>
-
-    <section>
-      <h2>9. PATCH university</h2>
-      <p style="color: var(--muted); font-size: 0.9rem">Частичное обновление вуза. Заполните id и хотя бы одно поле.</p>
+      <h2>8. PATCH university</h2>
+      <p style="color: var(--muted); font-size: 0.9rem">Partial university update. Fill in id and at least one field.</p>
       <label>University id *</label>
       <input type="text" id="patchUniId" placeholder="24 hex ObjectId" style="max-width: 320px" />
       <label>New name</label>
-      <input type="text" id="patchUniName" placeholder="оставьте пустым, если не меняете" />
-      <label><input type="checkbox" id="patchUniSetShort" /> Задать short name (пустое поле ниже — очистить)</label>
-      <input type="text" id="patchUniShortName" placeholder="короткое имя" />
-      <label><input type="checkbox" id="patchUniSetOldNames" /> Заменить список бывших имён (через запятую; пусто — очистить список)</label>
-      <input type="text" id="patchUniOldNames" placeholder="Старое имя 1, Старое имя 2" />
+      <input type="text" id="patchUniName" placeholder="leave empty to skip" />
+      <label><input type="checkbox" id="patchUniSetShort" /> Set short name (empty field below clears it)</label>
+      <input type="text" id="patchUniShortName" placeholder="short name" />
+      <label><input type="checkbox" id="patchUniSetOldNames" /> Replace former names list (comma-separated; empty clears)</label>
+      <input type="text" id="patchUniOldNames" placeholder="Former name 1, Former name 2" />
       <button type="button" id="btnPatchUni">PATCH university</button>
       <div id="patchUniOut" class="out" style="display: none"></div>
     </section>
 
     <section>
-      <h2>10. PATCH actor</h2>
+      <h2>9. PATCH actor</h2>
       <p style="color: var(--muted); font-size: 0.9rem">
-        Частичное обновление актёра. Тело — JSON по схеме <code>ActorUpdate</code> (см. Swagger). Списки при передаче заменяются целиком.
+        Partial actor update. Body is JSON per <code>ActorUpdate</code> (see Swagger). Lists are replaced in full when sent.
       </p>
       <label>Actor id *</label>
       <input type="text" id="patchActorId" placeholder="69ae82ab8f69b57563344e0c" style="max-width: 320px" />
       <label>JSON body</label>
       <textarea id="patchActorJson" class="wide-json" spellcheck="false">{
-  "bio": "Обновлённое описание"
+  "bio": "Updated bio text"
 }</textarea>
       <button type="button" id="btnPatchActor">PATCH actor</button>
       <div id="patchActorOut" class="out" style="display: none"></div>
     </section>
 
     <section>
-      <h2>11. Delete media (GridFS)</h2>
-      <p style="color: var(--muted); font-size: 0.9rem"><code>DELETE /v1/actors/{actorId}/media/{mediaId}</code> — JWT обязателен.</p>
+      <h2>10. Delete media (GridFS)</h2>
+      <p style="color: var(--muted); font-size: 0.9rem"><code>DELETE /v1/actors/{actorId}/media/{mediaId}</code> — JWT required.</p>
       <div class="row">
         <div><label>Actor id</label><input type="text" id="delMediaActorId" placeholder="ObjectId" style="width: 240px" /></div>
         <div><label>Media id</label><input type="text" id="delMediaId" placeholder="GridFS id" style="width: 240px" /></div>
@@ -555,18 +549,18 @@
     </section>
 
     <section>
-      <h2>12. Catalog export / import (full DB snapshot)</h2>
+      <h2>11. Catalog export / import (full DB snapshot)</h2>
       <p style="color: var(--muted); font-size: 0.9rem">
-        <strong>Импорт полностью затирает</strong> вузы, актёров, админов и медиа в GridFS и подставляет данные из JSON. Формат:
-        <code>format: "nsql1-catalog"</code>, <code>version: 1</code>. Файлы могут быть большими.
+        <strong>Import wipes</strong> universities, actors, admins, and GridFS media, then loads data from JSON. Format:
+        <code>format: "nsql1-catalog"</code>, <code>version: 1</code>. Files can be large.
       </p>
       <div class="row">
         <button type="button" id="btnCatalogExport">Download export (JSON)</button>
       </div>
-      <p style="color: var(--muted); font-size: 0.9rem; margin-top: 16px">Импорт из файла:</p>
+      <p style="color: var(--muted); font-size: 0.9rem; margin-top: 16px">Import from file:</p>
       <label>JSON file</label>
       <input type="file" id="catalogImportFile" accept=".json,application/json" />
-      <label><input type="checkbox" id="catalogImportConfirm" /> Я понимаю, что текущие данные на сервере будут удалены</label>
+      <label><input type="checkbox" id="catalogImportConfirm" /> I understand current server data will be deleted</label>
       <button type="button" id="btnCatalogImport">POST import</button>
       <div id="catalogOut" class="out" style="display: none"></div>
     </section>
@@ -804,8 +798,9 @@
         params.set("offset", document.getElementById("filterOffset").value || "0");
         const res = await api("GET", "/actors?" + params.toString());
         if (res.ok) {
-          const list = Array.isArray(res.data) ? res.data : [];
-          showOut(out, "Found: " + list.length);
+          const list = res.data && res.data.actors ? res.data.actors : [];
+          const total = res.data && res.data.total != null ? res.data.total : list.length;
+          showOut(out, "total for filters: " + total + ", rows in response: " + list.length);
           if (list.length === 0) {
             table.innerHTML = "";
             return;
@@ -1156,23 +1151,12 @@
         }
       };
 
-      // 8. Actors count
-      document.getElementById("btnActorsCount").onclick = async () => {
-        const out = document.getElementById("actorsCountOut");
-        const res = await api("GET", "/actors/count");
-        if (res.ok && res.data && res.data.total != null) {
-          showOut(out, "total: " + res.data.total);
-        } else {
-          showOut(out, res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
-        }
-      };
-
-      // 9. PATCH university
+      // 8. PATCH university
       document.getElementById("btnPatchUni").onclick = async () => {
         const out = document.getElementById("patchUniOut");
         const id = document.getElementById("patchUniId").value.trim();
         if (!id) {
-          showOut(out, "Укажите id вуза", true);
+          showOut(out, "Enter university id", true);
           return;
         }
         const body = {};
@@ -1191,7 +1175,7 @@
             : [];
         }
         if (Object.keys(body).length === 0) {
-          showOut(out, "Укажите новое имя и/или отметьте изменение short name / old names", true);
+          showOut(out, "Enter a new name and/or check short name / old names", true);
           return;
         }
         const res = await api("PATCH", "/universities/" + encodeURIComponent(id), body);
@@ -1202,23 +1186,23 @@
         }
       };
 
-      // 10. PATCH actor
+      // 9. PATCH actor
       document.getElementById("btnPatchActor").onclick = async () => {
         const out = document.getElementById("patchActorOut");
         const id = document.getElementById("patchActorId").value.trim();
         if (!id) {
-          showOut(out, "Укажите id актёра", true);
+          showOut(out, "Enter actor id", true);
           return;
         }
         let body;
         try {
           body = JSON.parse(document.getElementById("patchActorJson").value);
         } catch (e) {
-          showOut(out, "Невалидный JSON: " + e.message, true);
+          showOut(out, "Invalid JSON: " + e.message, true);
           return;
         }
         if (!body || typeof body !== "object" || Array.isArray(body)) {
-          showOut(out, "Тело PATCH должно быть объектом JSON", true);
+          showOut(out, "PATCH body must be a JSON object", true);
           return;
         }
         const res = await api("PATCH", "/actors/" + encodeURIComponent(id), body);
@@ -1229,30 +1213,30 @@
         }
       };
 
-      // 11. Delete media
+      // 10. Delete media
       document.getElementById("btnDeleteMedia").onclick = async () => {
         const out = document.getElementById("delMediaOut");
         const actorId = document.getElementById("delMediaActorId").value.trim();
         const mediaId = document.getElementById("delMediaId").value.trim();
         if (!actorId || !mediaId) {
-          showOut(out, "Нужны actor id и media id", true);
+          showOut(out, "Actor id and media id are required", true);
           return;
         }
-        if (!confirm("Удалить файл " + mediaId + " у актёра " + actorId + "?")) return;
+        if (!confirm("Delete file " + mediaId + " for actor " + actorId + "?")) return;
         const res = await api("DELETE", "/actors/" + encodeURIComponent(actorId) + "/media/" + encodeURIComponent(mediaId));
         if (res.ok) {
-          showOut(out, "Удалено (204)");
+          showOut(out, "Deleted (204)");
         } else {
           showOut(out, res.data ? JSON.stringify(res.data) : "HTTP " + res.status, true);
         }
       };
 
-      // 12. Catalog export / import
+      // 11. Catalog export / import
       document.getElementById("btnCatalogExport").onclick = async () => {
         const out = document.getElementById("catalogOut");
         const token = localStorage.getItem(JWT_KEY);
         if (!token) {
-          showOut(out, "Нужен JWT — раздел 0", true);
+          showOut(out, "JWT required — section 0", true);
           return;
         }
         const r = await fetch(API + "/catalog/export", {
@@ -1272,23 +1256,23 @@
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        showOut(out, "Скачивание запущено. Размер ответа: " + blob.size + " байт");
+        showOut(out, "Download started. Response size: " + blob.size + " bytes");
       };
 
       document.getElementById("btnCatalogImport").onclick = async () => {
         const out = document.getElementById("catalogOut");
         const token = localStorage.getItem(JWT_KEY);
         if (!token) {
-          showOut(out, "Нужен JWT — раздел 0", true);
+          showOut(out, "JWT required — section 0", true);
           return;
         }
         if (!document.getElementById("catalogImportConfirm").checked) {
-          showOut(out, "Отметьте подтверждение замены данных", true);
+          showOut(out, "Confirm data replacement", true);
           return;
         }
         const file = document.getElementById("catalogImportFile").files[0];
         if (!file) {
-          showOut(out, "Выберите JSON-файл", true);
+          showOut(out, "Choose a JSON file", true);
           return;
         }
         const text = await file.text();
@@ -1301,7 +1285,7 @@
           body: text,
         });
         if (r.status === 204) {
-          showOut(out, "Импорт выполнен (HTTP 204). Обновите поиск/карточки — данные заменены.");
+          showOut(out, "Import complete (HTTP 204). Refresh search/cards — data replaced.");
         } else {
           const t = await r.text();
           showOut(out, "HTTP " + r.status + "\n" + t, true);

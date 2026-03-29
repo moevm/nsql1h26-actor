@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/v1/catalog")
-@Tag(name = "catalog", description = "Массовый экспорт/импорт каталога (JSON)")
+@Tag(name = "catalog", description = "Bulk catalog export/import (JSON)")
 @SecurityRequirement(name = "bearerAuth")
 class CatalogController(
     private val catalogService: CatalogService,
@@ -24,14 +24,14 @@ class CatalogController(
     private val log = LoggerFactory.getLogger(javaClass)
 
     @GetMapping("/export", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @Operation(summary = "Экспорт всей БД в JSON (вузы, актёры, админы, медиа в Base64)")
+    @Operation(summary = "Export full database to JSON (universities, actors, admins, media as Base64)")
     fun export(): CatalogSnapshot {
         log.info("GET /v1/catalog/export")
         return catalogService.exportSnapshot()
     }
 
     @PostMapping("/import", consumes = [MediaType.APPLICATION_JSON_VALUE])
-    @Operation(summary = "Импорт: полностью заменить содержимое БД данными из файла")
+    @Operation(summary = "Import: replace entire database contents from file")
     fun import(@RequestBody body: CatalogSnapshot): ResponseEntity<Unit> {
         log.info("POST /v1/catalog/import")
         catalogService.importSnapshot(body)

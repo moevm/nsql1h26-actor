@@ -20,16 +20,21 @@ components:
       pattern: "^[0-9a-fA-F]{24}$"
       description: "MongoDB ObjectId (24 hex characters)"
 
-    ActorCountResponse:
+    ActorListResponse:
       type: object
-      required: [total]
-      description: "Total number of actors in the catalog"
+      required: [total, actors]
+      description: "Paged actor list and total row count matching filters (ignoring limit/offset)"
       properties:
         total:
           type: integer
           format: int64
           minimum: 0
-          description: "Number of documents in the actors collection"
+          description: "Total actors matching filters (full set, not only current page)"
+        actors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+          description: "Page slice; empty when includeItems=false"
 
     LoginRequest:
       type: object
@@ -85,13 +90,13 @@ components:
 
     EducationCreateItem:
       type: object
-      description: "При создании актёра указывается только id вуза; название и год подтягиваются из справочника при ответе."
+      description: "On create only university id is sent; name and year are resolved from the catalog in responses."
       additionalProperties: false
       required: [uniId]
       properties:
         uniId:
           $ref: '#/components/schemas/MongoId'
-          description: "Id вуза из каталога университетов"
+          description: "University id from the university catalog"
 
     EducationItem:
       type: object
@@ -321,7 +326,7 @@ components:
           items:
             $ref: '#/components/schemas/EducationCreateItem'
           nullable: true
-          description: "Только id вуза на каждую запись; остальное берётся из каталога при чтении актёра"
+          description: "University id per entry only; other fields are read from the catalog when loading an actor"
         films:
           type: array
           items:

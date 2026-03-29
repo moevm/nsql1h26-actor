@@ -1,6 +1,6 @@
 package com.NOSQL.NOSQL.model.domain
 
-/** Одна строка экспорта GridFS до кодирования в Base64. */
+/** One GridFS export row before Base64 encoding. */
 data class GridFsBackupRow(
     val id: String,
     val actorId: String,

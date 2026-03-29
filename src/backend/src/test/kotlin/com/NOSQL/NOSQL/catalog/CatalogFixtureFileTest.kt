@@ -28,7 +28,7 @@ import org.testcontainers.utility.DockerImageName
 import java.util.Base64
 
 /**
- * Проверка импорта из реальных JSON-файлов в classpath и согласованности экспорта.
+ * Import from real JSON fixtures on the classpath and export consistency.
  */
 @Testcontainers
 @SpringBootTest
@@ -83,7 +83,7 @@ class CatalogFixtureFileTest {
     }
 
     @Test
-    @DisplayName("Импорт catalog-empty.json — пустая БД после импорта")
+    @DisplayName("Import catalog-empty.json — empty DB after import")
     fun importEmptyFixture() {
         val snapshot = readFixture("fixtures/catalog/catalog-empty.json")
         catalogService.importSnapshot(snapshot)
@@ -95,7 +95,7 @@ class CatalogFixtureFileTest {
     }
 
     @Test
-    @DisplayName("Импорт catalog-sample.json — данные и медиа; экспорт согласован с ожидаемым содержимым")
+    @DisplayName("Import catalog-sample.json — data and media; export matches expected content")
     fun importSampleAndVerifyExport() {
         val expected = readFixture("fixtures/catalog/catalog-sample.json")
         catalogService.importSnapshot(expected)

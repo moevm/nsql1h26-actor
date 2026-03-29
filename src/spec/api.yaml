@@ -264,28 +264,20 @@ paths:
           schema:
             type: integer
             default: 0
+        - name: includeItems
+          in: query
+          schema:
+            type: boolean
+            default: true
+          description: |
+            If false, actors is empty but total is still computed for the same filters (avoids loading the page of items).
       responses:
         '200':
-          description: List of actors
+          description: Actors page and total count matching filters
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: './schemas.yaml#/components/schemas/Actor'
-
-  /actors/count:
-    get:
-      summary: Total actor count in catalog
-      operationId: v1ActorsCountGet
-      tags: [actors]
-      responses:
-        '200':
-          description: Actor count
-          content:
-            application/json:
-              schema:
-                $ref: './schemas.yaml#/components/schemas/ActorCountResponse'
+                $ref: './schemas.yaml#/components/schemas/ActorListResponse'
 
   /actors/{id}:
     get:

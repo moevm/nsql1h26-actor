@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 const val CATALOG_FORMAT = "nsql1-catalog"
 const val CATALOG_VERSION = 1
 
-@Schema(description = "Полный снимок БД: вузы, актёры, админы, файлы GridFS (base64). Импорт полностью заменяет данные.")
+@Schema(description = "Full DB snapshot: universities, actors, admins, GridFS files (base64). Import replaces all data.")
 data class CatalogSnapshot(
     @Schema(example = CATALOG_FORMAT)
     val format: String = CATALOG_FORMAT,
@@ -20,13 +20,13 @@ data class CatalogSnapshot(
     val media: List<CatalogMediaEntry> = emptyList(),
 )
 
-@Schema(description = "Файл в GridFS в составе снимка")
+@Schema(description = "GridFS file included in the snapshot")
 data class CatalogMediaEntry(
     val id: String,
     val actorId: String,
     val filename: String,
     val contentType: String? = null,
-    @Schema(description = "photo или video")
+    @Schema(description = "photo or video")
     val type: String,
     val caption: String? = null,
     val dataBase64: String,

@@ -107,7 +107,7 @@ class UniversityApiTest {
     }
 
     @Test
-    @DisplayName("POST /v1/universities — 201, id и status ok")
+    @DisplayName("POST /v1/universities — 201, id and status ok")
     fun createUniversity() {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")
@@ -122,7 +122,7 @@ class UniversityApiTest {
     }
 
     @Test
-    @DisplayName("POST /v1/universities — только name")
+    @DisplayName("POST /v1/universities — name only")
     fun createUniversityMinimal() {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")
@@ -135,7 +135,7 @@ class UniversityApiTest {
     }
 
     @Test
-    @DisplayName("GET /v1/universities/search — поиск по строке, возвращает id и названия")
+    @DisplayName("GET /v1/universities/search — string search returns id and names")
     fun searchUniversities() {
         mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")
@@ -161,7 +161,7 @@ class UniversityApiTest {
     }
 
     @Test
-    @DisplayName("PATCH /v1/universities/{id} — 200, обновление name и shortName")
+    @DisplayName("PATCH /v1/universities/{id} — 200, updates name and shortName")
     fun patchUniversity() {
         val createRes = mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")
@@ -188,7 +188,7 @@ class UniversityApiTest {
     }
 
     @Test
-    @DisplayName("PATCH /v1/universities/{id} — 400 при пустом теле обновления")
+    @DisplayName("PATCH /v1/universities/{id} — 400 on empty update body")
     fun patchUniversityEmptyBody() {
         val createRes = mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")
@@ -244,7 +244,7 @@ class UniversityApiTest {
     }
 
     @Test
-    @DisplayName("DELETE /v1/universities/{id} — 401 без JWT")
+    @DisplayName("DELETE /v1/universities/{id} — 401 without JWT")
     fun deleteUniversityUnauthorized() {
         mockMvc.perform(MockMvcRequestBuilders.delete("/v1/universities/000000000000000000000000"))
             .andExpect(status().isUnauthorized())
@@ -261,7 +261,7 @@ class UniversityApiTest {
     }
 
     @Test
-    @DisplayName("DELETE /v1/universities/{id} — 409 при ссылке из актёра")
+    @DisplayName("DELETE /v1/universities/{id} — 409 when referenced by actor")
     fun deleteUniversityConflict() {
         val createRes = mockMvc.perform(
             MockMvcRequestBuilders.post("/v1/universities")

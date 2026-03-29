@@ -2,9 +2,9 @@ package com.NOSQL.NOSQL.controller
 
 import com.NOSQL.NOSQL.api.ActorsApi
 import com.NOSQL.NOSQL.model.generated.Actor
-import com.NOSQL.NOSQL.model.generated.ActorCountResponse
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
+import com.NOSQL.NOSQL.model.generated.ActorListResponse
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.Gender
@@ -72,10 +72,11 @@ class ActorController(
         genres: List<String>?,
         name: String?,
         limit: Int,
-        offset: Int
-    ): ResponseEntity<List<Actor>> {
-        log.info("GET /v1/actors gender={} limit={} offset={} theatre={} universityId={} name={}", gender, limit, offset, theatre, universityId, name)
-        val list = actorService.findAll(
+        offset: Int,
+        includeItems: Boolean,
+    ): ResponseEntity<ActorListResponse> {
+        log.info("GET /v1/actors gender={} limit={} offset={} includeItems={} theatre={} universityId={} name={}", gender, limit, offset, includeItems, theatre, universityId, name)
+        val body = actorService.findAll(
             gender = gender,
             ageFrom = ageFrom,
             ageTo = ageTo,
@@ -93,14 +94,10 @@ class ActorController(
             genres = genres,
             name = name,
             limit = limit,
-            offset = offset
+            offset = offset,
+            includeItems = includeItems,
         )
-        return ResponseEntity.ok(list)
-    }
-
-    override fun v1ActorsCountGet(): ResponseEntity<ActorCountResponse> {
-        log.info("GET /v1/actors/count")
-        return ResponseEntity.ok(ActorCountResponse(total = actorService.countTotal()))
+        return ResponseEntity.ok(body)
     }
 
     override fun v1ActorMediaUploadPost(

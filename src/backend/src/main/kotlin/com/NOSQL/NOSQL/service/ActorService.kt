@@ -4,6 +4,7 @@ import com.NOSQL.NOSQL.mapping.MappingFromApi
 import com.NOSQL.NOSQL.mapping.MappingToApi
 import com.NOSQL.NOSQL.model.ActorDocument
 import com.NOSQL.NOSQL.model.generated.Actor
+import com.NOSQL.NOSQL.model.generated.ActorListResponse
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
@@ -33,12 +34,6 @@ class ActorService(
     private val mediaRepository: MediaRepository
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-
-    fun countTotal(): Long {
-        val count = actorRepository.count()
-        log.debug("countTotal: $count")
-        return count
-    }
 
     fun create(actorCreate: ActorCreate): ActorCreateResponse {
         log.info("Creating actor: {} {}", actorCreate.firstName, actorCreate.lastName)
@@ -131,9 +126,61 @@ class ActorService(
         genres: List<String>?,
         name: String?,
         limit: Int,
-        offset: Int
-    ): List<Actor> {
-        log.info("findAll: limit={}, offset={}, gender={}, theatre={}, universityId={}, name={}", limit, offset, gender, theatre, universityId, name)
+        offset: Int,
+        includeItems: Boolean,
+    ): ActorListResponse {
+        log.info(
+            "findAll: limit={}, offset={}, includeItems={}, gender={}, theatre={}, universityId={}, name={}",
+            limit, offset, includeItems, gender, theatre, universityId, name
+        )
+        val baseQuery = buildFilterQuery(
+            gender = gender,
+            ageFrom = ageFrom,
+            ageTo = ageTo,
+            weightMin = weightMin,
+            weightMax = weightMax,
+            heightMin = heightMin,
+            heightMax = heightMax,
+            activityYearFrom = activityYearFrom,
+            activityYearTo = activityYearTo,
+            universityId = universityId,
+            theatre = theatre,
+            title = title,
+            hairColor = hairColor,
+            eyeColor = eyeColor,
+            genres = genres,
+            name = name,
+        )
+        val total = mongoTemplate.count(baseQuery, ActorDocument::class.java)
+        if (!includeItems) {
+            return ActorListResponse(total = total, actors = emptyList())
+        }
+        baseQuery.with(Sort.by(Sort.Direction.ASC, "lastName", "firstName"))
+        baseQuery.skip(offset.toLong()).limit(limit)
+        val docs = mongoTemplate.find(baseQuery, ActorDocument::class.java)
+        log.info("findAll returned {} actors (total matching filters: {})", docs.size, total)
+        val actors = docs.map { MappingToApi.documentToActor(it) }.map(::enrichWithUniversities)
+        return ActorListResponse(total = total, actors = actors)
+    }
+
+    private fun buildFilterQuery(
+        gender: Gender?,
+        ageFrom: Int?,
+        ageTo: Int?,
+        weightMin: Int?,
+        weightMax: Int?,
+        heightMin: Int?,
+        heightMax: Int?,
+        activityYearFrom: Int?,
+        activityYearTo: Int?,
+        universityId: String?,
+        theatre: String?,
+        title: Title?,
+        hairColor: String?,
+        eyeColor: String?,
+        genres: List<String>?,
+        name: String?,
+    ): Query {
         val query = Query()
         val criteria = mutableListOf<Criteria>()
 
@@ -211,11 +258,7 @@ class ActorService(
         if (criteria.isNotEmpty()) {
             query.addCriteria(Criteria().andOperator(criteria))
         }
-        query.with(Sort.by(Sort.Direction.ASC, "lastName", "firstName"))
-        query.skip(offset.toLong()).limit(limit)
-        val docs = mongoTemplate.find(query, ActorDocument::class.java)
-        log.info("findAll returned {} actors", docs.size)
-        return docs.map { MappingToApi.documentToActor(it) }.map(::enrichWithUniversities)
+        return query
     }
 
     private fun enrichWithUniversities(actor: Actor): Actor {

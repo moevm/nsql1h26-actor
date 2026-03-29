@@ -148,7 +148,7 @@ class ActorApiTest {
     @DisplayName("POST /v1/actors")
     inner class PostActors {
         @Test
-        fun `201 — создание актёра`() {
+        fun `201 create actor`() {
             val body = """{"firstName":"Мария","lastName":"Иванова"}"""
             mockMvc.perform(
                 MockMvcRequestBuilders.post("/v1/actors")
@@ -162,7 +162,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `400 — несуществующий uniId`() {
+        fun `400 non-existent uniId`() {
             val body = """{"firstName":"Иван","lastName":"П","education":[{"uniId":"000000000000000000000000"}]}"""
             mockMvc.perform(
                 MockMvcRequestBuilders.post("/v1/actors")
@@ -178,7 +178,7 @@ class ActorApiTest {
     @DisplayName("GET /v1/actors")
     inner class GetActors {
         @Test
-        fun `200 — список с фильтрами`() {
+        fun `200 list with filters total and actors`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.get("/v1/actors")
                     .param("gender", "male")
@@ -186,18 +186,22 @@ class ActorApiTest {
                     .param("offset", "0")
             )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].firstName").value("Иван"))
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.actors[0].firstName").value("Иван"))
         }
-    }
 
-    @Nested
-    @DisplayName("GET /v1/actors/count")
-    inner class GetActorsCount {
         @Test
-        fun `200 — total совпадает с числом актёров`() {
-            mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/count"))
+        fun `200 includeItems false empty actors total unchanged`() {
+            mockMvc.perform(
+                MockMvcRequestBuilders.get("/v1/actors")
+                    .param("gender", "male")
+                    .param("includeItems", "false")
+                    .param("limit", "10")
+                    .param("offset", "0")
+            )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.actors.length()").value(0))
         }
     }
 
@@ -205,7 +209,7 @@ class ActorApiTest {
     @DisplayName("GET /v1/actors/{id}")
     inner class GetActorById {
         @Test
-        fun `200 — актёр с обогащённым education`() {
+        fun `200 actor with enriched education`() {
             mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/$actorId"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(actorId))
@@ -214,7 +218,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `404 — несуществующий id`() {
+        fun `404 non-existent id`() {
             mockMvc.perform(MockMvcRequestBuilders.get("/v1/actors/000000000000000000000000"))
                 .andExpect(status().isNotFound())
         }
@@ -224,7 +228,7 @@ class ActorApiTest {
     @DisplayName("PATCH /v1/actors/{id}")
     inner class PatchActorById {
         @Test
-        fun `200 — частичное обновление имени, остальные поля без изменений`() {
+        fun `200 partial name update other fields unchanged`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.patch("/v1/actors/$actorId")
                     .header("Authorization", "Bearer $token")
@@ -239,7 +243,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `200 — genres заменяются целиком, пустой массив очищает`() {
+        fun `200 genres replaced entirely empty array clears`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.patch("/v1/actors/$actorId")
                     .header("Authorization", "Bearer $token")
@@ -258,7 +262,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `400 — пустой объект без полей`() {
+        fun `400 empty object no fields`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.patch("/v1/actors/$actorId")
                     .header("Authorization", "Bearer $token")
@@ -269,7 +273,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `401 — без JWT`() {
+        fun `401 without JWT`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.patch("/v1/actors/$actorId")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -279,7 +283,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `404 — несуществующий актёр`() {
+        fun `404 non-existent actor`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.patch("/v1/actors/000000000000000000000000")
                     .header("Authorization", "Bearer $token")
@@ -290,7 +294,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `400 — несуществующий uniId в education`() {
+        fun `400 non-existent uniId in education`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.patch("/v1/actors/$actorId")
                     .header("Authorization", "Bearer $token")
@@ -307,7 +311,7 @@ class ActorApiTest {
     @DisplayName("POST /v1/actors/{id}/media")
     inner class PostMedia {
         @Test
-        fun `201 — загрузка фото`() {
+        fun `201 upload photo`() {
             val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", "image data".toByteArray())
             mockMvc.perform(
                 MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
@@ -322,7 +326,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `404 — актёр не найден`() {
+        fun `404 actor not found`() {
             val file = MockMultipartFile("file", "x", "image/jpeg", "x".toByteArray())
             mockMvc.perform(
                 MockMvcRequestBuilders.multipart("/v1/actors/000000000000000000000000/media")
@@ -339,7 +343,7 @@ class ActorApiTest {
     @DisplayName("GET /v1/actors/{actorId}/media/{mediaId}")
     inner class GetMedia {
         @Test
-        fun `200 — получение медиа`() {
+        fun `200 get media`() {
             val file = MockMultipartFile("file", "p.jpg", "image/jpeg", "bytes".toByteArray())
             mockMvc.perform(
                 MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
@@ -359,7 +363,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `404 — медиа не найдено`() {
+        fun `404 media not found`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.get("/v1/actors/$actorId/media/000000000000000000000000")
             )
@@ -371,7 +375,7 @@ class ActorApiTest {
     @DisplayName("DELETE /v1/actors/{actorId}/media/{mediaId}")
     inner class DeleteMedia {
         @Test
-        fun `204 — удаление медиа`() {
+        fun `204 delete media`() {
             val file = MockMultipartFile("file", "p.jpg", "image/jpeg", "bytes".toByteArray())
             val upload = mockMvc.perform(
                 MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
@@ -390,7 +394,7 @@ class ActorApiTest {
         }
 
         @Test
-        fun `401 — без JWT`() {
+        fun `401 without JWT`() {
             mockMvc.perform(
                 MockMvcRequestBuilders.delete("/v1/actors/$actorId/media/000000000000000000000001")
             )

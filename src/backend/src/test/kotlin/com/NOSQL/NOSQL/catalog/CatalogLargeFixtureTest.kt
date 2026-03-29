@@ -26,8 +26,8 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 
 /**
- * Большой снимок хранится в репозитории: [fixtures/catalog/catalog-large.json] (без генераторов).
- * При смене файла обновите константы размеров ниже.
+ * Large snapshot lives in the repo: [fixtures/catalog/catalog-large.json] (no generators).
+ * If you replace the file, update the size constants below.
  */
 @Testcontainers
 @SpringBootTest
@@ -53,7 +53,7 @@ class CatalogLargeFixtureTest {
             .registerKotlinModule()
             .registerModule(JavaTimeModule())
 
-        /** Должны совпадать с содержимым catalog-large.json */
+        /** Must match catalog-large.json contents */
         const val LARGE_UNIVERSITIES = 200
         const val LARGE_ACTORS = 500
         const val LARGE_ADMINS = 40
@@ -85,7 +85,7 @@ class CatalogLargeFixtureTest {
     }
 
     @Test
-    @DisplayName("Импорт catalog-large.json → экспорт: снимок совпадает с исходным (полное рекурсивное сравнение)")
+    @DisplayName("Import catalog-large.json then export: snapshot equals original (full recursive compare)")
     fun importThenExport_equalsOriginalSnapshot() {
         val resource = ClassPathResource("fixtures/catalog/catalog-large.json")
         assertThat(resource.exists()).isTrue()
