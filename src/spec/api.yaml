@@ -481,10 +481,59 @@ paths:
         '404':
           description: Actor or media not found
 
+  /catalog/export:
+    get:
+      summary: Export full database snapshot (JSON)
+      description: Returns universities, actors, admins, and media files (Base64) in one document. Requires JWT.
+      operationId: v1CatalogExportGet
+      tags: [catalog]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Catalog snapshot
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/CatalogSnapshot'
+        '401':
+          description: Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
+
+  /catalog/import:
+    post:
+      summary: Import full database snapshot (replaces all data)
+      description: |
+        Replaces all universities, actors, admins, and GridFS media with the payload.
+        Format must be `format: "nsql1-catalog"` and compatible `version`.
+        Response has no body on success.
+      operationId: v1CatalogImportPost
+      tags: [catalog]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/CatalogSnapshot'
+      responses:
+        '204':
+          description: Import completed
+        '401':
+          description: Missing or invalid JWT
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/UnauthorizedError'
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT for mutating operations (POST universities, actors, media; PATCH universities; DELETE actors and actor media; GET/POST /v1/catalog/export|import)
+      description: JWT for mutating operations (POST universities, actors, media; PATCH universities; DELETE actors and actor media; GET /catalog/export; POST /catalog/import)

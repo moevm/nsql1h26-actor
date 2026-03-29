@@ -1,40 +1,27 @@
 package com.NOSQL.NOSQL.controller
 
-import com.NOSQL.NOSQL.model.catalog.CatalogSnapshot
+import com.NOSQL.NOSQL.api.CatalogApi
+import com.NOSQL.NOSQL.model.generated.CatalogSnapshot
 import com.NOSQL.NOSQL.service.CatalogService
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/v1/catalog")
-@Tag(name = "catalog", description = "Bulk catalog export/import (JSON)")
-@SecurityRequirement(name = "bearerAuth")
 class CatalogController(
     private val catalogService: CatalogService,
-) {
+) : CatalogApi {
+
     private val log = LoggerFactory.getLogger(javaClass)
 
-    @GetMapping("/export", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @Operation(summary = "Export full database to JSON (universities, actors, admins, media as Base64)")
-    fun export(): CatalogSnapshot {
+    override fun v1CatalogExportGet(): ResponseEntity<CatalogSnapshot> {
         log.info("GET /v1/catalog/export")
-        return catalogService.exportSnapshot()
+        return ResponseEntity.ok(catalogService.exportSnapshot())
     }
 
-    @PostMapping("/import", consumes = [MediaType.APPLICATION_JSON_VALUE])
-    @Operation(summary = "Import: replace entire database contents from file")
-    fun import(@RequestBody body: CatalogSnapshot): ResponseEntity<Unit> {
+    override fun v1CatalogImportPost(catalogSnapshot: CatalogSnapshot): ResponseEntity<Unit> {
         log.info("POST /v1/catalog/import")
-        catalogService.importSnapshot(body)
+        catalogService.importSnapshot(catalogSnapshot)
         return ResponseEntity.noContent().build()
     }
 }

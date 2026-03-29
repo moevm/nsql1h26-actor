@@ -1,9 +1,11 @@
 package com.NOSQL.NOSQL.service
 
+import com.NOSQL.NOSQL.mapping.MappingCatalog
+import com.NOSQL.NOSQL.mapping.MappingFromApi
 import com.NOSQL.NOSQL.model.catalog.CATALOG_FORMAT
 import com.NOSQL.NOSQL.model.catalog.CATALOG_VERSION
-import com.NOSQL.NOSQL.model.catalog.CatalogMediaEntry
-import com.NOSQL.NOSQL.model.catalog.CatalogSnapshot
+import com.NOSQL.NOSQL.model.generated.CatalogMediaEntry
+import com.NOSQL.NOSQL.model.generated.CatalogSnapshot
 import com.NOSQL.NOSQL.repository.AdminRepository
 import com.NOSQL.NOSQL.repository.ActorRepository
 import com.NOSQL.NOSQL.repository.MediaRepository
@@ -35,9 +37,7 @@ class CatalogService(
                 dataBase64 = Base64.getEncoder().encodeToString(row.bytes),
             )
         }
-        return CatalogSnapshot(
-            format = CATALOG_FORMAT,
-            version = CATALOG_VERSION,
+        return MappingCatalog.toCatalogSnapshot(
             universities = universityRepository.findAll(),
             actors = actorRepository.findAll(),
             admins = adminRepository.findAll(),
@@ -65,9 +65,9 @@ class CatalogService(
         adminRepository.deleteAll()
         mediaRepository.deleteAll()
 
-        snapshot.universities.forEach { universityRepository.save(it) }
-        snapshot.actors.forEach { actorRepository.save(it) }
-        snapshot.admins.forEach { adminRepository.save(it) }
+        snapshot.universities.forEach { universityRepository.save(MappingCatalog.universityFromSearchItem(it)) }
+        snapshot.actors.forEach { actorRepository.save(MappingFromApi.actorToDocument(it)) }
+        snapshot.admins.forEach { adminRepository.save(MappingCatalog.adminFromGenerated(it)) }
         snapshot.media.forEach { entry ->
             try {
                 val bytes = Base64.getDecoder().decode(entry.dataBase64)

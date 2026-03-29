@@ -7,6 +7,9 @@ import com.NOSQL.NOSQL.model.domain.FilmPlayItem as DomainFilmPlayItem
 import com.NOSQL.NOSQL.model.domain.Gender as DomainGender
 import com.NOSQL.NOSQL.model.domain.TheatrePlayItem as DomainTheatrePlayItem
 import com.NOSQL.NOSQL.model.domain.Title as DomainTitle
+import com.NOSQL.NOSQL.model.domain.PhotoItem as DomainPhotoItem
+import com.NOSQL.NOSQL.model.domain.VideoItem as DomainVideoItem
+import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.EducationCreateItem
@@ -38,6 +41,34 @@ object MappingFromApi {
             genres = actorCreate.genres,
             createdAt = createdAt.toInstant(),
             updatedAt = updatedAt.toInstant()
+        )
+
+    fun actorToDocument(a: Actor): ActorDocument =
+        ActorDocument(
+            id = a.id,
+            firstName = a.firstName,
+            lastName = a.lastName,
+            middleName = a.middleName,
+            birthDate = a.birthDate,
+            height = a.height,
+            weight = a.weight,
+            gender = a.gender?.let { DomainGender.valueOf(it.name) },
+            hairColor = a.hairColor,
+            eyeColor = a.eyeColor,
+            bio = a.bio,
+            title = a.title?.let { DomainTitle.valueOf(it.name) },
+            phone = a.phone,
+            email = a.email,
+            links = a.links?.map(::contactLinkItemToDomain),
+            education = a.education?.map(::educationItemToDomain),
+            films = a.films?.map(::filmPlayItemToDomain),
+            theatrePlayItems = a.theatrePlayItems?.map(::theatrePlayItemToDomain),
+            photos = a.photos?.map(::photoItemToDomain),
+            mainPhotoId = a.mainPhotoId,
+            videos = a.videos?.map(::videoItemToDomain),
+            genres = a.genres,
+            createdAt = a.createdAt?.toInstant(),
+            updatedAt = a.updatedAt?.toInstant(),
         )
 
     fun mergeActorDocument(doc: ActorDocument, update: ActorUpdate): ActorDocument =
@@ -90,4 +121,10 @@ object MappingFromApi {
             years = it.years,
             plays = it.plays?.map(::filmPlayItemToDomain)
         )
+
+    private fun photoItemToDomain(it: com.NOSQL.NOSQL.model.generated.PhotoItem): DomainPhotoItem =
+        DomainPhotoItem(id = it.id, caption = it.caption)
+
+    private fun videoItemToDomain(it: com.NOSQL.NOSQL.model.generated.VideoItem): DomainVideoItem =
+        DomainVideoItem(id = it.id, caption = it.caption)
 }

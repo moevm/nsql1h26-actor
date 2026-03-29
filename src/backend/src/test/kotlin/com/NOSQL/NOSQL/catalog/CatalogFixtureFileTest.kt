@@ -1,6 +1,6 @@
 package com.NOSQL.NOSQL.catalog
 
-import com.NOSQL.NOSQL.model.catalog.CatalogSnapshot
+import com.NOSQL.NOSQL.model.generated.CatalogSnapshot
 import com.NOSQL.NOSQL.repository.ActorRepository
 import com.NOSQL.NOSQL.repository.AdminRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository

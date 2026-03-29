@@ -2,7 +2,7 @@ package com.NOSQL.NOSQL.service
 
 import com.NOSQL.NOSQL.model.AdminDocument
 import com.NOSQL.NOSQL.model.catalog.CATALOG_VERSION
-import com.NOSQL.NOSQL.model.catalog.CatalogSnapshot
+import com.NOSQL.NOSQL.model.generated.CatalogSnapshot
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.Gender

@@ -513,3 +513,74 @@ components:
           items:
             type: string
           nullable: true
+
+    AdminDocument:
+      type: object
+      description: "Admin user as stored and exported in catalog (includes password hash)"
+      properties:
+        id:
+          $ref: '#/components/schemas/MongoId'
+          nullable: true
+        email:
+          type: string
+          format: email
+        passwordHash:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    CatalogMediaEntry:
+      type: object
+      description: "GridFS file embedded in catalog export (payload as Base64)"
+      required: [id, actorId, filename, type, dataBase64]
+      properties:
+        id:
+          type: string
+          description: "Media ObjectId"
+        actorId:
+          type: string
+        filename:
+          type: string
+        contentType:
+          type: string
+          nullable: true
+        type:
+          type: string
+          description: "photo or video"
+        caption:
+          type: string
+          nullable: true
+        dataBase64:
+          type: string
+          description: "File bytes encoded as Base64"
+
+    CatalogSnapshot:
+      type: object
+      description: "Full database snapshot for export/import; import replaces all universities, actors, admins, and GridFS media"
+      required: [format, version, universities, actors, admins, media]
+      properties:
+        format:
+          type: string
+          example: nsql1-catalog
+        version:
+          type: integer
+          example: 1
+        universities:
+          type: array
+          items:
+            $ref: '#/components/schemas/UniversitySearchItem'
+          description: "Stored university documents (same shape as search rows)"
+        actors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Actor'
+        admins:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminDocument'
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogMediaEntry'
