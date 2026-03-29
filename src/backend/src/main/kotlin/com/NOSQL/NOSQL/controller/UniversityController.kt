@@ -34,4 +34,10 @@ class UniversityController(
         val response = universityService.update(id, universityUpdate)
         return ResponseEntity.ok(response)
     }
+
+    override fun v1UniversityByIdDelete(id: String): ResponseEntity<Unit> {
+        log.info("DELETE /v1/universities/{}", id)
+        universityService.deleteById(id)
+        return ResponseEntity.noContent().build()
+    }
 }

@@ -1,7 +1,10 @@
 package com.NOSQL.NOSQL.service
 
+import com.NOSQL.NOSQL.model.ActorDocument
+import com.NOSQL.NOSQL.model.domain.EducationItem
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
 import com.NOSQL.NOSQL.model.generated.UniversityUpdate
+import com.NOSQL.NOSQL.repository.ActorRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -46,8 +49,12 @@ class UniversityServiceTest {
     @Autowired
     lateinit var universityRepository: UniversityRepository
 
+    @Autowired
+    lateinit var actorRepository: ActorRepository
+
     @BeforeEach
     fun setUp() {
+        actorRepository.deleteAll()
         universityRepository.deleteAll()
     }
 
@@ -169,5 +176,40 @@ class UniversityServiceTest {
         assertThrows<ResponseStatusException> {
             universityService.update(id, UniversityUpdate())
         }
+    }
+
+    @Test
+    @DisplayName("delete — удаление без ссылок из актёров")
+    fun deleteOk() {
+        val id = universityService.create(UniversityCreate(name = "Вуз на удаление")).id!!
+        universityService.deleteById(id)
+        assertThat(universityRepository.existsById(id)).isFalse()
+    }
+
+    @Test
+    @DisplayName("delete — 404 если вуз не найден")
+    fun deleteNotFound() {
+        val ex = assertThrows<ResponseStatusException> {
+            universityService.deleteById("000000000000000000000000")
+        }
+        assertThat(ex.statusCode.value()).isEqualTo(404)
+    }
+
+    @Test
+    @DisplayName("delete — 409 если актёр ссылается на вуз (education.uniId)")
+    fun deleteConflictWhenReferencedByActor() {
+        val uniId = universityService.create(UniversityCreate(name = "Вуз")).id!!
+        actorRepository.save(
+            ActorDocument(
+                firstName = "Иван",
+                lastName = "Тестов",
+                education = listOf(EducationItem(uniId = uniId, graduationYear = null, name = null)),
+            )
+        )
+        val ex = assertThrows<ResponseStatusException> {
+            universityService.deleteById(uniId)
+        }
+        assertThat(ex.statusCode.value()).isEqualTo(409)
+        assertThat(universityRepository.existsById(uniId)).isTrue()
     }
 }

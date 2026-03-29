@@ -1,5 +1,6 @@
 package com.NOSQL.NOSQL.service
 
+import com.NOSQL.NOSQL.model.ActorDocument
 import com.NOSQL.NOSQL.model.UniversityDocument
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
 import com.NOSQL.NOSQL.model.generated.UniversityCreateResponse
@@ -112,5 +113,26 @@ class UniversityService(
             status = UniversityCreateResponse.Status.ok,
             errorCode = null
         )
+    }
+
+    fun deleteById(id: String) {
+        log.info("Deleting university id={}", id)
+        if (!universityRepository.existsById(id)) {
+            log.warn("University not found: id={}", id)
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "University not found")
+        }
+        val refCount = mongoTemplate.count(
+            Query.query(Criteria.where("education.uniId").`is`(id)),
+            ActorDocument::class.java
+        )
+        if (refCount > 0) {
+            log.warn("Cannot delete university id={}: referenced by {} actor(s)", id, refCount)
+            throw ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "University is referenced by $refCount actor(s)"
+            )
+        }
+        universityRepository.deleteById(id)
+        log.info("University deleted id={}", id)
     }
 }

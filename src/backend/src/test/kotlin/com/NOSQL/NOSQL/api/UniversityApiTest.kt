@@ -1,6 +1,9 @@
 package com.NOSQL.NOSQL.api
 
+import com.NOSQL.NOSQL.model.ActorDocument
 import com.NOSQL.NOSQL.model.AdminDocument
+import com.NOSQL.NOSQL.model.domain.EducationItem
+import com.NOSQL.NOSQL.repository.ActorRepository
 import com.NOSQL.NOSQL.repository.AdminRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -60,6 +63,9 @@ class UniversityApiTest {
     lateinit var universityRepository: UniversityRepository
 
     @Autowired
+    lateinit var actorRepository: ActorRepository
+
+    @Autowired
     lateinit var adminRepository: AdminRepository
 
     @Autowired
@@ -73,6 +79,7 @@ class UniversityApiTest {
 
     @BeforeEach
     fun setUp() {
+        actorRepository.deleteAll()
         universityRepository.deleteAll()
         if (adminRepository.findByEmail(testAdminEmail) == null) {
             adminRepository.save(
@@ -210,5 +217,72 @@ class UniversityApiTest {
                 .content("""{"name":"X"}""")
         )
             .andExpect(status().isNotFound())
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/universities/{id} — 204")
+    fun deleteUniversity() {
+        val createRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/universities")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"На удаление"}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val id = mapper.readTree(createRes.response.contentAsString)["id"].asText()
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/v1/universities/$id")
+                .header("Authorization", "Bearer $token")
+        )
+            .andExpect(status().isNoContent())
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/v1/universities/search").param("q", "На удаление").param("limit", "5")
+        )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(0))
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/universities/{id} — 401 без JWT")
+    fun deleteUniversityUnauthorized() {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/v1/universities/000000000000000000000000"))
+            .andExpect(status().isUnauthorized())
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/universities/{id} — 404")
+    fun deleteUniversityNotFound() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/v1/universities/000000000000000000000000")
+                .header("Authorization", "Bearer $token")
+        )
+            .andExpect(status().isNotFound())
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/universities/{id} — 409 при ссылке из актёра")
+    fun deleteUniversityConflict() {
+        val createRes = mockMvc.perform(
+            MockMvcRequestBuilders.post("/v1/universities")
+                .header("Authorization", "Bearer $token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"name":"Связанный вуз"}""")
+        ).andExpect(status().isCreated()).andReturn()
+        val uniId = mapper.readTree(createRes.response.contentAsString)["id"].asText()
+
+        actorRepository.save(
+            ActorDocument(
+                firstName = "А",
+                lastName = "Б",
+                education = listOf(EducationItem(uniId = uniId, graduationYear = null, name = null)),
+            )
+        )
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/v1/universities/$uniId")
+                .header("Authorization", "Bearer $token")
+        )
+            .andExpect(status().isConflict())
     }
 }
