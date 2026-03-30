@@ -1,18 +1,47 @@
-<div class="university-search">
-  <input
-    class="university-search__input"
-    type="text"
-    [value]="inputValue"
-    [placeholder]="placeholder"
-    [attr.list]="datalistId"
-    [attr.data-university-id]="selectedUniversityId()"
-    autocomplete="off"
-    (input)="onInput($event)"
-  />
+<div class="university-search" (focusout)="onFocusOut($event)">
+  <div class="select-wrap">
+    <input
+      class="university-search__input"
+      type="text"
+      [value]="inputValue"
+      [placeholder]="placeholder"
+      autocomplete="off"
+      (focus)="onFocus()"
+      (input)="onInput($event)"
+    />
+  </div>
 
-  <datalist [id]="datalistId">
-    @for (u of universities(); track u.id ?? $index) {
-      <option [value]="u.name ?? ''" [attr.data-id]="u.id ?? null">{{ u.name }}</option>
-    }
-  </datalist>
+  @if (isDropdownOpen()) {
+    <div class="university-search__dropdown" role="listbox">
+      @if (multiselect && selectedUniversities().length > 0) {
+        @for (u of selectedUniversities(); track u.id ?? u.name ?? $index) {
+          <button class="university-search__selected-option" type="button" (click)="removeUniversity(u)">
+            <span>{{ u.name }}</span>
+            <span class="university-search__selected-option-remove">Удалить</span>
+          </button>
+        }
+      }
+
+      @if (loading()) {
+        <div class="university-search__status">Загрузка...</div>
+      } @else if (!hasQuery()) {
+        <div class="university-search__status">Ожидание ввода</div>
+      } @else if (visibleUniversities().length === 0) {
+        <div class="university-search__status">Совпадений не найдено</div>
+      } @else {
+        @for (u of visibleUniversities(); track u.id ?? $index) {
+          <button
+            class="university-search__option"
+            type="button"
+            role="option"
+            [class.is-selected]="isUniversitySelected(u)"
+            (click)="onSelectUniversity(u)"
+          >
+            {{ u.name }}
+          </button>
+        }
+      }
+    </div>
+  }
 </div>
+

@@ -159,8 +159,8 @@ export class SearchFilters implements OnInit {
     this.emitFiltersIfValid();
   }
 
-  onUniversityIdChange(universityId: string | null): void {
-    this.search_form.controls.university_id.setValue(universityId);
+  onUniversityIdChange(universityId: string[] | null): void {
+    this.search_form.controls.university_id.setValue(universityId?.[0] ?? null);
   }
 
   private emitFiltersIfValid(): void {

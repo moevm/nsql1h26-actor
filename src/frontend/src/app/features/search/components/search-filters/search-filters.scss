@@ -28,42 +28,6 @@
         flex: 0 0 130px;
     }
 
-    select {
-        width: 100%;
-        padding-right: 34px;
-
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-image: none;
-    }
-
-    .select-wrap {
-        position: relative;
-        width: 100%;
-
-        &::after {
-            content: "";
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            width: 24px;
-            height: 12px;
-            background-image: url("/images/arrow.png");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
-            transform: translateY(-50%) rotate(0deg);
-            transform-origin: center;
-            transition: transform 180ms ease;
-            pointer-events: none;
-        }
-
-        &:focus-within::after {
-            transform: translateY(-50%) rotate(180deg);
-        }
-    }
-
     .radio-inputs input[type="radio"] {
         appearance: none;
         -webkit-appearance: none;
@@ -285,19 +249,48 @@
 
 .genres-box {
     display: flex;
-    justify-content: start;
     align-items: center;
+    gap: 10px;
+    line-height: 1.2;
 
     input[type="checkbox"] {
+        appearance: none;
         width: 18px;
         height: 18px;
-        accent-color: #6f2018;
+        border: 1.5px solid vars.$color-accent-primary;
+        border-radius: 4px;
+        background: #fff;
+        display: grid;
+        place-content: center;
+        transition:
+            border-color 0.15s ease,
+            background-color 0.15s ease,
+            box-shadow 0.15s ease;
+
+        &::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background: vars.$color-accent-primary;
+            transform: scale(0);
+            transition: transform 0.12s ease;
+        }
+
+        &:checked::before {
+            transform: scale(1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid rgba(82, 17, 12, 0.35);
+            outline-offset: 2px;
+        }
     }
 
     label {
-        margin-left: 12px;
         font-size: 17px;
         color: vars.$color-text-black;
+        cursor: pointer;
     }
 }
 

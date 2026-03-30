@@ -235,17 +235,23 @@
       class="advanced-filters"
       [class.advanced-filters--hidden]="!isAdvancedOpen"
     >
-      <div class="search-form__group secondary">
+      <div class="search-form__group secondary" [style.opacity]="'1'">
         <h5>Вуз</h5>
         <app-university-search
           [resetVersion]="universityResetVersion"
-          (selectedUniversityIdChange)="onUniversityIdChange($event)"
+          (selectedUniversity)="onUniversityIdChange($event)"
         ></app-university-search>
       </div>
       <div class="search-form__group secondary">
         <h5>Театр</h5>
         <div class="search-form__group-box">
-          <input [style.width]="'100%'" type="text" id="theatre" formControlName="theatre" placeholder="Введите название театра" />
+          <input
+            [style.width]="'100%'"
+            type="text"
+            id="theatre"
+            formControlName="theatre"
+            placeholder="Введите название театра"
+          />
         </div>
       </div>
       <div class="search-form__group secondary">
