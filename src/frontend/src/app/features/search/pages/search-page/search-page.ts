@@ -21,11 +21,8 @@ type SearchRequestParams = {
   page: number;
 } & SearchFiltersValue;
 
-type SearchCriteriaParams = {
-  q: string;
-} & SearchFiltersValue;
-
 type ActorsSearchQuery = NonNullable<operations['v1ActorsGet']['parameters']['query']>;
+type SearchResponse = { actors: Actor[]; total: number };
 
 @Component({
   selector: 'app-search-page',
@@ -41,11 +38,6 @@ export class SearchPage {
   readonly query = signal('');
   readonly filters = signal<SearchFiltersValue>(DEFAULT_SEARCH_FILTERS);
 
-  readonly criteriaParams = computed<SearchCriteriaParams>(() => ({
-    q: this.query().trim(),
-    ...this.filters(),
-  }));
-
   readonly requestParams = computed<SearchRequestParams>(() => ({
     q: this.query().trim(),
     page: this.currentPage(),
@@ -53,6 +45,8 @@ export class SearchPage {
   }));
 
   readonly error = signal<string | null>(null);
+  readonly loading = signal(true);
+  readonly hasLoaded = signal(false);
   readonly actors = signal<Actor[]>([]);
 
   readonly actorsCount = signal(0);
@@ -68,41 +62,30 @@ export class SearchPage {
         }
       });
 
-    toObservable(this.criteriaParams)
-      .pipe(
-        debounceTime(450),
-        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-        switchMap((params) =>
-          this.fetchActorsCount(params).pipe(
-            catchError(() => {
-              return of(0);
-            }),
-          ),
-        ),
-        takeUntilDestroyed(),
-      )
-      .subscribe((count) => this.actorsCount.set(count));
-
     toObservable(this.requestParams)
       .pipe(
         debounceTime(450),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
         tap(() => {
-          console.log('Fetching actors with params:', this.requestParams());
+          this.loading.set(true);
           this.error.set(null);
         }),
         switchMap((params) =>
           this.fetchActors(params).pipe(
+            map((response) => ({ actors: response.actors, total: response.total })),
             catchError(() => {
-              this.error.set('Не удалось загрузить результаты');
-              return of<Actor[]>([]);
+              this.error.set('Не удалось загрузить данные. Попробуйте еще раз.');
+              return of<SearchResponse>({ actors: [], total: 0 });
             }),
           ),
         ),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((actors) => {
-        this.actors.set(actors);
+      .subscribe((response) => {
+        this.actors.set(response.actors);
+        this.actorsCount.set(response.total);
+        this.loading.set(false);
+        this.hasLoaded.set(true);
       });
   }
 
@@ -121,13 +104,8 @@ export class SearchPage {
     return this.actorsApi.getActors(backendQuery);
   }
 
-  private fetchActorsCount(params: SearchCriteriaParams) {
-    const backendQuery = this.buildBackendQuery(params, 999, 0);
-    return this.actorsApi.getActors(backendQuery).pipe(map((actors) => actors.length));
-  }
-
   private buildBackendQuery(
-    params: SearchCriteriaParams,
+    params: SearchRequestParams,
     limit: number,
     offset: number,
   ): ActorsSearchQuery {
@@ -139,7 +117,9 @@ export class SearchPage {
       ...(params.weight_to != null ? { weightMax: params.weight_to } : {}),
       ...(params.height_from != null ? { heightMin: params.height_from } : {}),
       ...(params.height_to != null ? { heightMax: params.height_to } : {}),
-      ...(params.activity_years_from != null ? { activityYearFrom: params.activity_years_from } : {}),
+      ...(params.activity_years_from != null
+        ? { activityYearFrom: params.activity_years_from }
+        : {}),
       ...(params.activity_years_to != null ? { activityYearTo: params.activity_years_to } : {}),
       ...(params.university_id ? { universityId: params.university_id } : {}),
       ...(params.theatre ? { theatre: params.theatre } : {}),
