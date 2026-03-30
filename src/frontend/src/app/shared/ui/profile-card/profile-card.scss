@@ -3,6 +3,7 @@
 .profile-card {
   max-width: 300px;
   border-radius: 12px;
+  margin: 0 auto;
   overflow: hidden;
   background-color: vars.$color-background-primary;
   box-shadow: 0px 6px 12px 6px #52110c1a;
@@ -36,6 +37,7 @@
 }
 
 .profile-card__name {
+  min-height: 50px;
   margin: 0;
   font-family: vars.$font-secondary;
   font-size: 19px;

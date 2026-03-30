@@ -38,9 +38,9 @@ export function ageWord(date: string): string {
 }
 
 export function fullName(actor: Actor): string {
-  const lastName = actor.lastName?.trim();
-  const firstName = actor.firstName?.trim();
-  const middleName = actor.middleName?.trim();
+  const lastName = actor.lastName?.trim() ?? '';
+  const firstName = actor.firstName?.trim() ?? '';
+  const middleName = actor.middleName?.trim() ?? '';
 
   return `${lastName} ${firstName}\n${middleName}`;
 }
