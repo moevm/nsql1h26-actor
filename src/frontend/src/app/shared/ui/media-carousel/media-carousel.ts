@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, HostListener, Input, Output, OnChanges, SimpleChanges, EventEmitter } from '@angular/core';
 
 export type MediaCarouselItem = {
   id: string;
@@ -14,11 +14,16 @@ export type MediaCarouselItem = {
 })
 export class MediaCarousel implements OnChanges {
   @Input() title = '';
+  @Input() caption = false;
+  @Input() isEditing = false;
   @Input() items: MediaCarouselItem[] = [];
   @Input() mediaType: 'photo' | 'video' = 'photo';
   @Input() itemsPerPage = 4;
   @Input() itemWidth = 115;
   @Input() itemHeight = 190;
+
+  @Output() removePhoto = new EventEmitter<string>();
+  @Output() removeVideo = new EventEmitter<string>();
 
   currentPage = 0;
   zoomedItem: MediaCarouselItem | null = null;
