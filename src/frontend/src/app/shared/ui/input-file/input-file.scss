@@ -1,0 +1,99 @@
+@use "styles/variables" as vars;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.input-file {
+  position: relative;
+  width: 100%;
+}
+
+.input-file__native {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.input-file__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 38px;
+  padding-right: 44px;
+  border: 2px solid vars.$color-accent-primary;
+  border-radius: 5px;
+  background: transparent;
+  color: vars.$color-text-black;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    right: 42px;
+    top: -2px;
+    bottom: -2px;
+    width: 1px;
+    background: vars.$color-accent-primary;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: 11px;
+    top: 50%;
+    width: 24px;
+    height: 12px;
+    background-image: url("/images/arrow.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    transform: translateY(-50%) rotate(0deg);
+    transform-origin: center;
+    transition: transform 180ms ease;
+    pointer-events: none;
+  }
+
+  &:hover {
+    background-color: #fff8f4;
+  }
+
+  &:focus-visible {
+    border-color: #6f2018;
+    box-shadow: 0 0 0 3px #52110c26;
+    outline: none;
+  }
+
+  &.is-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.input-file .input-file__control.is-open::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.input-file__label {
+  text-align: start;
+  flex: 1 1 auto;
+  padding: 8px 12px;
+  font-size: 16px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.is-placeholder {
+    color: vars.$color-text-gray;
+  }
+}

@@ -1,0 +1,23 @@
+<div class="input-file">
+  <input
+    #nativeInput
+    class="input-file__native"
+    type="file"
+    [id]="inputId"
+    [attr.accept]="accept"
+    [multiple]="multiple"
+    [disabled]="disabled"
+    (change)="onFileChange($event)"
+  />
+  <label
+    class="input-file__control"
+    [attr.for]="inputId"
+    [class.is-disabled]="disabled"
+    [class.is-open]="isPickerOpen"
+    (click)="onOpenPicker()"
+  >
+    <span class="input-file__label" [class.is-placeholder]="!fileName">
+      {{ fileName || placeholder }}
+    </span>
+  </label>
+</div>
