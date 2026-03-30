@@ -1,0 +1,42 @@
+<div class="universities-wrapp">
+  <div class="universities-item">
+    <h2>Редактировние университета</h2>
+    <div class="section-card" [style.padding]="'16px'">
+      <app-university-search
+        [placeholder]="'Введите название вуза для редактирования'"
+        [getWhenDataReady]="true"
+        [resetVersion]="universitySearchResetVersion()"
+        (selectedUniversityData)="onUniversityDataChange($event)"
+      ></app-university-search>
+    </div>
+    @if (universityForEdit() !== null) {
+      <app-university-form
+        [universityData]="universityForEdit()"
+        (updated)="onUniversityUpdated()"
+        (notify)="
+          $event ? setSubmitNotification($event.tone, $event.message) : clearSubmitNotification()
+        "
+      ></app-university-form>
+    }
+  </div>
+  <div class="universities-item">
+    <h2>Создание нового университета</h2>
+    <app-university-form
+      (notify)="
+        $event ? setSubmitNotification($event.tone, $event.message) : clearSubmitNotification()
+      "
+    ></app-university-form>
+  </div>
+
+  @if (submitNotification(); as notification) {
+    <app-notice-banner
+      class="form-notification"
+      animate.enter="form-notification--enter"
+      animate.leave="form-notification--leave"
+      [message]="notification.message"
+      [tone]="notification.tone"
+      [autoCloseMs]="3000"
+      (closeBanner)="clearSubmitNotification()"
+    ></app-notice-banner>
+  }
+</div>
