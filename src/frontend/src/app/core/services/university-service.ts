@@ -6,6 +6,11 @@ import { components, operations } from '../../shared/api/types';
 type UniversitiesSearchQuery = operations['v1UniversitiesSearchGet']['parameters']['query'];
 type UniversitiesSearchItem = components['schemas']['UniversitySearchItem'];
 
+export type UniversityCreateRequest = components['schemas']['UniversityCreate'];
+export type UniversityCreateResponse = components['schemas']['UniversityCreateResponse'];
+
+export type UniversityUpdateRequest = components['schemas']['UniversityUpdate'];
+
 @Injectable({
   providedIn: 'root',
 })
@@ -20,5 +25,23 @@ export class UniversityService {
         ...(request.limit != null ? { limit: request.limit } : {}),
       },
     });
+  }
+
+  createUniversity(request: UniversityCreateRequest): Observable<UniversityCreateResponse> {
+    return this.http.post<UniversityCreateResponse>(`${this.apiPrefix}/universities`, request);
+  }
+
+  updateUniversity(
+    id: string,
+    request: UniversityUpdateRequest,
+  ): Observable<UniversityCreateResponse> {
+    return this.http.patch<UniversityCreateResponse>(
+      `${this.apiPrefix}/universities/${id}`,
+      request,
+    );
+  }
+
+  deleteUniversity(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiPrefix}/universities/${encodeURIComponent(id)}`);
   }
 }
