@@ -1,0 +1,31 @@
+<div class="dashboard">
+  <section class="dashboard-links">
+    <h1>Панель управления</h1>
+    <div class="links_box">
+      <div class="links_item">
+        <div>
+          <h3>Добавление профиля</h3>
+          <p>Добавить новый профиль</p>
+        </div>
+        <a [routerLink]="'profile/new'" class="card-link">Перейти</a>
+      </div>
+      <div class="links_item">
+        <div>
+          <h3>Университеты</h3>
+          <p>Редактирование/Добавление университета</p>
+        </div>
+        <a [routerLink]="'universities'" class="card-link">Перейти</a>
+      </div>
+      <div class="links_item">
+        <div>
+          <h3>Импорт/Экспорт</h3>
+          <p>Массовое импортирование или экспортирование данных</p>
+        </div>
+        <a [routerLink]="'import-export'" class="card-link">Перейти</a>
+      </div>
+    </div>
+  </section>
+  <section class="dashboard-statistic">
+    <h2>Просмотр статистики</h2>
+  </section>
+</div>
