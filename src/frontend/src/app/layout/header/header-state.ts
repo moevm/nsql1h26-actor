@@ -41,4 +41,23 @@ export const AUTH_HEADER_STATE: HeaderState = {
   showAction: false,
 };
 
+export const ADMIN_DASHBOARD_STATE: HeaderState = {
+  logoText: 'ActorsHub',
+  navItems: [
+    { label: 'Актёры', routerLink: '/search' }
+  ],
+  showAction: true,
+};
+
+// export const ADMIN_DASHBOARD_STATE: HeaderState = {
+//   logoText: 'ActorsHub',
+//   navItems: [
+//     { label: 'Актёры', routerLink: '/search' },
+//     { label: 'Добавить', routerLink: '/' },
+//     { label: 'Университеты', routerLink: '/' },
+//     { label: 'Импорт/Экспорт', routerLink: '/admin/import-export' },
+//   ],
+//   showAction: true,
+// };
+
 export const DEFAULT_HEADER_STATE = LANDING_HEADER_STATE;
