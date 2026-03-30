@@ -1,0 +1,93 @@
+@use "styles/variables" as vars;
+
+.auth-page {
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+
+    &_form {
+        width: min(100%, 520px);
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding: 36px;
+        background-color: vars.$color-background-primary;
+        border: 2px solid vars.$color-accent-secondary;
+        border-radius: 10px;
+
+        h3 {
+            font-size: 26px;
+            font-family: vars.$font-secondary;
+            color: vars.$color-text-black;
+            margin: 0;
+        }
+
+        .form_box {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 16px;
+            color: vars.$color-text-black;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            color: vars.$color-text-black;
+        }
+
+        .error {
+            font-size: 14px;
+            color: vars.$color-accent-primary;
+        }
+
+        button {
+            margin: 6px auto 0px;
+            padding: 12px 36px;
+            font-size: 18px;
+            border-radius: 6px;
+            font-family: inherit;
+            background-color: vars.$color-accent-primary;
+            color: vars.$color-text-white;
+            transition:
+                opacity 0.2s ease, background-color 0.25s ease,
+                border-color 0.25s ease,
+                transform 0.25s ease,
+                box-shadow 0.25s ease;
+
+            &:not(:disabled):hover {
+                background-color: vars.$color-accent-secondary;
+                border-color: vars.$color-accent-secondary;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 18px rgba(199, 167, 104, 0.35);
+            }
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+@media (max-width: 680px) {
+    .auth-page {
+        padding: 24px 12px;
+
+        &_form {
+            padding: 20px;
+
+            h3 {
+                font-size: 22px;
+            }
+        }
+    }
+}
