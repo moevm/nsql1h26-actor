@@ -30,8 +30,8 @@ export class LandingPage {
       .getActorbyLimit(8)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (actors) => {
-          this.actors.set(actors);
+        next: (response) => {
+          this.actors.set(response.actors);
           this.actorsError.set(null);
           this.actorsLoading.set(false);
         },
