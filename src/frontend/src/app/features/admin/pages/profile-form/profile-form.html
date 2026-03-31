@@ -1,6 +1,12 @@
 <form class="profile-form" (ngSubmit)="onSubmit()" [formGroup]="profile_form">
   @if (actor()) {
-    <h1>Редактирование профиля</h1>
+    <div class="form-header">
+      <h1>Редактирование профиля</h1>
+      <p class="date-info">
+        Cоздан: {{ formatDate(actor()?.createdAt) }} | Обновлен:
+        {{ formatDate(actor()?.updatedAt) }}
+      </p>
+    </div>
   } @else {
     <h1>Добавление профиля</h1>
   }

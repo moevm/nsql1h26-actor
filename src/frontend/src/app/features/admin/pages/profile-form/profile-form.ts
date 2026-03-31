@@ -35,6 +35,8 @@ import {
   theatreYearsValidator,
 } from '../../../../shared/utils/formHeplers';
 
+import { formatDate } from '../../../../shared/utils/actorFormatter';
+
 type Actor = components['schemas']['Actor'];
 type ActorCreate = components['schemas']['ActorCreate'];
 type ActorCreateResponse = components['schemas']['ActorCreateResponse'];
@@ -48,7 +50,13 @@ type TheatrePlayItem = components['schemas']['TheatrePlayItem'];
 
 @Component({
   selector: 'app-profile-form',
-  imports: [ProfileFormInfo, ProfileFormMedia, ProfileFormExperience, ReactiveFormsModule, NoticeBanner],
+  imports: [
+    ProfileFormInfo,
+    ProfileFormMedia,
+    ProfileFormExperience,
+    ReactiveFormsModule,
+    NoticeBanner,
+  ],
   templateUrl: './profile-form.html',
   styleUrl: './profile-form.scss',
 })
@@ -73,6 +81,8 @@ export class ProfileForm {
 
   readonly isSubmitting = signal(false);
   readonly submitNotification = signal<SubmitNotification | null>(null);
+
+  formatDate = formatDate;
 
   profile_form = this.fb.group({
     mainPhoto: this.fb.control<EditableMedia | null>(null),
@@ -584,7 +594,10 @@ export class ProfileForm {
           },
           error: (error) => {
             console.error('[ProfileForm] Failed to create actor or upload media:', error);
-            this.setSubmitNotification('error', 'Не удалось создать профиль актера. Попробуйте еще раз.');
+            this.setSubmitNotification(
+              'error',
+              'Не удалось создать профиль актера. Попробуйте еще раз.',
+            );
           },
         });
     } else {

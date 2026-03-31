@@ -24,7 +24,7 @@ export class AdminLoginPage {
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.pattern(this.EMAIL_RE)]],
-    password: ['', [Validators.required, Validators.minLength(4)]],
+    password: ['', [Validators.required]],
   });
 
   hasControlError(controlName: 'email' | 'password', errorKey: string): boolean {
