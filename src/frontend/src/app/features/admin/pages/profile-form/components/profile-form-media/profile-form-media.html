@@ -1,0 +1,64 @@
+<section class="profile-form-media section-card">
+  <div class="content">
+    <div class="media-add_box">
+      <section class="profile-media_group profile-media_group--video">
+        <app-media-carousel
+          title="Видео"
+          mediaType="video"
+          [isEditing]="true"
+          [caption]="false"
+          [items]="videoItems()"
+          [itemsPerPage]="1"
+          [itemWidth]="340"
+          [itemHeight]="190"
+          (removeVideo)="removeVideo($event)"
+        ></app-media-carousel>
+      </section>
+      <h3>Добавление новых видео</h3>
+      <app-input-file
+        [resetVersion]="videoInputResetVersion()"
+        [accept]="'video/*'"
+        [multiple]="true"
+        (fileChange)="addVideos($event)"
+      ></app-input-file>
+      <button
+        type="button"
+        class="add_button"
+        [disabled]="pendingVideoFiles().length === 0"
+        (click)="commitVideos()"
+      >
+        Добавить
+      </button>
+    </div>
+    <div class="media-add_box">
+      <section class="profile-media_group profile-media_group--photo">
+        <app-media-carousel
+          title="Фото"
+          mediaType="photo"
+          [isEditing]="true"
+          [caption]="false"
+          [items]="photoItems()"
+          [itemsPerPage]="4"
+          [itemWidth]="115"
+          [itemHeight]="190"
+          (removePhoto)="removePhoto($event)"
+        ></app-media-carousel>
+      </section>
+      <h3>Добавление новых фотографий</h3>
+      <app-input-file
+        [resetVersion]="photoInputResetVersion()"
+        [accept]="'image/*'"
+        [multiple]="true"
+        (fileChange)="addPhotos($event)"
+      ></app-input-file>
+      <button
+        type="button"
+        class="add_button"
+        [disabled]="pendingPhotoFiles().length === 0"
+        (click)="commitPhotos()"
+      >
+        Добавить
+      </button>
+    </div>
+  </div>
+</section>

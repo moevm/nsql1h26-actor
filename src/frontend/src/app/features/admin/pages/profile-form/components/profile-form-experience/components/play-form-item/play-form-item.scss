@@ -1,0 +1,33 @@
+@use "styles/variables" as vars;
+
+.play-form-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 8px;
+    border-top: 2px solid #52110ccc;
+    padding: 18px;
+}
+
+.item-box {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+@media (max-width: 560px) {
+    .play-form-item {
+        padding: 14px;
+    }
+
+    .item-box {
+        align-items: flex-start;
+    }
+
+    .delete_button {
+        margin-left: auto;
+    }
+}
+
+

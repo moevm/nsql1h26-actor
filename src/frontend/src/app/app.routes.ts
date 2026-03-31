@@ -14,6 +14,7 @@ import { ProfilePage } from './features/profile/pages/profile-page/profile-page'
 import { AdminDashboard } from './features/admin/pages/admin-dashboard/admin-dashboard';
 import { adminGuard } from './core/guards/admin-guard';
 import { ImportExport } from './features/admin/pages/import-export/import-export';
+import { ProfileForm } from './features/admin/pages/profile-form/profile-form';
 
 import { actorResolver } from './core/resolvers/actor-resolver';
 import { UniversitiesPage } from './features/admin/pages/universities-page/universities-page';
@@ -40,7 +41,18 @@ export const routes: Routes = [
     children: [
       { path: '', component: AdminDashboard, data: { header: ADMIN_DASHBOARD_STATE } },
       { path: 'import-export', component: ImportExport, data: { header: ADMIN_DASHBOARD_STATE } },
-      { path: 'universities', component: UniversitiesPage, data: { header: ADMIN_DASHBOARD_STATE } },
+      { path: 'profile/new', component: ProfileForm, data: { header: ADMIN_DASHBOARD_STATE } },
+      {
+        path: 'profile/edit/:id',
+        component: ProfileForm,
+        resolve: { actor: actorResolver },
+        data: { header: ADMIN_DASHBOARD_STATE },
+      },
+      {
+        path: 'universities',
+        component: UniversitiesPage,
+        data: { header: ADMIN_DASHBOARD_STATE },
+      },
     ],
     canActivate: [adminGuard],
   },

@@ -1,0 +1,58 @@
+@use "styles/variables" as vars;
+
+.film-form-item {
+    padding: 18px;
+    border: 2px solid #52110ccc;
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 18px;
+    gap: 12px 14px;
+
+    & > :first-child {
+        grid-column: 1 / -1;
+    }
+}
+
+.item-box {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.input_wrap {
+    min-width: 0;
+
+    small {
+        position: absolute;
+        top: 0;
+        right: 0;
+        max-width: 70%;
+        text-align: right;
+        font-size: 12px;
+        line-height: 1.25;
+        pointer-events: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .film-form-item {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .item-box {
+        align-items: flex-start;
+    }
+
+    .delete_button {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 560px) {
+    .film-form-item {
+        padding: 14px;
+    }
+}

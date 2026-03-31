@@ -1,0 +1,58 @@
+<div class="theatre-form-item" [formGroup]="theatreForm">
+  <div class="item-box">
+    <div class="input_wrap" [style.flex]="'1 1 0'" [style.padding-right]="'8px'">
+      <label>Название театра</label>
+      <input type="text" placeholder="Введите название" formControlName="name" />
+    </div>
+    <div class="input_wrap" [style.flex]="'1 1 0'">
+      <label>Период работы</label>
+      <div class="years_wrap" [style.width]="'100%'">
+        <input
+          type="number"
+          placeholder="С: "
+          [value]="yearFrom"
+          (input)="onYearFromInput($any($event.target).value)"
+          (blur)="onYearsBlur()"
+          [min]="minYear"
+          [max]="maxYear"
+        />
+        <input
+          type="number"
+          placeholder="По: "
+          [value]="yearTo"
+          (input)="onYearToInput($any($event.target).value)"
+          (blur)="onYearsBlur()"
+          [min]="minYear"
+          [max]="maxYear"
+        />
+      </div>
+      @if (hasYearsError('yearsFormatInvalid')) {
+        <small>Год должен быть в формате YYYY</small>
+      }
+      @if (hasYearsError('yearsOutOfRange')) {
+        <small>Диапазон: {{ minYear }}-{{ maxYear }}</small>
+      }
+      @if (hasYearsError('yearsRangeInvalid')) {
+        <small>"С" не может быть больше "По"</small>
+      }
+      @if (hasYearsError('dobRangeInvalid')) {
+        <small>Год не может быть раньше даты рождения</small>
+      }
+    </div>
+    <button type="button" class="delete_button" (click)="removeTheatre.emit()"></button>
+  </div>
+  @for (
+    playCtrl of plays.controls;
+    track $index + '-' + playCtrl.value?.title + '-' + playCtrl.value?.year
+  ) {
+    <app-play-form-item
+      [playForm]="playCtrl"
+      (removePlay)="removePlay.emit($index)"
+    ></app-play-form-item>
+  }
+  <div class="item-box" [style.display]="'block'">
+    <button type="button" class="add_button" (click)="addPlay.emit()">
+      Добавить новый спектакль
+    </button>
+  </div>
+</div>

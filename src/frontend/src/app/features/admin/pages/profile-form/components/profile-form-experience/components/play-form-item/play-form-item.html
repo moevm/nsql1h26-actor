@@ -1,0 +1,13 @@
+<div class="play-form-item" [formGroup]="playForm">
+  <div class="item-box">
+    <div class="input_wrap">
+      <label>Название спектакля</label>
+      <input type="text" placeholder="Введите название" formControlName="title" />
+    </div>
+    <button type="button" class="delete_button" (click)="removePlay.emit()"></button>
+  </div>
+  <div class="input_wrap">
+    <label>Роль</label>
+    <input type="text" placeholder="Введите название" formControlName="role" />
+  </div>
+</div>
