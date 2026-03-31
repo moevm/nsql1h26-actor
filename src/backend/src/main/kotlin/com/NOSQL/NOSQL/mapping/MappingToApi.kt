@@ -44,6 +44,7 @@ object MappingToApi {
             films = doc.films?.map(::filmPlayItemToApi),
             theatrePlayItems = doc.theatrePlayItems?.map(::theatrePlayItemToApi),
             photos = doc.photos?.map(::photoItemToApi),
+            mainPhotoId = doc.mainPhotoId,
             videos = doc.videos?.map(::videoItemToApi),
             genres = doc.genres,
             createdAt = doc.createdAt?.let { OffsetDateTime.ofInstant(it, ZoneOffset.UTC) },

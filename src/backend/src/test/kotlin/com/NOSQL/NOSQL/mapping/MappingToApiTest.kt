@@ -51,6 +51,7 @@ class MappingToApiTest {
                 )
             ),
             photos = listOf(DomainPhotoItem(id = "photo1", caption = "Фото")),
+            mainPhotoId = "507f1f77bcf86cd799439012",
             videos = listOf(DomainVideoItem(id = "video1", caption = "Видео")),
             genres = listOf("драма"),
             createdAt = Instant.EPOCH,
@@ -80,6 +81,7 @@ class MappingToApiTest {
         assertThat(actor.theatrePlayItems).hasSize(1)
         assertThat(actor.photos).hasSize(1)
         assertThat(actor.photos!![0].id).isEqualTo("photo1")
+        assertThat(actor.mainPhotoId).isEqualTo("507f1f77bcf86cd799439012")
         assertThat(actor.videos).hasSize(1)
         assertThat(actor.genres).containsExactly("драма")
         assertThat(actor.createdAt).isEqualTo(Instant.EPOCH.atOffset(ZoneOffset.UTC))
@@ -106,6 +108,7 @@ class MappingToApiTest {
         assertThat(actor.links).isNull()
         assertThat(actor.education).isNull()
         assertThat(actor.photos).isNull()
+        assertThat(actor.mainPhotoId).isNull()
         assertThat(actor.videos).isNull()
         assertThat(actor.createdAt).isNull()
     }

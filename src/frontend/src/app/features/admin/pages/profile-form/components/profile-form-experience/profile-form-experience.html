@@ -1,0 +1,34 @@
+<section class="profile-form-experience section-card">
+  <div class="content">
+    <div class="experience-box">
+      <h4>Театр</h4>
+      @for (
+        theatreCtrl of theatres.controls;
+        track $index + '-' + theatreCtrl.value?.name + '-' + theatreCtrl.value?.years
+      ) {
+        <app-theatre-form-item
+          [theatreForm]="theatreCtrl"
+          (removeTheatre)="removeTheatre.emit($index)"
+          (addPlay)="addPlay.emit($index)"
+          (removePlay)="removePlay.emit({ theatreIndex: $index, playIndex: $event })"
+        ></app-theatre-form-item>
+      }
+      <button type="button" class="add_button" (click)="addTheatre.emit()">Добавить театр</button>
+    </div>
+    <div class="experience-box">
+      <h4>Фильмография</h4>
+      @for (
+        filmCtrl of films.controls;
+        track $index + '-' + filmCtrl.value?.title + '-' + filmCtrl.value?.year
+      ) {
+        <app-film-form-item
+          [filmForm]="filmCtrl"
+          (removeFilm)="removeFilm.emit($index)"
+        ></app-film-form-item>
+      }
+      <button type="button" class="add_button" (click)="addFilm.emit()">
+        Добавить новый фильм
+      </button>
+    </div>
+  </div>
+</section>

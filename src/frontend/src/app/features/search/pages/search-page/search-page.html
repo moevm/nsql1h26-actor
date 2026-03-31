@@ -10,9 +10,11 @@
 
     <div class="search-page__results-wrap">
       <div class="search-page__results">
-        @if (error()) {
+        @if (loading() && !hasLoaded()) {
+          <p class="search-page__status">Загрузка...</p>
+        } @else if (error()) {
           <p class="search-page__status search-page__status--error">{{ error() }}</p>
-        } @else if (actors().length === 0) {
+        } @else if (hasLoaded() && actors().length === 0) {
           <p class="search-page__status">Ничего не найдено</p>
         } @else {
           @for (actor of actors(); track actor.id) {
@@ -22,7 +24,7 @@
                 [birthDate]="actor.birthDate ?? undefined"
                 [education]="actor.education?.[0]?.university?.name ?? undefined"
                 [actorId]="actor.id ?? undefined"
-                [imageId]="actor.photos?.[0]?.id ?? undefined"
+                [imageId]="actor.mainPhotoId ?? undefined"
               ></app-profile-card>
             </a>
           }

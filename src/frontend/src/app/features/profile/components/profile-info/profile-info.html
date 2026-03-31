@@ -39,7 +39,7 @@
     </div>
     <div class="profile-admin">
       @if (authSessionService.isLoggedIn) {
-        <button class="admin-edit"></button>
+        <button class="admin-edit" (click)="redirectToEdit()"></button>
         <button
           class="admin-delete"
           type="button"

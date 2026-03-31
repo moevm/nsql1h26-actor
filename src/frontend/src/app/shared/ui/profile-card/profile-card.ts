@@ -1,4 +1,12 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges, inject, signal } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  inject,
+  signal,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MediaApi } from '../../../core/services/media-api';
 import { getAgeFromDob, ageWord } from '../../utils/actorFormatter';
@@ -23,9 +31,9 @@ export class ProfileCard implements OnChanges, OnDestroy {
   readonly imageSrc = signal<string | null>(null);
 
   private readonly defaults = {
-    fullName: 'TEST TEST TEST',
-    birthDay: '1970-01-01',
-    education: 'TEST',
+    fullName: '-',
+    birthDay: '-',
+    education: 'Не указано',
     imageSrc: '/images/profile.jpg',
   };
 
@@ -34,9 +42,9 @@ export class ProfileCard implements OnChanges, OnDestroy {
   }
 
   get resolvedAge(): string {
-    const birthDate = this.birthDate?.trim() || this.defaults.birthDay;
+    const birthDate = this.birthDate?.trim() || null;
     if (!birthDate) {
-      return '-';
+      return 'Не указано';
     }
 
     const age = getAgeFromDob(birthDate);

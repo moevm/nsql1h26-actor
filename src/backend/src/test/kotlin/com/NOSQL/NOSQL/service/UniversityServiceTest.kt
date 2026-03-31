@@ -1,11 +1,17 @@
 package com.NOSQL.NOSQL.service
 
+import com.NOSQL.NOSQL.model.ActorDocument
+import com.NOSQL.NOSQL.model.domain.EducationItem
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
+import com.NOSQL.NOSQL.model.generated.UniversityUpdate
+import com.NOSQL.NOSQL.repository.ActorRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.springframework.web.server.ResponseStatusException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -43,13 +49,17 @@ class UniversityServiceTest {
     @Autowired
     lateinit var universityRepository: UniversityRepository
 
+    @Autowired
+    lateinit var actorRepository: ActorRepository
+
     @BeforeEach
     fun setUp() {
+        actorRepository.deleteAll()
         universityRepository.deleteAll()
     }
 
     @Test
-    @DisplayName("create — только name")
+    @DisplayName("create — name only")
     fun createMinimal() {
         val res = universityService.create(UniversityCreate(name = "МГУ"))
         assertThat(res.status).isEqualTo(com.NOSQL.NOSQL.model.generated.UniversityCreateResponse.Status.ok)
@@ -79,7 +89,7 @@ class UniversityServiceTest {
     }
 
     @Test
-    @DisplayName("search — по полному названию (подстрока)")
+    @DisplayName("search — by full name substring")
     fun searchByName() {
         universityService.create(UniversityCreate(name = "Российский институт театрального искусства", shortName = "ГИТИС", oldNames = null))
         universityService.create(UniversityCreate(name = "Московский художественный театр", shortName = "МХАТ", oldNames = null))
@@ -90,7 +100,7 @@ class UniversityServiceTest {
     }
 
     @Test
-    @DisplayName("search — по краткому названию")
+    @DisplayName("search — by short name")
     fun searchByShortName() {
         universityService.create(UniversityCreate(name = "ГИТИС полное", shortName = "ГИТИС", oldNames = null))
         val list = universityService.search("ГИТИС", 10)
@@ -99,7 +109,7 @@ class UniversityServiceTest {
     }
 
     @Test
-    @DisplayName("search — по старым названиям")
+    @DisplayName("search — by old names")
     fun searchByOldNames() {
         universityService.create(
             UniversityCreate(
@@ -114,7 +124,7 @@ class UniversityServiceTest {
     }
 
     @Test
-    @DisplayName("search — без учёта регистра")
+    @DisplayName("search — case insensitive")
     fun searchCaseInsensitive() {
         universityService.create(UniversityCreate(name = "Гнесинка", shortName = "Гнесинка", oldNames = null))
         assertThat(universityService.search("гнесинка", 10)).hasSize(1)
@@ -122,7 +132,7 @@ class UniversityServiceTest {
     }
 
     @Test
-    @DisplayName("search — пустой запрос возвращает пустой список")
+    @DisplayName("search — empty query returns empty list")
     fun searchEmptyQuery() {
         universityService.create(UniversityCreate(name = "МГУ"))
         assertThat(universityService.search("", 10)).isEmpty()
@@ -130,12 +140,76 @@ class UniversityServiceTest {
     }
 
     @Test
-    @DisplayName("search — limit ограничивает количество")
+    @DisplayName("search — limit caps result count")
     fun searchLimit() {
         universityService.create(UniversityCreate(name = "Вуз А", shortName = "А", oldNames = null))
         universityService.create(UniversityCreate(name = "Вуз Б", shortName = "Б", oldNames = null))
         universityService.create(UniversityCreate(name = "Вуз В", shortName = "В", oldNames = null))
         val list = universityService.search("Вуз", 2)
         assertThat(list).hasSize(2)
+    }
+
+    @Test
+    @DisplayName("update — partial name change")
+    fun updateName() {
+        val id = universityService.create(UniversityCreate(name = "Старое", shortName = "С", oldNames = listOf("А"))).id!!
+        val res = universityService.update(id, UniversityUpdate(name = "Новое"))
+        assertThat(res.status).isEqualTo(com.NOSQL.NOSQL.model.generated.UniversityCreateResponse.Status.ok)
+        val doc = universityRepository.findById(id).get()
+        assertThat(doc.name).isEqualTo("Новое")
+        assertThat(doc.shortName).isEqualTo("С")
+        assertThat(doc.oldNames).containsExactly("А")
+    }
+
+    @Test
+    @DisplayName("update — 404 when id not found")
+    fun updateNotFound() {
+        assertThrows<ResponseStatusException> {
+            universityService.update("000000000000000000000000", UniversityUpdate(name = "X"))
+        }
+    }
+
+    @Test
+    @DisplayName("update — 400 when no fields")
+    fun updateEmpty() {
+        val id = universityService.create(UniversityCreate(name = "МГУ")).id!!
+        assertThrows<ResponseStatusException> {
+            universityService.update(id, UniversityUpdate())
+        }
+    }
+
+    @Test
+    @DisplayName("delete — ok when no actor references")
+    fun deleteOk() {
+        val id = universityService.create(UniversityCreate(name = "Вуз на удаление")).id!!
+        universityService.deleteById(id)
+        assertThat(universityRepository.existsById(id)).isFalse()
+    }
+
+    @Test
+    @DisplayName("delete — 404 when university not found")
+    fun deleteNotFound() {
+        val ex = assertThrows<ResponseStatusException> {
+            universityService.deleteById("000000000000000000000000")
+        }
+        assertThat(ex.statusCode.value()).isEqualTo(404)
+    }
+
+    @Test
+    @DisplayName("delete — 409 when actor references university (education.uniId)")
+    fun deleteConflictWhenReferencedByActor() {
+        val uniId = universityService.create(UniversityCreate(name = "Вуз")).id!!
+        actorRepository.save(
+            ActorDocument(
+                firstName = "Иван",
+                lastName = "Тестов",
+                education = listOf(EducationItem(uniId = uniId, graduationYear = null, name = null)),
+            )
+        )
+        val ex = assertThrows<ResponseStatusException> {
+            universityService.deleteById(uniId)
+        }
+        assertThat(ex.statusCode.value()).isEqualTo(409)
+        assertThat(universityRepository.existsById(uniId)).isTrue()
     }
 }

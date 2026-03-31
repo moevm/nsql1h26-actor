@@ -2,6 +2,9 @@ app:
   jwt:
     secret: test-secret-at-least-32-bytes-for-hs256
     expiration-seconds: 3600
+  http:
+    cache-control:
+      media-max-age-seconds: ${MEDIA_CACHE_MAX_AGE_SECONDS:100}
 
 spring:
   data:

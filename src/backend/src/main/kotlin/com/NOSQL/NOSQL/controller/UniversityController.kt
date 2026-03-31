@@ -4,6 +4,7 @@ import com.NOSQL.NOSQL.api.UniversitiesApi
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
 import com.NOSQL.NOSQL.model.generated.UniversityCreateResponse
 import com.NOSQL.NOSQL.model.generated.UniversitySearchItem
+import com.NOSQL.NOSQL.model.generated.UniversityUpdate
 import com.NOSQL.NOSQL.service.UniversityService
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -26,5 +27,17 @@ class UniversityController(
         log.info("POST /v1/universities name='{}'", universityCreate.name)
         val response = universityService.create(universityCreate)
         return ResponseEntity.status(201).body(response)
+    }
+
+    override fun v1UniversityByIdPatch(id: String, universityUpdate: UniversityUpdate): ResponseEntity<UniversityCreateResponse> {
+        log.info("PATCH /v1/universities/{}", id)
+        val response = universityService.update(id, universityUpdate)
+        return ResponseEntity.ok(response)
+    }
+
+    override fun v1UniversityByIdDelete(id: String): ResponseEntity<Unit> {
+        log.info("DELETE /v1/universities/{}", id)
+        universityService.deleteById(id)
+        return ResponseEntity.noContent().build()
     }
 }

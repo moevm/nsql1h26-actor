@@ -29,6 +29,7 @@ export class ProfileInfo implements OnChanges, OnDestroy {
   private readonly actorsApi = inject(ActorsApi);
   private readonly router = inject(Router);
   readonly authSessionService = inject(AuthSessionService);
+
   private readonly fallbackImage = '/images/profile.jpg';
   private photoRequestSub?: Subscription;
   private deleteRequestSub?: Subscription;
@@ -128,12 +129,21 @@ export class ProfileInfo implements OnChanges, OnDestroy {
       });
   }
 
+  redirectToEdit(): void {
+    const actorId = this.actor?.id;
+    if (!actorId) {
+      return;
+    }
+
+    this.router.navigate(['/admin/profile/edit', actorId]);
+  }
+
   private loadFirstPhoto(): void {
     this.photoRequestSub?.unsubscribe();
     this.clearFirstPhotoUrl();
 
     const actorId = this.actor?.id;
-    const firstPhotoId = this.actor?.photos?.[0]?.id;
+    const firstPhotoId = this.actor?.mainPhotoId;
 
     if (!actorId || !firstPhotoId) {
       return;

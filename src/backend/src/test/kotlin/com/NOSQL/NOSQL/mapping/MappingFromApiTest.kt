@@ -2,7 +2,7 @@ package com.NOSQL.NOSQL.mapping
 
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ContactLinkItem
-import com.NOSQL.NOSQL.model.generated.EducationItem
+import com.NOSQL.NOSQL.model.generated.EducationCreateItem
 import com.NOSQL.NOSQL.model.generated.FilmPlayItem
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.TheatrePlayItem
@@ -40,9 +40,7 @@ class MappingFromApiTest {
                 ContactLinkItem(name = "ВК", url = URI("https://vk.com/actor")),
                 ContactLinkItem(name = "Рутуб", url = URI("https://rutube.ru/actor"))
             ),
-            education = listOf(
-                EducationItem(uniId = "507f1f77bcf86cd799439011", graduationYear = 2012, name = "Актёр")
-            ),
+            education = listOf(EducationCreateItem(uniId = "507f1f77bcf86cd799439011")),
             films = listOf(FilmPlayItem(title = "Фильм", year = 2020, role = "Роль", director = "Реж")),
             theatrePlayItems = listOf(
                 TheatrePlayItem(name = "Театр", years = "2015–", plays = listOf(FilmPlayItem(title = "Пьеса", year = 2016, role = "Роль", director = null)))
@@ -70,7 +68,8 @@ class MappingFromApiTest {
         assertThat(doc.links!![1].url).isEqualTo("https://rutube.ru/actor")
         assertThat(doc.education).hasSize(1)
         assertThat(doc.education!![0].uniId).isEqualTo("507f1f77bcf86cd799439011")
-        assertThat(doc.education!![0].graduationYear).isEqualTo(2012)
+        assertThat(doc.education!![0].graduationYear).isNull()
+        assertThat(doc.education!![0].name).isNull()
         assertThat(doc.films).hasSize(1)
         assertThat(doc.films!![0].title).isEqualTo("Фильм")
         assertThat(doc.theatrePlayItems).hasSize(1)

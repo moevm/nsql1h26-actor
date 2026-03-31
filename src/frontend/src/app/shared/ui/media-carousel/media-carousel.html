@@ -29,7 +29,6 @@
             class="item_media"
             [style.width]="itemWidth + 'px'"
             [style.height]="itemHeight + 'px'"
-            (click)="openZoom(item)"
           >
             <video
               #videoEl
@@ -41,7 +40,16 @@
               (play)="onVideoPlay(item.id)"
               (pause)="onVideoPause(item.id)"
               (ended)="onVideoPause(item.id)"
+              (click)="openZoom(item)"
             ></video>
+
+            @if (isEditing) {
+              <button
+                type="button"
+                class="delete_button"
+                (click)="removeVideo.emit(item.id)"
+              ></button>
+            }
 
             @if (!isVideoPlaying(item.id)) {
               <button
@@ -55,18 +63,27 @@
             }
           </div>
         } @else {
-          <img
-            class="item_image"
-            [style.width]="itemWidth + 'px'"
-            [style.height]="itemHeight + 'px'"
-            [src]="item.url"
-            [alt]="item.caption || 'Медиа актера'"
-            loading="lazy"
-            (click)="openZoom(item)"
-          />
+          <div class="media-wrap">
+            <img
+              class="item_image"
+              [style.width]="itemWidth + 'px'"
+              [style.height]="itemHeight + 'px'"
+              [src]="item.url"
+              [alt]="item.caption || 'Медиа актера'"
+              loading="lazy"
+              (click)="openZoom(item)"
+            />
+            @if (isEditing) {
+              <button
+                type="button"
+                class="delete_button"
+                (click)="removePhoto.emit(item.id)"
+              ></button>
+            }
+          </div>
         }
 
-        @if (item.caption) {
+        @if (item.caption && caption) {
           <figcaption class="item_caption">{{ item.caption }}</figcaption>
         }
       </figure>
@@ -86,13 +103,7 @@
 
       <div class="zoom-content" (click)="stopZoomClose($event)">
         @if (mediaType === 'video') {
-          <video
-            class="zoom-video"
-            [src]="zoomedItem.url"
-            controls
-            autoplay
-            playsinline
-          ></video>
+          <video class="zoom-video" [src]="zoomedItem.url" controls autoplay playsinline></video>
         } @else {
           <img
             class="zoom-image"
@@ -101,7 +112,7 @@
           />
         }
 
-        @if (zoomedItem.caption) {
+        @if (zoomedItem.caption && caption) {
           <p class="zoom-caption">{{ zoomedItem.caption }}</p>
         }
       </div>

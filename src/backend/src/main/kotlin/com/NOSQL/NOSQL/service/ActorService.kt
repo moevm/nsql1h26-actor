@@ -4,8 +4,10 @@ import com.NOSQL.NOSQL.mapping.MappingFromApi
 import com.NOSQL.NOSQL.mapping.MappingToApi
 import com.NOSQL.NOSQL.model.ActorDocument
 import com.NOSQL.NOSQL.model.generated.Actor
+import com.NOSQL.NOSQL.model.generated.ActorListResponse
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
+import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.model.generated.UniversityInfo
@@ -36,11 +38,9 @@ class ActorService(
     fun create(actorCreate: ActorCreate): ActorCreateResponse {
         log.info("Creating actor: {} {}", actorCreate.firstName, actorCreate.lastName)
         actorCreate.education?.forEach { item ->
-            item.uniId?.let { uniId ->
-                if (!universityRepository.existsById(uniId)) {
-                    log.warn("University not found on actor create: uniId={}", uniId)
-                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Вуз не найден: $uniId")
-                }
+            if (!universityRepository.existsById(item.uniId)) {
+                log.warn("University not found on actor create: uniId={}", item.uniId)
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "University not found: ${item.uniId}")
             }
         }
         val now = OffsetDateTime.now()
@@ -54,12 +54,56 @@ class ActorService(
         )
     }
 
+    fun update(id: String, update: ActorUpdate): Actor {
+        log.info("Updating actor id={}", id)
+        if (!hasAnyUpdateField(update)) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Provide at least one field to update")
+        }
+        update.education?.forEach { item ->
+            item.uniId?.let { uniId ->
+                if (!universityRepository.existsById(uniId)) {
+                    log.warn("University not found on actor update: uniId={}", uniId)
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "University not found: $uniId")
+                }
+            }
+        }
+        val doc = actorRepository.findById(id)
+            .orElseThrow {
+                log.warn("Actor not found for update: {}", id)
+                ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found")
+            }
+        val merged = MappingFromApi.mergeActorDocument(doc, update)
+        validateMainPhoto(merged)
+        val saved = actorRepository.save(merged.copy(updatedAt = Instant.now()))
+        log.info("Actor updated id={}", saved.id)
+        return enrichWithUniversities(MappingToApi.documentToActor(saved))
+    }
+
+    private fun hasAnyUpdateField(u: ActorUpdate): Boolean =
+        u.firstName != null || u.lastName != null || u.middleName != null ||
+            u.birthDate != null || u.height != null || u.weight != null ||
+            u.gender != null || u.hairColor != null || u.eyeColor != null ||
+            u.bio != null || u.title != null || u.phone != null || u.email != null ||
+            u.links != null || u.education != null || u.films != null ||
+            u.theatrePlayItems != null || u.genres != null || u.mainPhotoId != null
+
+    private fun validateMainPhoto(doc: ActorDocument) {
+        val mainId = doc.mainPhotoId ?: return
+        val photoIds = doc.photos?.mapNotNull { it.id }?.toSet() ?: emptySet()
+        if (mainId !in photoIds) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "mainPhotoId must reference an existing photo id from photos"
+            )
+        }
+    }
+
     fun getById(id: String): Actor {
         log.info("getById: id={}", id)
         val doc = actorRepository.findById(id)
             .orElseThrow {
                 log.warn("Actor not found: {}", id)
-                ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден")
+                ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found")
             }
         return enrichWithUniversities(MappingToApi.documentToActor(doc))
     }
@@ -82,9 +126,61 @@ class ActorService(
         genres: List<String>?,
         name: String?,
         limit: Int,
-        offset: Int
-    ): List<Actor> {
-        log.info("findAll: limit={}, offset={}, gender={}, theatre={}, universityId={}, name={}", limit, offset, gender, theatre, universityId, name)
+        offset: Int,
+        includeItems: Boolean,
+    ): ActorListResponse {
+        log.info(
+            "findAll: limit={}, offset={}, includeItems={}, gender={}, theatre={}, universityId={}, name={}",
+            limit, offset, includeItems, gender, theatre, universityId, name
+        )
+        val baseQuery = buildFilterQuery(
+            gender = gender,
+            ageFrom = ageFrom,
+            ageTo = ageTo,
+            weightMin = weightMin,
+            weightMax = weightMax,
+            heightMin = heightMin,
+            heightMax = heightMax,
+            activityYearFrom = activityYearFrom,
+            activityYearTo = activityYearTo,
+            universityId = universityId,
+            theatre = theatre,
+            title = title,
+            hairColor = hairColor,
+            eyeColor = eyeColor,
+            genres = genres,
+            name = name,
+        )
+        val total = mongoTemplate.count(baseQuery, ActorDocument::class.java)
+        if (!includeItems) {
+            return ActorListResponse(total = total, actors = emptyList())
+        }
+        baseQuery.with(Sort.by(Sort.Direction.ASC, "lastName", "firstName"))
+        baseQuery.skip(offset.toLong()).limit(limit)
+        val docs = mongoTemplate.find(baseQuery, ActorDocument::class.java)
+        log.info("findAll returned {} actors (total matching filters: {})", docs.size, total)
+        val actors = docs.map { MappingToApi.documentToActor(it) }.map(::enrichWithUniversities)
+        return ActorListResponse(total = total, actors = actors)
+    }
+
+    private fun buildFilterQuery(
+        gender: Gender?,
+        ageFrom: Int?,
+        ageTo: Int?,
+        weightMin: Int?,
+        weightMax: Int?,
+        heightMin: Int?,
+        heightMax: Int?,
+        activityYearFrom: Int?,
+        activityYearTo: Int?,
+        universityId: String?,
+        theatre: String?,
+        title: Title?,
+        hairColor: String?,
+        eyeColor: String?,
+        genres: List<String>?,
+        name: String?,
+    ): Query {
         val query = Query()
         val criteria = mutableListOf<Criteria>()
 
@@ -137,8 +233,9 @@ class ActorService(
         universityId?.let { criteria.add(Criteria.where("education.uniId").`is`(it)) }
 
         if (ageFrom != null || ageTo != null) {
-            val fromDate = ageTo?.let { java.time.LocalDate.now().minusYears(it.toLong()) }
-            val toDate = ageFrom?.let { java.time.LocalDate.now().minusYears(it.toLong()) }
+            val today = java.time.LocalDate.now()
+            val fromDate = ageTo?.let { today.minusYears(it.toLong() + 1).plusDays(1) }
+            val toDate = ageFrom?.let { today.minusYears(it.toLong()) }
             if (fromDate != null) criteria.add(Criteria.where("birthDate").gte(fromDate))
             if (toDate != null) criteria.add(Criteria.where("birthDate").lte(toDate))
         }
@@ -161,11 +258,7 @@ class ActorService(
         if (criteria.isNotEmpty()) {
             query.addCriteria(Criteria().andOperator(criteria))
         }
-        query.with(Sort.by(Sort.Direction.ASC, "lastName", "firstName"))
-        query.skip(offset.toLong()).limit(limit)
-        val docs = mongoTemplate.find(query, ActorDocument::class.java)
-        log.info("findAll returned {} actors", docs.size)
-        return docs.map { MappingToApi.documentToActor(it) }.map(::enrichWithUniversities)
+        return query
     }
 
     private fun enrichWithUniversities(actor: Actor): Actor {
@@ -179,7 +272,7 @@ class ActorService(
     fun updatePhotos(actorId: String, photoId: String, caption: String?) {
         log.debug("Adding photo to actor: actorId={}, photoId={}", actorId, photoId)
         val actor = actorRepository.findById(actorId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found") }
         val photos = (actor.photos ?: emptyList()).toMutableList()
         photos.add(com.NOSQL.NOSQL.model.domain.PhotoItem(id = photoId, caption = caption))
         actorRepository.save(actor.copy(photos = photos, updatedAt = Instant.now()))
@@ -188,10 +281,28 @@ class ActorService(
     fun updateVideos(actorId: String, videoId: String, caption: String?) {
         log.debug("Adding video to actor: actorId={}, videoId={}", actorId, videoId)
         val actor = actorRepository.findById(actorId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден") }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found") }
         val videos = (actor.videos ?: emptyList()).toMutableList()
         videos.add(com.NOSQL.NOSQL.model.domain.VideoItem(id = videoId, caption = caption))
         actorRepository.save(actor.copy(videos = videos, updatedAt = Instant.now()))
+    }
+
+    fun removeMediaReferences(actorId: String, mediaId: String) {
+        val actor = actorRepository.findById(actorId)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found") }
+        val newPhotos = actor.photos
+            ?.filterNot { it.id == mediaId }
+            ?.takeIf { it.isNotEmpty() }
+        val newVideos = actor.videos
+            ?.filterNot { it.id == mediaId }
+            ?.takeIf { it.isNotEmpty() }
+        val newMain = if (actor.mainPhotoId == mediaId) null else actor.mainPhotoId
+        if (newPhotos == actor.photos && newVideos == actor.videos && newMain == actor.mainPhotoId) {
+            return
+        }
+        actorRepository.save(
+            actor.copy(photos = newPhotos, videos = newVideos, mainPhotoId = newMain, updatedAt = Instant.now())
+        )
     }
 
     fun existsById(id: String): Boolean = actorRepository.existsById(id)
@@ -200,7 +311,7 @@ class ActorService(
         log.info("Deleting actor: id={}", id)
         if (!actorRepository.existsById(id)) {
             log.warn("Actor not found for delete: {}", id)
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Актёр не найден")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found")
         }
         mediaRepository.deleteByActorId(id)
         actorRepository.deleteById(id)

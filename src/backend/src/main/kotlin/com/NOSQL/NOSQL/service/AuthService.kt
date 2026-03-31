@@ -21,10 +21,10 @@ class AuthService(
 
     fun login(request: LoginRequest): LoginResponse {
         val admin = adminRepository.findByEmail(request.email.trim().lowercase())
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Неверный email или пароль")
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
         if (!passwordEncoder.matches(request.password, admin.passwordHash)) {
             log.warn("Failed login for email={}", request.email)
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Неверный email или пароль")
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password")
         }
         val token = jwtService.generateToken(admin.id!!, expirationSeconds)
         log.info("Login success for email={}", request.email)

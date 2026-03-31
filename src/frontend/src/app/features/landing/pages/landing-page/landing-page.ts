@@ -1,10 +1,10 @@
 import { Component, inject, DestroyRef, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { ProfileCard } from '../../../shared/ui/profile-card/profile-card';
-import { components } from '../../../shared/api/types';
-import { ActorsApi } from '../../../core/services/actors-api';
-import { fullName } from '../../../shared/utils/actorFormatter';
+import { ProfileCard } from '../../../../shared/ui/profile-card/profile-card';
+import { components } from '../../../../shared/api/types';
+import { ActorsApi } from '../../../../core/services/actors-api';
+import { fullName } from '../../../../shared/utils/actorFormatter';
 import { RouterLink } from '@angular/router';
 
 type Actor = components['schemas']['Actor'];
@@ -30,8 +30,8 @@ export class LandingPage {
       .getActorbyLimit(8)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (actors) => {
-          this.actors.set(actors);
+        next: (response) => {
+          this.actors.set(response.actors);
           this.actorsError.set(null);
           this.actorsLoading.set(false);
         },

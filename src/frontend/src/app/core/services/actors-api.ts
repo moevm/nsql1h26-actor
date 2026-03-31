@@ -5,10 +5,13 @@ import { components, operations } from '../../shared/api/types';
 
 type Actor = components['schemas']['Actor'];
 type ActorsSearchQuery = operations['v1ActorsGet']['parameters']['query'];
-type ActorsSearchResponse =
-  operations['v1ActorsGet']['responses'][200]['content']['application/json'];
+type ActorsSearchResponse = components['schemas']['ActorListResponse'];
 
-type ActorDeleteResponse = operations['v1ActorByIdDelete'];
+type ActorCreateRequest = components['schemas']['ActorCreate'];
+type ActorCreateResponse = components['schemas']['ActorCreateResponse'];
+
+type ActorUpdateRequest = components['schemas']['ActorUpdate'];
+type ActorUpdateResponse = components['schemas']['Actor'];
 
 @Injectable({
   providedIn: 'root',
@@ -21,8 +24,8 @@ export class ActorsApi {
     return this.http.get<Actor>(`${this.apiPrefix}/actors/${encodeURIComponent(actorId)}`);
   }
 
-  getActorbyLimit(limit: number): Observable<Actor[]> {
-    return this.http.get<Actor[]>(`${this.apiPrefix}/actors?limit=${limit}`);
+  getActorbyLimit(limit: number): Observable<ActorsSearchResponse> {
+    return this.http.get<ActorsSearchResponse>(`${this.apiPrefix}/actors?limit=${limit}`);
   }
 
   getActors(request: ActorsSearchQuery): Observable<ActorsSearchResponse> {
@@ -52,7 +55,18 @@ export class ActorsApi {
     });
   }
 
+  createActor(request: ActorCreateRequest): Observable<ActorCreateResponse> {
+    return this.http.post<ActorCreateResponse>(`${this.apiPrefix}/actors`, request);
+  }
+
+  updateActor(actorId: string, request: ActorUpdateRequest): Observable<ActorUpdateResponse> {
+    return this.http.patch<ActorUpdateResponse>(
+      `${this.apiPrefix}/actors/${encodeURIComponent(actorId)}`,
+      request,
+    );
+  }
+
   deleteActorById(actorId: string): Observable<void> {
-    return this.http.delete<void>(`/v1/actors/${actorId}`);
+    return this.http.delete<void>(`${this.apiPrefix}/actors/${encodeURIComponent(actorId)}`);
   }
 }

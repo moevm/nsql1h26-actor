@@ -24,9 +24,6 @@
       @if (hasControlError('password', 'required')) {
         <small class="error">Пароль обязателен</small>
       }
-      @if (hasControlError('password', 'minlength')) {
-        <small class="error">Минимум 4 символа</small>
-      }
     </div>
 
     @if (loginErrorMessage()) {

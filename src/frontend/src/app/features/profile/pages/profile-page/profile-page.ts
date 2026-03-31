@@ -18,26 +18,12 @@ type Actor = components['schemas']['Actor'];
 })
 export class ProfilePage {
   private readonly route = inject(ActivatedRoute);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly actorsApi = inject(ActorsApi);
   readonly actor = signal<Actor | null>(null);
 
   constructor() {
-    this.route.paramMap
-      .pipe(
-        map((params) => params.get('id')),
-        filter((id): id is string => !!id),
-        distinctUntilChanged(),
-        switchMap((id) =>
-          this.actorsApi.getActorById(id).pipe(
-            catchError((error) => {
-              console.error('[ProfilePage] Failed to load actor:', error);
-              return of(null);
-            }),
-          ),
-        ),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((actor) => this.actor.set(actor));
+    const actor = this.route.snapshot.data['actor'];
+    if (actor) {
+      this.actor.set(actor);
+    }
   }
 }

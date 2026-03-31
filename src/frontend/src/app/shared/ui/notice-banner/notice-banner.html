@@ -1,0 +1,17 @@
+<div class="notice-banner" [class.notice-banner--error]="tone === 'error'">
+  <div class="notice-banner__content">
+    <strong class="notice-banner__title">
+      {{ tone === 'success' ? 'Успех!' : 'Ошибка' }}
+    </strong>
+    <p class="notice-banner__message">{{ message }}</p>
+  </div>
+
+  <button
+    type="button"
+    class="notice-banner__close"
+    aria-label="Close notification"
+    (click)="onClose()"
+  >
+    x
+  </button>
+</div>

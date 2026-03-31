@@ -4,6 +4,8 @@ import com.NOSQL.NOSQL.api.ActorsApi
 import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
+import com.NOSQL.NOSQL.model.generated.ActorListResponse
+import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.MediaUploadResponse
@@ -11,14 +13,19 @@ import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.service.ActorService
 import com.NOSQL.NOSQL.service.MediaService
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
+import org.springframework.http.CacheControl
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
+import java.util.concurrent.TimeUnit
 
 @RestController
 class ActorController(
     private val actorService: ActorService,
-    private val mediaService: MediaService
+    private val mediaService: MediaService,
+    @param:Value("\${app.http.cache-control.media-max-age-seconds:300}")
+    private val mediaCacheMaxAgeSeconds: Long
 ) : ActorsApi {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -41,6 +48,12 @@ class ActorController(
         return ResponseEntity.noContent().build()
     }
 
+    override fun v1ActorByIdPatch(id: String, actorUpdate: ActorUpdate): ResponseEntity<Actor> {
+        log.info("PATCH /v1/actors/{}", id)
+        val actor = actorService.update(id, actorUpdate)
+        return ResponseEntity.ok(actor)
+    }
+
     override fun v1ActorsGet(
         gender: Gender?,
         ageFrom: Int?,
@@ -59,10 +72,11 @@ class ActorController(
         genres: List<String>?,
         name: String?,
         limit: Int,
-        offset: Int
-    ): ResponseEntity<List<Actor>> {
-        log.info("GET /v1/actors gender={} limit={} offset={} theatre={} universityId={} name={}", gender, limit, offset, theatre, universityId, name)
-        val list = actorService.findAll(
+        offset: Int,
+        includeItems: Boolean,
+    ): ResponseEntity<ActorListResponse> {
+        log.info("GET /v1/actors gender={} limit={} offset={} includeItems={} theatre={} universityId={} name={}", gender, limit, offset, includeItems, theatre, universityId, name)
+        val body = actorService.findAll(
             gender = gender,
             ageFrom = ageFrom,
             ageTo = ageTo,
@@ -80,9 +94,10 @@ class ActorController(
             genres = genres,
             name = name,
             limit = limit,
-            offset = offset
+            offset = offset,
+            includeItems = includeItems,
         )
-        return ResponseEntity.ok(list)
+        return ResponseEntity.ok(body)
     }
 
     override fun v1ActorMediaUploadPost(
@@ -112,6 +127,18 @@ class ActorController(
     override fun v1MediaByIdGet(actorId: String, mediaId: String): ResponseEntity<Resource> {
         log.info("GET /v1/actors/{}/media/{}", actorId, mediaId)
         val resource = mediaService.getResource(actorId, mediaId)
-        return ResponseEntity.ok(resource)
+        return if (mediaCacheMaxAgeSeconds > 0) {
+            ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(mediaCacheMaxAgeSeconds, TimeUnit.SECONDS))
+                .body(resource)
+        } else {
+            ResponseEntity.ok(resource)
+        }
+    }
+
+    override fun v1MediaByIdDelete(actorId: String, mediaId: String): ResponseEntity<Unit> {
+        log.info("DELETE /v1/actors/{}/media/{}", actorId, mediaId)
+        mediaService.delete(actorId, mediaId)
+        return ResponseEntity.noContent().build()
     }
 }

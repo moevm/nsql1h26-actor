@@ -59,7 +59,23 @@ class MediaService(
         return mediaRepository.findOne(actorId, mediaId)
             ?: run {
                 log.warn("Media not found: actorId={}, mediaId={}", actorId, mediaId)
-                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Медиа не найдено")
+                throw ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found")
             }
+    }
+
+    fun delete(actorId: String, mediaId: String) {
+        log.info("delete media: actorId={}, mediaId={}", actorId, mediaId)
+        if (!actorService.existsById(actorId)) {
+            log.warn("Actor not found for media delete: actorId={}", actorId)
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found")
+        }
+        if (mediaRepository.findOne(actorId, mediaId) == null) {
+            log.warn("Media not found: actorId={}, mediaId={}", actorId, mediaId)
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found")
+        }
+        actorService.removeMediaReferences(actorId, mediaId)
+        if (!mediaRepository.deleteOne(actorId, mediaId)) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found")
+        }
     }
 }

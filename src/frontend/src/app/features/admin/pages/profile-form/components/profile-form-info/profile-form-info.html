@@ -1,0 +1,224 @@
+<section class="profile-form-info section-card" [formGroup]="profile_form">
+  <div class="content">
+    <div class="img-box">
+      <div class="profile-form-info_img">
+        <input
+          #profilePicInput
+          type="file"
+          id="profilepic_input"
+          accept="image/*"
+          [multiple]="false"
+          (change)="onFileChange($event)"
+        />
+        @if (previewUrl()) {
+          <div class="img-wrap">
+            <img [src]="previewUrl()" alt="Profile Picture" />
+            <button type="button" class="delete_button" (click)="removePreview()"></button>
+          </div>
+        } @else {
+          <label for="profilepic_input"></label>
+        }
+      </div>
+      <div class="fields-info_item">
+        <label for="actor_gender">Пол</label>
+        <div class="select-wrap">
+          <select id="actor_gender" formControlName="gender">
+            @for (gender of genderOprions; track gender.value) {
+              <option [value]="gender.value">{{ gender.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="profile-form-info_fields">
+      <div class="fields-info">
+        <div class="fields-info_item">
+          <label for="firstName">Имя</label>
+          <input type="text" id="firstName" placeholder="Ведите имя" formControlName="firstName" />
+          @if (hasControlError(profile_form, 'firstName', 'required')) {
+            <small>Обязательное поле</small>
+          }
+        </div>
+        <div class="fields-info_item">
+          <label for="lastName">Фамилия</label>
+          <input
+            type="text"
+            id="lastName"
+            placeholder="Ведите фамилию"
+            formControlName="lastName"
+          />
+          @if (hasControlError(profile_form, 'lastName', 'required')) {
+            <small>Обязательное поле</small>
+          }
+        </div>
+        <div class="fields-info_item">
+          <label for="middleName">Отчество</label>
+          <input
+            type="text"
+            id="middleName"
+            placeholder="Ведите отчество"
+            formControlName="middleName"
+          />
+        </div>
+        <div class="fields-info_item">
+          <label for="">Вуз</label>
+          <app-university-search
+            [multiselect]="true"
+            [alreadyExistsUni]="alreadyExistsUni"
+            (selectedUniversity)="onUniversityIdChange($event)"
+          ></app-university-search>
+        </div>
+        <div class="fields-info_item">
+          <label for="age">Возраст</label>
+          <input type="date" id="age" placeholder="Ведите возраст" formControlName="birthDate" />
+          @if (hasControlError(profile_form, 'birthDate', 'dateInvalid')) {
+            <small>Неверная дата</small>
+          }
+          @if (hasControlError(profile_form, 'birthDate', 'birthDateInFuture')) {
+            <small>Дата рождения не может быть в будущем</small>
+          }
+          @if (hasControlError(profile_form, 'birthDate', 'birthDateTooOld')) {
+            <small>Максимум 120 лет</small>
+          }
+        </div>
+        <div class="fields-info_item">
+          <label for="height">Рост</label>
+          <input type="number" id="height" placeholder="Ведите рост" formControlName="height" />
+          @if (hasControlError(profile_form, 'height', 'min')) {
+            <small>Рост должен быть больше 40</small>
+          }
+          @if (hasControlError(profile_form, 'height', 'max')) {
+            <small>Рост должен быть меньше 250</small>
+          }
+        </div>
+        <div class="fields-info_item">
+          <label for="weight">Вес</label>
+          <input type="number" id="weight" placeholder="Ведите вес" formControlName="weight" />
+          @if (hasControlError(profile_form, 'weight', 'min')) {
+            <small>Вес должен быть больше 30</small>
+          }
+          @if (hasControlError(profile_form, 'weight', 'max')) {
+            <small>Рост должен быть меньше 150</small>
+          }
+        </div>
+        <div class="fields-info_item">
+          <label for="actor_rank">Звание</label>
+          <div class="select-wrap">
+            <select id="actor_rank" formControlName="title">
+              @for (rank of actorRankOptions; track rank.value) {
+                <option [value]="rank.value">{{ rank.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="fields-info_item">
+          <label for="hair_color">Цвет волос</label>
+          <div class="select-wrap">
+            <select id="hair_color" formControlName="hairColor">
+              <option value="">Выберите</option>
+              @for (color of hairColorOptions; track color) {
+                <option [value]="color">
+                  {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="fields-info_item">
+          <label for="eye_color">Цвет глаз</label>
+          <div class="select-wrap">
+            <select id="eye_color" formControlName="eyeColor">
+              <option value="">Выберите</option>
+              @for (color of eyeColorOptions; track color) {
+                <option [value]="color">
+                  {{ color.charAt(0).toUpperCase() + color.slice(1) }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="line"></div>
+      <div id="genres-list" class="genres-list">
+        @for (item of genreOptions; track item) {
+          <div class="genres-box">
+            <input
+              type="checkbox"
+              [id]="'genre-' + item"
+              [checked]="isGenreSelected(item)"
+              (change)="toggleGenre(item, $any($event.target).checked)"
+            />
+            <label [for]="'genre-' + item">{{
+              item.charAt(0).toUpperCase() + item.slice(1)
+            }}</label>
+          </div>
+        }
+      </div>
+      <div class="fields-genres">
+        <div class="fields-genres_item">
+          <label for="phone">Телефон</label>
+          <input type="tel" id="phone" placeholder="Ведите" formControlName="phone" />
+          @if (hasControlError(profile_form, 'phone', 'pattern')) {
+            <small>Неверный номер</small>
+          }
+        </div>
+        <div class="fields-genres_item">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="Ведите" formControlName="email" />
+          @if (hasControlError(profile_form, 'email', 'pattern')) {
+            <small>Неверный адрес e-mail</small>
+          }
+        </div>
+        <div class="fields-genres_item" formGroupName="contactLinks">
+          <label for="web">Личный сайт</label>
+          <input
+            type="text"
+            id="web"
+            placeholder="Ведите ссылку на страницу"
+            formControlName="web"
+          />
+          @if (hasControlError(profile_form, 'contactLinks.web', 'pattern')) {
+            <small>Не является ссылкой</small>
+          }
+        </div>
+        <div class="fields-genres_item" formGroupName="contactLinks">
+          <label for="vk">Vk</label>
+          <input
+            type="text"
+            id="fullName"
+            placeholder="Ведите ссылку на страницу"
+            formControlName="vk"
+          />
+          @if (hasControlError(profile_form, 'contactLinks.vk', 'pattern')) {
+            <small>Не является ссылкой</small>
+          }
+        </div>
+        <div class="fields-genres_item" formGroupName="contactLinks">
+          <label for="max">Max</label>
+          <input
+            type="text"
+            id="max"
+            placeholder="Ведите ссылку на страницу"
+            formControlName="max"
+          />
+          @if (hasControlError(profile_form, 'contactLinks.max', 'pattern')) {
+            <small>Не является ссылкой</small>
+          }
+        </div>
+        <div class="fields-genres_item" formGroupName="contactLinks">
+          <label for="tube">RuTube</label>
+          <input
+            type="text"
+            id="tube"
+            placeholder="Ведите ссылку на страницу"
+            formControlName="rutube"
+          />
+          @if (hasControlError(profile_form, 'contactLinks.rutube', 'pattern')) {
+            <small>Не является ссылкой</small>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

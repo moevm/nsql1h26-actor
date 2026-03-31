@@ -1,0 +1,48 @@
+<section class="import-export">
+  <h1 class="import-export__title">Импорт/Экспорт</h1>
+
+  <div class="import-export__cards">
+    <div class="import-export__card import-export__card--import">
+      <h3>Импорт</h3>
+      <p>Загрузка и полная перезапись всех данных. Принимается только JSON формат</p>
+      <app-input-file
+        [resetVersion]="importInputResetVersion()"
+        [accept]="accept"
+        (fileChange)="addImportFile($event)"
+      ></app-input-file>
+      <button
+        class="import-export__btn import-export__btn--primary"
+        type="button"
+        [disabled]="isImporting()"
+        (click)="commitImportFile()"
+      >
+        Импортировать
+      </button>
+    </div>
+
+    <div class="import-export__card import-export__card--export">
+      <h3>Экспорт</h3>
+      <p>Скачать все текущие данные в формате JSON</p>
+      <button
+        class="import-export__btn"
+        type="button"
+        [disabled]="isExporting()"
+        (click)="saveExportFile()"
+      >
+        Скачать
+      </button>
+    </div>
+  </div>
+
+  @if (submitNotification(); as notification) {
+    <app-notice-banner
+      class="form-notification"
+      animate.enter="form-notification--enter"
+      animate.leave="form-notification--leave"
+      [message]="notification.message"
+      [tone]="notification.tone"
+      [autoCloseMs]="3000"
+      (closeBanner)="clearSubmitNotification()"
+    ></app-notice-banner>
+  }
+</section>

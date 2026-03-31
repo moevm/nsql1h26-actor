@@ -54,12 +54,16 @@
     border-radius: 5px;
     overflow: hidden;
     cursor: zoom-in;
+
+    .delete_button {
+      position: absolute;
+      top: 2%;
+      right: 1%;
+    }
   }
 
-  .item_image {
-    object-fit: cover;
-    border-radius: 5px;
-    display: block;
+  .media-wrap {
+    position: relative;
     box-shadow:
       0 2px 6px rgba(28, 26, 24, 0.14),
       0 12px 24px rgba(28, 26, 24, 0.18);
@@ -79,6 +83,20 @@
     &:active {
       transform: translateY(-2px);
     }
+
+    .delete_button {
+      width: 24px;
+      height: 24px;
+      position: absolute;
+      top: 2%;
+      right: 1%;
+    }
+  }
+
+  .item_image {
+    object-fit: cover;
+    border-radius: 5px;
+    display: block;
   }
 
   .item_video {
@@ -105,30 +123,22 @@
   }
 
   .zoom-content {
-    max-width: min(96vw, 1400px);
-    max-height: 90vh;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
     align-items: center;
+    border-radius: 10px;
+    justify-content: center;
+    overflow: hidden;
   }
 
   .zoom-image,
   .zoom-video {
-    max-width: min(96vw, 1400px);
-    max-height: calc(90vh - 48px);
+    width: min(calc(90vw - 48px), calc(70vh - 200px));
+    object-fit: contain;
     border-radius: 10px;
     box-shadow:
       0 16px 50px rgba(0, 0, 0, 0.4),
       0 6px 20px rgba(0, 0, 0, 0.28);
-    background: #000;
-  }
-
-  .zoom-caption {
-    margin: 0;
-    color: #f6f3ef;
-    text-align: center;
-    font-size: 14px;
+    background: transparent;
   }
 
   .zoom-close {

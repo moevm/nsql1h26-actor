@@ -1,0 +1,310 @@
+@use "styles/variables" as vars;
+@use "sass:list";
+
+:host {
+    width: 100%;
+}
+
+.profile-form-info {
+    padding: 36px;
+    &_img {
+        flex: 1 1 0;
+        align-self: stretch;
+        width: min(100%, 275px);
+        aspect-ratio: 11 / 16;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 6px 8px 5px 2px #00000040;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        label {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background-color: #CDCDCD;
+            background-image: url('/images/add_plus.png'), url('/images/profile.jpg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: auto, cover;
+            cursor: pointer;
+        }
+    }
+
+    &_fields {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+
+.img-wrap{
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    button{
+        position: absolute;
+        top: 2%;
+        right: 3%;
+    }
+}
+
+.profile-form-info_img {
+    position: relative;
+
+    input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.content {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(220px, 275px) minmax(0, 1fr);
+    align-items: start;
+    gap: 32px;
+}
+
+input,
+select {
+    padding: 8px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.img-box {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.fields-info {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px 36px;
+    grid-template-areas:
+        "a b c d"
+        "e f g h"
+        "i i j j";
+
+    $areas: a b c d e f g h i j;
+    @for $i from 1 through list.length($areas) {
+        &_item:nth-child(#{$i}) {
+            grid-area: list.nth($areas, $i);
+        }
+    }
+}
+
+.fields-info_item,
+.fields-genres_item {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+
+    label {
+        font-size: 18px;
+        font-weight: 600;
+        color: vars.$color-accent-primary;
+    }
+
+    small {
+        position: absolute;
+        top: 0;
+        right: 0;
+        max-width: 75%;
+        text-align: right;
+        color: vars.$color-accent-primary;
+        font-size: 13px;
+        line-height: 1.25;
+        pointer-events: none;
+    }
+}
+
+:host ::ng-deep app-university-search {
+    width: 100%;
+}
+
+:host ::ng-deep app-university-search .university-search__input {
+    padding: 8px;
+    font-size: 16px;
+}
+
+.genres-list {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 24px;
+    gap: 14px 36px;
+}
+
+.genres-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.2;
+
+    input[type="checkbox"] {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 1.5px solid vars.$color-accent-primary;
+        border-radius: 4px;
+        background: #fff;
+        display: grid;
+        place-content: center;
+        transition:
+            border-color 0.15s ease,
+            background-color 0.15s ease,
+            box-shadow 0.15s ease;
+
+        &::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background: vars.$color-accent-primary;
+            transform: scale(0);
+            transition: transform 0.12s ease;
+        }
+
+        &:checked::before {
+            transform: scale(1);
+        }
+
+        &:focus-visible {
+            outline: 2px solid rgba(82, 17, 12, 0.35);
+            outline-offset: 2px;
+        }
+    }
+
+    label {
+        font-size: 17px;
+        color: vars.$color-text-black;
+        cursor: pointer;
+    }
+}
+
+.line {
+    width: 100%;
+    height: 2px;
+    background-color: #52110c;
+    margin: 32px 0px 24px 0px;
+}
+
+.fields-genres {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 36px;
+}
+
+@media (max-width: 1200px) {
+    .profile-form-info {
+        padding: 28px;
+    }
+
+    .content {
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: 24px;
+    }
+
+    .fields-info {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-areas: none;
+    }
+
+    .fields-info_item {
+        grid-area: auto !important;
+    }
+
+    .genres-list,
+    .fields-genres {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 24px;
+    }
+}
+
+@media (max-width: 900px) {
+    .profile-form-info {
+        padding: 24px;
+    }
+
+    .content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .img-box {
+        align-items: center;
+        height: auto;
+        justify-content: flex-start;
+    }
+
+    .profile-form-info_img {
+        flex: 0 0 auto;
+        align-self: center;
+        width: min(100%, 240px);
+    }
+
+    .fields-info {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 20px;
+    }
+
+    .fields-info_item,
+    .fields-genres_item {
+        label {
+            font-size: 16px;
+        }
+    }
+
+    .genres-box label {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 640px) {
+    .profile-form-info {
+        padding: 16px;
+    }
+
+    input,
+    select {
+        font-size: 15px;
+    }
+
+    .fields-info,
+    .genres-list,
+    .fields-genres {
+        grid-template-columns: 1fr;
+    }
+
+    .line {
+        margin: 24px 0 16px;
+    }
+}

@@ -49,10 +49,10 @@
   <section class="landing__top-search top-search">
     <div class="top-search__heading">
       <div class="top-search__heading-line">
-        <h2>Топ поиска</h2>
+        <h2>Актёрская подборка</h2>
         <span class="top-search__line"></span>
       </div>
-      <p>Самые популярные актеры на нашем сайте</p>
+      <p>Интересные зрителям актёры</p>
     </div>
     <div class="top-search__cards">
       @if (actorsLoading()) {
@@ -71,7 +71,7 @@
               [birthDate]="actor.birthDate ?? undefined"
               [education]="actor.education?.[0]?.university?.name ?? undefined"
               [actorId]="actor.id ?? undefined"
-              [imageId]="actor.photos?.[0]?.id ?? undefined"
+              [imageId]="actor.mainPhotoId ?? undefined"
             ></app-profile-card>
           </a>
         }

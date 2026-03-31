@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth-service';
-import { AuthSessionService } from '../../../core/services/auth-session-service';
+import { AuthService } from '../../../../core/services/auth-service';
+import { AuthSessionService } from '../../../../core/services/auth-session-service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -24,7 +24,7 @@ export class AdminLoginPage {
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.pattern(this.EMAIL_RE)]],
-    password: ['', [Validators.required, Validators.minLength(4)]],
+    password: ['', [Validators.required]],
   });
 
   hasControlError(controlName: 'email' | 'password', errorKey: string): boolean {
@@ -52,7 +52,7 @@ export class AdminLoginPage {
         this.isSubmitting.set(false);
         this.loginErrorMessage.set(null);
 
-        this.router.navigate(['/']);
+        this.router.navigate(['/admin']);
       },
       error: (err: HttpErrorResponse) => {
         this.isSubmitting.set(false);

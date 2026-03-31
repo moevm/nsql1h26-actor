@@ -22,6 +22,9 @@ app:
   admin:
     seed-email: ${ADMIN_EMAIL:admin@example.com}
     seed-password: ${ADMIN_PASSWORD:admin}
+  http:
+    cache-control:
+      media-max-age-seconds: ${MEDIA_CACHE_MAX_AGE_SECONDS:300}
   mongodb:
     gridfs-bucket: media
   jwt:

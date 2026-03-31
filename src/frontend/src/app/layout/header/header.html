@@ -8,6 +8,11 @@
             <a [routerLink]="item.routerLink" [fragment]="item.fragment">{{ item.label }}</a>
           </li>
         }
+        @if (authSessionService.isLoggedIn) {
+          <li>
+            <button type="button" [routerLink]="['/admin']">Админ панель</button>
+          </li>
+        }
         @if (headerState().showAction) {
           <li>
             @if (authSessionService.isLoggedIn) {

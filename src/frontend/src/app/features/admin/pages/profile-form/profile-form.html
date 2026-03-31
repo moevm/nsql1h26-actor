@@ -1,0 +1,49 @@
+<form class="profile-form" (ngSubmit)="onSubmit()" [formGroup]="profile_form">
+  @if (actor()) {
+    <div class="form-header">
+      <h1>Редактирование профиля</h1>
+      <p class="date-info">
+        Cоздан: {{ formatDate(actor()?.createdAt) }} | Обновлен:
+        {{ formatDate(actor()?.updatedAt) }}
+      </p>
+    </div>
+  } @else {
+    <h1>Добавление профиля</h1>
+  }
+
+  <app-profile-form-info
+    [profile_form]="profile_form"
+    [alreadyExistsUni]="actor()?.education ?? null"
+  ></app-profile-form-info>
+  <app-profile-form-media [photos]="photos" [videos]="videos"></app-profile-form-media>
+  <app-profile-form-experience
+    [films]="films"
+    [theatres]="theatres"
+    (addFilm)="addFilm()"
+    (addTheatre)="addTheatre()"
+    (addPlay)="addPlay($event)"
+    (removeFilm)="removeFilm($event)"
+    (removeTheatre)="removeTheatre($event)"
+    (removePlay)="removePlay($event.theatreIndex, $event.playIndex)"
+  ></app-profile-form-experience>
+  <section class="profile-form-desc section-card">
+    <label for="form_bio">О себе</label>
+    <div class="content">
+      <textarea id="form_bio" formControlName="bio"></textarea>
+    </div>
+  </section>
+  @if (submitNotification(); as notification) {
+    <app-notice-banner
+      class="form-notification"
+      animate.enter="form-notification--enter"
+      animate.leave="form-notification--leave"
+      [message]="notification.message"
+      [tone]="notification.tone"
+      [autoCloseMs]="3000"
+      (closeBanner)="clearSubmitNotification()"
+    ></app-notice-banner>
+  }
+  <button type="submit" class="add_button save_form" [disabled]="isSubmitting()">
+    {{ isSubmitting() ? 'Сохранение...' : 'Сохранить' }}
+  </button>
+</form>

@@ -13,7 +13,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Вход (получить JWT) */
+        /** Login (get JWT) */
         post: operations["v1AuthLoginPost"];
         delete?: never;
         options?: never;
@@ -30,7 +30,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Создать вуз */
+        /** Create university */
         post: operations["v1UniversityCreatePost"];
         delete?: never;
         options?: never;
@@ -45,7 +45,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Поиск вузов */
+        /** Search universities */
         get: operations["v1UniversitiesSearchGet"];
         put?: never;
         post?: never;
@@ -55,6 +55,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/universities/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete university by id */
+        delete: operations["v1UniversityByIdDelete"];
+        options?: never;
+        head?: never;
+        /** Update university by id */
+        patch: operations["v1UniversityByIdPatch"];
+        trace?: never;
+    };
     "/actors": {
         parameters: {
             query?: never;
@@ -62,10 +80,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Получить актёров по фильтрам */
+        /** List actors with filters */
         get: operations["v1ActorsGet"];
         put?: never;
-        /** Создать актёра */
+        /** Create actor */
         post: operations["v1ActorCreatePost"];
         delete?: never;
         options?: never;
@@ -80,15 +98,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Получить актёра по ID */
+        /** Get actor by id */
         get: operations["v1ActorByIdGet"];
         put?: never;
         post?: never;
-        /** Удалить страницу актёра */
+        /** Delete actor profile */
         delete: operations["v1ActorByIdDelete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Partially update actor */
+        patch: operations["v1ActorByIdPatch"];
         trace?: never;
     };
     "/actors/{id}/media": {
@@ -100,7 +119,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Загрузить медиа актёра (фото или видео в GridFS) */
+        /** Upload actor media (photo or video to GridFS) */
         post: operations["v1ActorMediaUploadPost"];
         delete?: never;
         options?: never;
@@ -115,10 +134,53 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Получить медиафайл по id (бинарный контент из GridFS) */
+        /** Get media file by id (binary body from GridFS) */
         get: operations["v1MediaByIdGet"];
         put?: never;
         post?: never;
+        /** Delete actor media file (GridFS) and remove references from actor */
+        delete: operations["v1MediaByIdDelete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/catalog/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export full database snapshot (JSON)
+         * @description Returns universities, actors, admins, and media files (Base64) in one document. Requires JWT.
+         */
+        get: operations["v1CatalogExportGet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/catalog/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import full database snapshot (replaces all data)
+         * @description Replaces all universities, actors, admins, and GridFS media with the payload.
+         *     Format must be `format: "nsql1-catalog"` and compatible `version`.
+         *     Response has no body on success.
+         */
+        post: operations["v1CatalogImportPost"];
         delete?: never;
         options?: never;
         head?: never;
@@ -129,83 +191,93 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description Учётные данные для входа (админ) */
+        /** @description Admin login credentials */
         LoginRequest: {
             /** Format: email */
             email: string;
             /** Format: password */
             password: string;
         };
-        /** @description Успешный логин — JWT для заголовка Authorization Bearer */
+        /** @description Successful login — JWT for Authorization Bearer header */
         LoginResponse: {
             /** @description JWT */
             token?: string;
-            /** @description Срок жизни токена в секундах */
+            /** @description Token lifetime in seconds */
             expiresIn?: number | null;
         };
         UniversityCreate: {
-            /** @description Название вуза */
+            /** @description University full name */
             name: string;
-            /** @description Короткое название */
+            /** @description Short name */
             shortName?: string | null;
-            /** @description Старые названия */
+            /** @description Former names */
             oldNames?: string[] | null;
         };
-        /** @description ID для поиска в MongoDB (ObjectId, 24 hex-символа) */
+        /** @description MongoDB ObjectId (24 hex characters) */
         MongoId: string;
         UniversityCreateResponse: {
-            /** @description ID вуза при status=ok */
+            /** @description University id when status=ok */
             id?: components["schemas"]["MongoId"];
             /** @enum {string} */
             status: "ok" | "failed";
+            /** @description Error code when status=failed */
             errorCode?: string | null;
         };
-        /** @description Ответ 401 при отсутствии или невалидном JWT */
+        /** @description 401 response when JWT is missing or invalid */
         UnauthorizedError: {
             /** @example Unauthorized */
             error?: string;
-            /** @description Описание причины (например, требуется токен или токен истёк) */
+            /** @description Reason (e.g. token required or token expired) */
             message?: string;
         };
-        /** @description Элемент результата поиска вузов (id + название и варианты) */
+        /** @description University search result row (id + names) */
         UniversitySearchItem: {
             id?: components["schemas"]["MongoId"];
             name?: string;
             shortName?: string | null;
             oldNames?: string[] | null;
         };
+        /** @description Partial update: send at least one field. Empty string for shortName clears it; empty array for oldNames clears the list. */
+        UniversityUpdate: {
+            /** @description New full name */
+            name?: string;
+            /** @description Short name; empty string clears */
+            shortName?: string | null;
+            /** @description Replaces old names list entirely */
+            oldNames?: string[] | null;
+        };
         /**
-         * @description Пол
+         * @description Gender
          * @enum {string}
          */
         Gender: "male" | "female";
         /**
-         * @description Звание
+         * @description Title / rank
          * @enum {string}
          */
         Title: "honored" | "national" | "none";
-        /** @description Ссылка контакта (ВК, Макс, Рутуб, личный сайт и т.п.) */
+        /** @description Contact link (social, personal site, etc.) */
         ContactLinkItem: {
-            /** @description Название (например ВК, Макс, Рутуб) */
+            /** @description Label (e.g. VK, Rutube) */
             name?: string;
             /**
              * Format: uri
-             * @description URL ссылки
+             * @description Link URL
              */
             url?: string;
         };
-        /** @description Данные вуза (агрегация при отдаче актёра) */
+        /** @description University data (aggregated when returning an actor) */
         UniversityInfo: {
             name?: string;
             shortName?: string | null;
             oldNames?: string[] | null;
         };
         EducationItem: {
-            /** @description ObjectId вуза */
+            /** @description University ObjectId */
             uniId?: components["schemas"]["MongoId"];
             graduationYear?: number | null;
             name?: string | null;
-            /** @description Вуз (заполняется при отдаче актёра, фронту не ходить отдельно) */
+            /** @description University (filled when returning actor; no extra request needed) */
             readonly university?: components["schemas"]["UniversityInfo"];
         };
         FilmPlayItem: {
@@ -214,13 +286,13 @@ export interface components {
             role?: string | null;
             director?: string | null;
         };
-        /** @description Элемент списка — театр и его пьесы (название, годы, пьесы) */
+        /** @description Theatre entry — name, years, plays */
         TheatrePlayItem: {
-            /** @description Название театра */
+            /** @description Theatre name */
             name?: string;
-            /** @description Годы (например 2010–2015) */
+            /** @description Years (e.g. 2010–2015) */
             years?: string | null;
-            /** @description Пьесы */
+            /** @description Plays */
             plays?: components["schemas"]["FilmPlayItem"][];
         };
         PhotoItem: {
@@ -245,26 +317,43 @@ export interface components {
             eyeColor?: string | null;
             bio?: string | null;
             title?: components["schemas"]["Title"];
-            /** @description Телефонный номер */
+            /** @description Phone number */
             phone?: string | null;
             /**
              * Format: email
-             * @description Электронная почта
+             * @description Email
              */
             email?: string | null;
-            /** @description Ссылки (ВК, Макс, Рутуб, личный сайт и т.п.) */
+            /** @description Contact links (social, site, etc.) */
             links?: components["schemas"]["ContactLinkItem"][] | null;
             education?: components["schemas"]["EducationItem"][];
             films?: components["schemas"]["FilmPlayItem"][];
-            /** @description Театры и пьесы (для фронта) */
+            /** @description Theatres and plays (for clients) */
             theatrePlayItems?: components["schemas"]["TheatrePlayItem"][];
             photos?: components["schemas"]["PhotoItem"][];
+            /** @description ObjectId of main photo media (set on actor update, not on create) */
+            readonly mainPhotoId?: components["schemas"]["MongoId"];
             videos?: components["schemas"]["VideoItem"][];
             genres?: string[];
             /** Format: date-time */
             readonly createdAt?: string | null;
             /** Format: date-time */
             readonly updatedAt?: string | null;
+        };
+        /** @description Paged actor list and total row count matching filters (ignoring limit/offset) */
+        ActorListResponse: {
+            /**
+             * Format: int64
+             * @description Total actors matching filters (full set, not only current page)
+             */
+            total: number;
+            /** @description Page slice; empty when includeItems=false */
+            actors: components["schemas"]["Actor"][];
+        };
+        /** @description On create only university id is sent; name and year are resolved from the catalog in responses. */
+        EducationCreateItem: {
+            /** @description University id from the university catalog */
+            uniId: components["schemas"]["MongoId"];
         };
         ActorCreate: {
             firstName: string;
@@ -279,30 +368,60 @@ export interface components {
             eyeColor?: string | null;
             bio?: string | null;
             title?: components["schemas"]["Title"];
-            /** @description Телефонный номер */
+            /** @description Phone number */
             phone?: string | null;
             /**
              * Format: email
-             * @description Электронная почта
+             * @description Email
              */
             email?: string | null;
-            /** @description Ссылки (ВК, Макс, Рутуб, личный сайт и т.п.) */
+            /** @description Contact links (social, site, etc.) */
             links?: components["schemas"]["ContactLinkItem"][] | null;
-            education?: components["schemas"]["EducationItem"][];
+            /** @description University id per entry only; other fields are read from the catalog when loading an actor */
+            education?: components["schemas"]["EducationCreateItem"][] | null;
             films?: components["schemas"]["FilmPlayItem"][];
             theatrePlayItems?: components["schemas"]["TheatrePlayItem"][];
             genres?: string[];
         };
         ActorCreateResponse: {
-            /** @description ID актёра при status=ok */
+            /** @description Actor id when status=ok */
             id?: components["schemas"]["MongoId"];
             /** @enum {string} */
             status: "ok" | "failed";
-            /** @description Код ошибки при status=failed */
+            /** @description Error code when status=failed */
             errorCode?: string | null;
         };
         /**
-         * @description Тип медиа при загрузке
+         * @description Partial update (PATCH): send at least one field. Omitted fields keep previous values.
+         *     List fields (links, education, films, theatrePlayItems, genres) replace the entire list when provided (use [] to clear).
+         *     mainPhotoId must be one of the actor's photo ids from photos[].id; omit to leave unchanged.
+         */
+        ActorUpdate: {
+            firstName?: string;
+            lastName?: string;
+            middleName?: string | null;
+            /** Format: date */
+            birthDate?: string | null;
+            height?: number | null;
+            weight?: number | null;
+            gender?: components["schemas"]["Gender"];
+            hairColor?: string | null;
+            eyeColor?: string | null;
+            bio?: string | null;
+            title?: components["schemas"]["Title"];
+            phone?: string | null;
+            /** Format: email */
+            email?: string | null;
+            links?: components["schemas"]["ContactLinkItem"][] | null;
+            education?: components["schemas"]["EducationItem"][] | null;
+            films?: components["schemas"]["FilmPlayItem"][] | null;
+            theatrePlayItems?: components["schemas"]["TheatrePlayItem"][] | null;
+            genres?: string[] | null;
+            /** @description Must match an existing photos[].id; send null in JSON only if your client distinguishes omit vs null (otherwise omit) */
+            mainPhotoId?: components["schemas"]["MongoId"];
+        };
+        /**
+         * @description Media type on upload
          * @enum {string}
          */
         ActorMediaType: "photo" | "video";
@@ -310,7 +429,42 @@ export interface components {
             mediaId?: components["schemas"]["MongoId"];
             /** @enum {string} */
             status: "ok" | "failed";
+            /** @description Error code when status=failed (e.g. ACTOR_NOT_FOUND) */
             errorCode?: string | null;
+        };
+        /** @description Admin user as stored and exported in catalog (includes password hash) */
+        AdminDocument: {
+            id?: components["schemas"]["MongoId"];
+            /** Format: email */
+            email?: string;
+            passwordHash?: string;
+            /** Format: date-time */
+            createdAt?: string | null;
+        };
+        /** @description GridFS file embedded in catalog export (payload as Base64) */
+        CatalogMediaEntry: {
+            /** @description Media ObjectId */
+            id: string;
+            actorId: string;
+            filename: string;
+            contentType?: string | null;
+            /** @description photo or video */
+            type: string;
+            caption?: string | null;
+            /** @description File bytes encoded as Base64 */
+            dataBase64: string;
+        };
+        /** @description Full database snapshot for export/import; import replaces all universities, actors, admins, and GridFS media */
+        CatalogSnapshot: {
+            /** @example nsql1-catalog */
+            format: string;
+            /** @example 1 */
+            version: number;
+            /** @description Stored university documents (same shape as search rows) */
+            universities: components["schemas"]["UniversitySearchItem"][];
+            actors: components["schemas"]["Actor"][];
+            admins: components["schemas"]["AdminDocument"][];
+            media: components["schemas"]["CatalogMediaEntry"][];
         };
     };
     responses: never;
@@ -334,7 +488,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description JWT для заголовка Authorization Bearer (только для операций изменения данных) */
+            /** @description JWT for Authorization Bearer header (mutating operations only) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -343,7 +497,7 @@ export interface operations {
                     "application/json": components["schemas"]["LoginResponse"];
                 };
             };
-            /** @description Неверный email или пароль */
+            /** @description Invalid email or password */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -365,7 +519,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Результат создания (id + status ok/failed + errorCode) */
+            /** @description Create result (id + status ok/failed + errorCode) */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -374,7 +528,7 @@ export interface operations {
                     "application/json": components["schemas"]["UniversityCreateResponse"];
                 };
             };
-            /** @description Нет или невалидный JWT */
+            /** @description Missing or invalid JWT */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -388,9 +542,9 @@ export interface operations {
     v1UniversitiesSearchGet: {
         parameters: {
             query: {
-                /** @description Строка поиска (по name, shortName, oldNames) */
+                /** @description Search string (name, shortName, oldNames) */
                 q: string;
-                /** @description Максимум результатов */
+                /** @description Max number of results */
                 limit?: number;
             };
             header?: never;
@@ -399,7 +553,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Список подходящих вузов (id, name, shortName, oldNames) */
+            /** @description Matching universities (id, name, shortName, oldNames) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -410,33 +564,130 @@ export interface operations {
             };
         };
     };
+    v1UniversityByIdDelete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description University id */
+                id: components["schemas"]["MongoId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description University deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid JWT */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description University not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description University is still referenced by at least one actor (education.uniId) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1UniversityByIdPatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description University id */
+                id: components["schemas"]["MongoId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UniversityUpdate"];
+            };
+        };
+        responses: {
+            /** @description Update result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UniversityCreateResponse"];
+                };
+            };
+            /** @description No fields to update or invalid body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid JWT */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description University not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     v1ActorsGet: {
         parameters: {
             query?: {
                 gender?: components["schemas"]["Gender"];
-                /** @description Возраст от (лет) */
+                /** @description Minimum age (years) */
                 ageFrom?: number;
+                /** @description Maximum age (years) */
                 ageTo?: number;
                 weightMin?: number;
                 weightMax?: number;
-                /** @description Рост от (см) */
+                /** @description Minimum height (cm) */
                 heightMin?: number;
-                /** @description Рост до (см) */
+                /** @description Maximum height (cm) */
                 heightMax?: number;
-                /** @description Годы активности от */
+                /** @description Activity year from */
                 activityYearFrom?: number;
                 activityYearTo?: number;
-                /** @description ID вуза */
+                /** @description University id */
                 universityId?: components["schemas"]["MongoId"];
                 theatre?: string;
                 title?: components["schemas"]["Title"];
                 hairColor?: string;
                 eyeColor?: string;
                 genres?: string[];
-                /** @description Подстрока по ФИО (firstName, lastName, middleName), без учёта регистра */
+                /** @description Substring match on full name (firstName, lastName, middleName), case-insensitive */
                 name?: string;
                 limit?: number;
                 offset?: number;
+                /** @description If false, actors is empty but total is still computed for the same filters (avoids loading the page of items). */
+                includeItems?: boolean;
             };
             header?: never;
             path?: never;
@@ -444,13 +695,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Список актёров */
+            /** @description Actors page and total count matching filters */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Actor"][];
+                    "application/json": components["schemas"]["ActorListResponse"];
                 };
             };
         };
@@ -468,7 +719,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Результат создания (id + status ok/failed + errorCode) */
+            /** @description Create result (id + status ok/failed + errorCode) */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -477,7 +728,7 @@ export interface operations {
                     "application/json": components["schemas"]["ActorCreateResponse"];
                 };
             };
-            /** @description Нет или невалидный JWT */
+            /** @description Missing or invalid JWT */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -499,7 +750,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Актёр */
+            /** @description Actor */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -508,7 +759,7 @@ export interface operations {
                     "application/json": components["schemas"]["Actor"];
                 };
             };
-            /** @description Не найден */
+            /** @description Not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -528,14 +779,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Актёр удалён */
+            /** @description Actor deleted */
             204: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description Нет или невалидный JWT */
+            /** @description Missing or invalid JWT */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -544,7 +795,56 @@ export interface operations {
                     "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
-            /** @description Актёр не найден */
+            /** @description Actor not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1ActorByIdPatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["MongoId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActorUpdate"];
+            };
+        };
+        responses: {
+            /** @description Updated actor */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Actor"];
+                };
+            };
+            /** @description No fields to update, invalid university id, or invalid mainPhotoId */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid JWT */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Actor not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -558,7 +858,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description ID актёра */
+                /** @description Actor id */
                 id: components["schemas"]["MongoId"];
             };
             cookie?: never;
@@ -574,7 +874,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Результат загрузки (mediaId + status ok/failed + errorCode) */
+            /** @description Upload result (mediaId + status ok/failed + errorCode) */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -583,14 +883,14 @@ export interface operations {
                     "application/json": components["schemas"]["MediaUploadResponse"];
                 };
             };
-            /** @description Ошибка запроса */
+            /** @description Bad request */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description Нет или невалидный JWT */
+            /** @description Missing or invalid JWT */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -599,7 +899,7 @@ export interface operations {
                     "application/json": components["schemas"]["UnauthorizedError"];
                 };
             };
-            /** @description Актёр не найден */
+            /** @description Actor not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -614,16 +914,22 @@ export interface operations {
             header?: never;
             path: {
                 actorId: components["schemas"]["MongoId"];
-                /** @description ID элемента в photos или videos */
+                /** @description Media id from photos or videos list */
                 mediaId: components["schemas"]["MongoId"];
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description Файл (image/* или video/*) */
+            /** @description File (image/* or video/*) */
             200: {
                 headers: {
+                    /**
+                     * @description Browser HTTP cache: max-age in seconds.
+                     *     Configured on the server as app.http.cache-control.media-max-age-seconds or MEDIA_CACHE_MAX_AGE_SECONDS (default 300).
+                     *     If set to 0 in config, the header is omitted.
+                     */
+                    "Cache-Control"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -632,12 +938,109 @@ export interface operations {
                     "application/octet-stream": string;
                 };
             };
-            /** @description Медиа не найдено */
+            /** @description Media not found */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    v1MediaByIdDelete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                actorId: components["schemas"]["MongoId"];
+                mediaId: components["schemas"]["MongoId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Media deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid JWT */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+            /** @description Actor or media not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1CatalogExportGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Catalog snapshot */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogSnapshot"];
+                };
+            };
+            /** @description Missing or invalid JWT */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
+            };
+        };
+    };
+    v1CatalogImportPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogSnapshot"];
+            };
+        };
+        responses: {
+            /** @description Import completed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid JWT */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedError"];
+                };
             };
         };
     };

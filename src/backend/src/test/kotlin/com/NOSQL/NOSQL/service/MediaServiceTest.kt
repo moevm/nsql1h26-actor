@@ -148,7 +148,7 @@ class MediaServiceTest {
                 mediaService.getResource(actorId, "000000000000000000000000")
             }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-            assertThat(ex.reason).contains("Медиа не найдено")
+            assertThat(ex.reason).contains("Media not found")
         }
 
         @Test
@@ -165,6 +165,45 @@ class MediaServiceTest {
                 mediaService.getResource("000000000000000000000000", res.mediaId!!)
             }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+        }
+    }
+
+    @Nested
+    @DisplayName("delete")
+    inner class Delete {
+        @Test
+        fun `удаление — GridFS и ссылки в актёре очищены`() {
+            val res = mediaService.upload(
+                actorId = actorId,
+                inputStream = ByteArrayInputStream("data".toByteArray()),
+                filename = "p.jpg",
+                contentType = "image/jpeg",
+                type = ActorMediaType.photo,
+                caption = null
+            )
+            val mediaId = res.mediaId!!
+            mediaService.delete(actorId, mediaId)
+            assertThrows<ResponseStatusException> { mediaService.getResource(actorId, mediaId) }
+                .also { assertThat(it.statusCode).isEqualTo(HttpStatus.NOT_FOUND) }
+            assertThat(actorRepository.findById(actorId).get().photos).isNull()
+        }
+
+        @Test
+        fun `актёр не найден — 404`() {
+            val ex = assertThrows<ResponseStatusException> {
+                mediaService.delete("000000000000000000000000", "000000000000000000000000")
+            }
+            assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+            assertThat(ex.reason).contains("Actor not found")
+        }
+
+        @Test
+        fun `медиа не найдено — 404`() {
+            val ex = assertThrows<ResponseStatusException> {
+                mediaService.delete(actorId, "000000000000000000000000")
+            }
+            assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+            assertThat(ex.reason).contains("Media not found")
         }
     }
 }

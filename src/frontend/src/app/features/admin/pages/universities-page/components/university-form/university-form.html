@@ -1,0 +1,64 @@
+<section class="university-form-box section-card">
+  <form class="university-form" (ngSubmit)="onSubmit()" [formGroup]="university_form">
+    <div class="form-items">
+      <div class="form-item input_wrap">
+        <label for="uni_name">Полное название</label>
+        <input type="text" id="uni_name" placeholder="Введите название" formControlName="name" />
+        @if (hasControlError(university_form, 'name', 'required')) {
+          <small>Обязательное поле</small>
+        }
+      </div>
+      <div class="fields-item input_wrap">
+        <label for="uni_shortName">Короткое название</label>
+        <input
+          type="text"
+          id="uni_shortName"
+          placeholder="Введите название"
+          formControlName="shortName"
+        />
+        @if (hasControlError(university_form, 'shortName', 'required')) {
+          <small>Обязательное поле</small>
+        }
+      </div>
+      @for (oldNameCtrl of oldNames.controls; track $index) {
+        <div class="item_box">
+          <div class="fields-item input_wrap">
+            <label [for]="'uni_oldName_' + $index">Старое название</label>
+            <input
+              type="text"
+              [id]="'uni_oldName_' + $index"
+              placeholder="Введите название"
+              [formControl]="oldNameCtrl"
+            />
+            @if (oldNameCtrl.hasError('required') && (oldNameCtrl.dirty || oldNameCtrl.touched)) {
+              <small>Обязательное поле</small>
+            }
+          </div>
+          <button type="button" class="delete_button" (click)="removeOldName($index)"></button>
+        </div>
+      }
+      <button type="button" class="add_button" (click)="addOldName()">
+        Добавить старое название
+      </button>
+    </div>
+    @if (isEditing()) {
+      <div class="button-box">
+        <button type="submit" class="add_button save_form" [disabled]="isSubmitting()">
+          Сохранить изменения
+        </button>
+        <button
+          type="button"
+          class="add_button save_form"
+          [disabled]="isSubmitting()"
+          (click)="deleteUniversity()"
+        >
+          Удалить университет
+        </button>
+      </div>
+    } @else {
+      <button type="submit" class="add_button save_form" [disabled]="isSubmitting()">
+        Создать
+      </button>
+    }
+  </form>
+</section>

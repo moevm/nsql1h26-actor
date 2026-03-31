@@ -1,0 +1,32 @@
+<div class="film-form-item" [formGroup]="filmForm">
+  <div class="item-box">
+    <div class="input_wrap" [style.flex]="'1 1 0'">
+      <label>Название фильма</label>
+      <input type="text" placeholder="Введите название" formControlName="title" />
+    </div>
+    <button type="button" class="delete_button" (click)="removeFilm.emit()"></button>
+  </div>
+  <div class="input_wrap">
+    <label>Год выпуска</label>
+    <input
+      type="number"
+      placeholder="Введите год"
+      formControlName="year"
+      [min]="minYear"
+      [max]="maxYear"
+    />
+    @if (hasYearError('min')) {
+      <small>Год не может быть меньше {{ minYear }}</small>
+    }
+    @if (hasYearError('max')) {
+      <small>Год не может быть больше {{ maxYear }}</small>
+    }
+    @if (hasYearError('dobRangeInvalid')) {
+      <small>Год не может быть раньше даты рождения</small>
+    }
+  </div>
+  <div class="input_wrap">
+    <label>Роль</label>
+    <input type="text" placeholder="Введите роль" formControlName="role" />
+  </div>
+</div>
