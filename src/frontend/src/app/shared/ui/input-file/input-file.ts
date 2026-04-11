@@ -8,6 +8,8 @@ import {
   ViewChild,
 } from '@angular/core';
 
+import { isAccepted } from '../../utils/formHeplers';
+
 @Component({
   selector: 'app-input-file',
   imports: [],
@@ -53,7 +55,7 @@ export class InputFile {
     }
 
     for (const file of files) {
-      if (!this.isAccepted(file)) {
+      if (!isAccepted(file, this.accept)) {
         this.clearSelection();
         this.fileChange.emit(null);
         this.isFileCorrect = false;
@@ -72,31 +74,6 @@ export class InputFile {
     if (this.nativeInput) {
       this.nativeInput.nativeElement.value = '';
     }
-  }
-
-  private isAccepted(file: File): boolean {
-    if (!this.accept) return true;
-
-    const fileType = (file.type || '').toLowerCase();
-    const fileExt = file.name.toLowerCase().split('.').pop() ?? '';
-
-    return this.accept
-      .split(',')
-      .map((s) => s.trim().toLowerCase())
-      .some((token) => {
-        if (!token) return false;
-
-        if (token.startsWith('.')) {
-          return fileExt === token.slice(1);
-        }
-
-        if (token.endsWith('/*')) {
-          const group = token.slice(0, -1);
-          return fileType.startsWith(group);
-        }
-
-        return fileType === token;
-      });
   }
 
   @HostListener('window:focus')

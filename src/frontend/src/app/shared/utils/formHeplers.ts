@@ -18,6 +18,31 @@ export function hasControlError(
   return control.hasError(errorKey) && (control.dirty || control.touched);
 }
 
+export function isAccepted(file: File, accept: string | undefined): boolean {
+  if (!accept) return true;
+
+  const fileType = (file.type || '').toLowerCase();
+  const fileExt = file.name.toLowerCase().split('.').pop() ?? '';
+
+  return accept
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .some((token) => {
+      if (!token) return false;
+
+      if (token.startsWith('.')) {
+        return fileExt === token.slice(1);
+      }
+
+      if (token.endsWith('/*')) {
+        const group = token.slice(0, -1);
+        return fileType.startsWith(group);
+      }
+
+      return fileType === token;
+    });
+}
+
 // Payload's  helpers
 export function toNullableText(value: unknown): string | null {
   if (typeof value !== 'string') {

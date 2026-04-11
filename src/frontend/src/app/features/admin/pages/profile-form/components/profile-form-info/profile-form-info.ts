@@ -12,7 +12,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { components } from '../../../../../../shared/api/types';
 import { UniversitySearch } from '../../../../../../shared/ui/university-search/university-search';
-import { hasControlError } from '../../../../../../shared/utils/formHeplers';
+import { hasControlError, isAccepted } from '../../../../../../shared/utils/formHeplers';
 import {
   EditableMedia,
   actorRankOptions,
@@ -36,8 +36,10 @@ export class ProfileFormInfo implements OnChanges, OnDestroy {
   readonly actorRankOptions = actorRankOptions;
   readonly genderOprions = genderOprions;
   readonly genreOptions = genreOptions;
+  readonly accept = '.png,.jpg,.jpeg,.gif,.webp';
 
   previewUrl = signal('');
+  isFileCorrect = true;
   @ViewChild('profilePicInput') profilePicInput?: ElementRef<HTMLInputElement>;
 
   @Input() profile_form!: FormGroup;
@@ -74,6 +76,13 @@ export class ProfileFormInfo implements OnChanges, OnDestroy {
       return;
     }
 
+    if (!isAccepted(file, this.accept)) {
+      this.clearMainPhoto();
+      this.isFileCorrect = false;
+      return;
+    }
+
+    this.isFileCorrect = true;
     this.mainPhotoControl?.setValue(this.toNewMedia(file));
     this.mainPhotoControl?.markAsTouched();
   }

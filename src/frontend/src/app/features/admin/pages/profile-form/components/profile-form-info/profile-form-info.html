@@ -6,7 +6,7 @@
           #profilePicInput
           type="file"
           id="profilepic_input"
-          accept="image/*"
+          accept="{{ accept }}"
           [multiple]="false"
           (change)="onFileChange($event)"
         />
@@ -17,6 +17,12 @@
           </div>
         } @else {
           <label for="profilepic_input"></label>
+        }
+        @if (!isFileCorrect) {
+          <small class="img-file__error">
+            Выбран файл недопустимого формата. Допустимые форматы:
+            {{ this.accept!.split(',').join(', ') }}
+          </small>
         }
       </div>
       <div class="fields-info_item">
