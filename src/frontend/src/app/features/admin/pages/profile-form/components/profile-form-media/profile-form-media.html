@@ -17,7 +17,7 @@
       <h3>Добавление новых видео</h3>
       <app-input-file
         [resetVersion]="videoInputResetVersion()"
-        [accept]="'video/*'"
+        [accept]="'.mp4,.webm,.mov,.m4v'"
         [multiple]="true"
         (fileChange)="addVideos($event)"
       ></app-input-file>
@@ -47,7 +47,7 @@
       <h3>Добавление новых фотографий</h3>
       <app-input-file
         [resetVersion]="photoInputResetVersion()"
-        [accept]="'image/*'"
+        [accept]="'.png,.jpg,.jpeg,.gif,.webp'"
         [multiple]="true"
         (fileChange)="addPhotos($event)"
       ></app-input-file>

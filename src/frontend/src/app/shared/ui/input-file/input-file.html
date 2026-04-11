@@ -20,4 +20,9 @@
       {{ fileName || placeholder }}
     </span>
   </label>
+  @if (!isFileCorrect) {
+    <small class="input-file__error">
+      Выбран файл недопустимого формата. Допустимые форматы: {{ this.accept!.split(',').join(', ') }}
+    </small>
+  }
 </div>

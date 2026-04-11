@@ -31,6 +31,7 @@ export class InputFile {
   readonly inputId = `input-file-${Math.random().toString(36).slice(2, 9)}`;
   fileName = '';
   isPickerOpen = false;
+  isFileCorrect = true;
 
   onOpenPicker(): void {
     if (this.disabled) {
@@ -51,6 +52,16 @@ export class InputFile {
       return;
     }
 
+    for (const file of files) {
+      if (!this.isAccepted(file)) {
+        this.clearSelection();
+        this.fileChange.emit(null);
+        this.isFileCorrect = false;
+        return;
+      }
+    }
+
+    this.isFileCorrect = true;
     this.fileName = files.length === 1 ? files[0].name : `${files.length} файлов`;
     this.fileChange.emit(files);
   }
@@ -61,6 +72,31 @@ export class InputFile {
     if (this.nativeInput) {
       this.nativeInput.nativeElement.value = '';
     }
+  }
+
+  private isAccepted(file: File): boolean {
+    if (!this.accept) return true;
+
+    const fileType = (file.type || '').toLowerCase();
+    const fileExt = file.name.toLowerCase().split('.').pop() ?? '';
+
+    return this.accept
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .some((token) => {
+        if (!token) return false;
+
+        if (token.startsWith('.')) {
+          return fileExt === token.slice(1);
+        }
+
+        if (token.endsWith('/*')) {
+          const group = token.slice(0, -1);
+          return fileType.startsWith(group);
+        }
+
+        return fileType === token;
+      });
   }
 
   @HostListener('window:focus')

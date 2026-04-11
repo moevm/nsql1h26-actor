@@ -70,6 +70,10 @@
     color: vars.$color-text-white;
 }
 
+app-input-file {
+    margin-top: 20px;
+}
+
 @media (max-width: 680px) {
     .import-export__cards {
         flex-direction: column;

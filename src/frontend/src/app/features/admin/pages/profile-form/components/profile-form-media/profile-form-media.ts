@@ -47,7 +47,7 @@ export class ProfileFormMedia implements OnChanges, OnDestroy {
       return;
     }
 
-    this.pendingPhotoFiles.update((prev) => [...prev, ...Array.from(files)]);
+    this.pendingPhotoFiles.set(Array.from(files));
   }
 
   addVideos(files: FileList | null): void {
@@ -55,7 +55,7 @@ export class ProfileFormMedia implements OnChanges, OnDestroy {
       return;
     }
 
-    this.pendingVideoFiles.update((prev) => [...prev, ...Array.from(files)]);
+    this.pendingVideoFiles.set(Array.from(files));
   }
 
   removePhoto(id: string): void {

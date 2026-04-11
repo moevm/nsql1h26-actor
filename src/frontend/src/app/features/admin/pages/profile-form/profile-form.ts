@@ -1,6 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { catchError, concatMap, finalize, forkJoin, from, map, of, toArray } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   FormArray,
   FormBuilder,
@@ -563,6 +564,103 @@ export class ProfileForm {
     this.submitNotification.set(null);
   }
 
+  private extractBackendMessage(errorBody: unknown): string | null {
+    if (!errorBody) {
+      return null;
+    }
+
+    if (typeof errorBody === 'string') {
+      const message = errorBody.trim();
+      return message.length > 0 ? message : null;
+    }
+
+    if (typeof errorBody === 'object') {
+      const payload = errorBody as Record<string, unknown>;
+      const keys = ['message', 'detail', 'error', 'title', 'cause'];
+
+      for (const key of keys) {
+        const value = payload[key];
+        if (typeof value === 'string' && value.trim().length > 0) {
+          return value.trim();
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private getDefaultSubmitErrorMessage(action: 'create' | 'update'): string {
+    return action === 'create'
+      ? 'Не удалось создать профиль актера. Попробуйте еще раз.'
+      : 'Не удалось обновить профиль актера. Попробуйте еще раз.';
+  }
+
+  private getSubmitNotificationMessage(action: 'create' | 'update', error: unknown): string {
+    const defaultMessage = this.getDefaultSubmitErrorMessage(action);
+
+    if (error instanceof HttpErrorResponse) {
+      const backendMessage = this.extractBackendMessage(error.error);
+
+      if (error.status === 0) {
+        return 'Не удалось связаться с сервером. Проверьте подключение и попробуйте еще раз.';
+      }
+
+      if (error.status === 400) {
+        return backendMessage
+          ? `Ошибка в данных формы: ${backendMessage}`
+          : 'Ошибка в данных формы. Проверьте заполненные поля и попробуйте снова.';
+      }
+
+      if (error.status === 401) {
+        return 'Сессия истекла или доступ запрещен. Выполните вход как администратор и повторите попытку.';
+      }
+
+      if (error.status === 403) {
+        return 'Недостаточно прав для выполнения операции.';
+      }
+
+      if (error.status === 404) {
+        return action === 'update'
+          ? 'Профиль актера не найден. Возможно, он был удален.'
+          : 'Связанный ресурс не найден. Проверьте данные и попробуйте снова.';
+      }
+
+      if (error.status === 409) {
+        return 'Конфликт данных. Обновите страницу и повторите попытку.';
+      }
+
+      if (error.status === 413) {
+        return 'Один из загружаемых файлов слишком большой. Максимальный размер файла: 100 МБ.';
+      }
+
+      if (error.status === 415) {
+        return 'Недопустимый формат файла. Используйте поддерживаемые форматы фото и видео.';
+      }
+
+      if (error.status >= 500) {
+        return backendMessage
+          ? `Ошибка сервера: ${backendMessage}`
+          : 'Ошибка сервера. Попробуйте снова позже.';
+      }
+
+      return backendMessage ? `${defaultMessage} ${backendMessage}` : defaultMessage;
+    }
+
+    if (error instanceof Error) {
+      const message = error.message.trim();
+
+      if (message === 'Failed to upload main photo') {
+        return 'Не удалось загрузить главное фото. Проверьте файл и повторите попытку.';
+      }
+
+      if (message === 'Failed to create actor') {
+        return 'Сервер вернул некорректный ответ при создании профиля.';
+      }
+    }
+
+    return defaultMessage;
+  }
+
   onSubmit(): void {
     if (this.profile_form.invalid || this.isSubmitting()) {
       this.profile_form.markAllAsTouched();
@@ -594,10 +692,7 @@ export class ProfileForm {
           },
           error: (error) => {
             console.error('[ProfileForm] Failed to create actor or upload media:', error);
-            this.setSubmitNotification(
-              'error',
-              'Не удалось создать профиль актера. Попробуйте еще раз.',
-            );
+            this.setSubmitNotification('error', this.getSubmitNotificationMessage('create', error));
           },
         });
     } else {
@@ -626,12 +721,10 @@ export class ProfileForm {
           },
           error: (error) => {
             console.error('[ProfileForm] Failed to update actor or upload new media:', error);
-            this.setSubmitNotification(
-              'error',
-              'Не удалось обновить профиль актера. Попробуйте еще раз.',
-            );
+            this.setSubmitNotification('error', this.getSubmitNotificationMessage('update', error));
           },
         });
     }
   }
 }
+

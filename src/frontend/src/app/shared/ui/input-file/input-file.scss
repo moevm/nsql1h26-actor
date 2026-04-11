@@ -97,3 +97,12 @@
     color: vars.$color-text-gray;
   }
 }
+
+.input-file__error{
+  position: absolute;
+  top: -18px;
+  right: 0;
+  text-align: right;
+  font-size: 13px;
+  color: vars.$color-accent-primary;
+}
