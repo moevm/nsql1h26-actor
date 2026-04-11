@@ -1,5 +1,6 @@
 package com.NOSQL.NOSQL.service
 
+import com.NOSQL.NOSQL.MediaTestBytes
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ContactLinkItem
@@ -372,7 +373,7 @@ class ActorServiceTest {
         @Test
         fun `успех — удаляет медиа актёра из GridFS`() {
             val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
-            val file = org.springframework.mock.web.MockMultipartFile("file", "photo.jpg", "image/jpeg", "image bytes".toByteArray())
+            val file = org.springframework.mock.web.MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
             val uploadRes = mediaService.upload(id, file.inputStream, "photo.jpg", "image/jpeg", com.NOSQL.NOSQL.model.generated.ActorMediaType.photo, null)
             val mediaId = uploadRes.mediaId!!
             assertThat(mediaService.getResource(id, mediaId).exists()).isTrue()
@@ -385,8 +386,8 @@ class ActorServiceTest {
         @Test
         fun `успех — удаляет все медиа (фото и видео) актёра`() {
             val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
-            val photoFile = org.springframework.mock.web.MockMultipartFile("file", "photo.jpg", "image/jpeg", "photo".toByteArray())
-            val videoFile = org.springframework.mock.web.MockMultipartFile("file", "video.mp4", "video/mp4", "video".toByteArray())
+            val photoFile = org.springframework.mock.web.MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
+            val videoFile = org.springframework.mock.web.MockMultipartFile("file", "video.mp4", "video/mp4", MediaTestBytes.MP4)
             val photoRes = mediaService.upload(id, photoFile.inputStream, "photo.jpg", "image/jpeg", com.NOSQL.NOSQL.model.generated.ActorMediaType.photo, null)
             val videoRes = mediaService.upload(id, videoFile.inputStream, "video.mp4", "video/mp4", com.NOSQL.NOSQL.model.generated.ActorMediaType.video, null)
             actorService.deleteById(id)

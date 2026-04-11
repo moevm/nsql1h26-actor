@@ -1,5 +1,6 @@
 package com.NOSQL.NOSQL.api
 
+import com.NOSQL.NOSQL.MediaTestBytes
 import com.NOSQL.NOSQL.model.AdminDocument
 import com.NOSQL.NOSQL.repository.AdminRepository
 import com.NOSQL.NOSQL.repository.ActorRepository
@@ -183,7 +184,7 @@ class ApiE2ETest {
             .andExpect(jsonPath("$.films[0].title").value("Фильм"))
 
         // 5) Upload photo — POST /v1/actors/{id}/media
-        val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", "image bytes".toByteArray())
+        val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
         val uploadRes = mockMvc.perform(
             MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
                 .header("Authorization", "Bearer $token")
@@ -366,7 +367,7 @@ class ApiE2ETest {
                 .content("""{"firstName":"С","lastName":"Медиа","education":[{"uniId":"$uniId"}]}""")
         ).andExpect(status().isCreated()).andReturn()
         val actorId = mapper.readTree(actorRes.response.contentAsString)["id"].asText()
-        val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", "image bytes".toByteArray())
+        val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
         val uploadRes = mockMvc.perform(
             MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
                 .header("Authorization", "Bearer $token")

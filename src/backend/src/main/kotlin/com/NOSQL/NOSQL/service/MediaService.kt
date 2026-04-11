@@ -34,8 +34,25 @@ class MediaService(
                 errorCode = "ACTOR_NOT_FOUND"
             )
         }
+        val (header, fullStream) = MediaUploadValidator.peekHeaderAndWrap(inputStream)
+        val validationError = MediaUploadValidator.validate(type, filename, header)
+        if (validationError != null) {
+            log.warn(
+                "Media validation failed: actorId={}, filename={}, type={}, errorCode={}",
+                actorId,
+                filename,
+                type,
+                validationError
+            )
+            fullStream.close()
+            return MediaUploadResponse(
+                status = MediaUploadResponse.Status.failed,
+                mediaId = null,
+                errorCode = validationError
+            )
+        }
         val mediaId = mediaRepository.store(
-            inputStream = inputStream,
+            inputStream = fullStream,
             filename = filename,
             contentType = contentType,
             actorId = actorId,

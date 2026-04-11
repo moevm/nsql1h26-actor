@@ -18,6 +18,10 @@ import org.springframework.core.io.Resource
 import org.springframework.http.CacheControl
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
+import org.springframework.web.multipart.MultipartHttpServletRequest
+import org.springframework.web.util.WebUtils
 import java.util.concurrent.TimeUnit
 
 @RestController
@@ -107,7 +111,7 @@ class ActorController(
         caption: String?
     ): ResponseEntity<MediaUploadResponse> {
         log.info("POST /v1/actors/{}/media type={}", id, type)
-        val filename = file.getFilename() ?: "file"
+        val filename = resolveMultipartPartFilename("file", file)
         val response = mediaService.upload(
             actorId = id,
             inputStream = file.inputStream,
@@ -140,5 +144,12 @@ class ActorController(
         log.info("DELETE /v1/actors/{}/media/{}", actorId, mediaId)
         mediaService.delete(actorId, mediaId)
         return ResponseEntity.noContent().build()
+    }
+
+    private fun resolveMultipartPartFilename(partName: String, partResource: Resource): String {
+        val attrs = RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes
+        val multipart = attrs?.request?.let { WebUtils.getNativeRequest(it, MultipartHttpServletRequest::class.java) }
+        val fromMultipart = multipart?.getFile(partName)?.originalFilename?.takeIf { it.isNotBlank() }
+        return fromMultipart ?: partResource.filename?.takeIf { it.isNotBlank() } ?: "file"
     }
 }

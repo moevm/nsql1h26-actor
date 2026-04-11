@@ -1,5 +1,6 @@
 package com.NOSQL.NOSQL.service
 
+import com.NOSQL.NOSQL.MediaTestBytes
 import com.NOSQL.NOSQL.model.AdminDocument
 import com.NOSQL.NOSQL.model.catalog.CATALOG_VERSION
 import com.NOSQL.NOSQL.model.generated.CatalogSnapshot
@@ -28,6 +29,7 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import java.io.ByteArrayInputStream
 import java.time.Instant
 import java.time.LocalDate
 
@@ -123,7 +125,7 @@ class CatalogServiceTest {
             )
             mediaService.upload(
                 actorId = actorId,
-                inputStream = "hello".byteInputStream(),
+                inputStream = ByteArrayInputStream(MediaTestBytes.JPEG),
                 filename = "f.jpg",
                 contentType = "image/jpeg",
                 type = ActorMediaType.photo,
@@ -164,7 +166,7 @@ class CatalogServiceTest {
             ).id!!
             mediaService.upload(
                 actorId = actorId,
-                inputStream = "binary".byteInputStream(),
+                inputStream = ByteArrayInputStream(MediaTestBytes.PNG),
                 filename = "x.png",
                 contentType = "image/png",
                 type = ActorMediaType.photo,
@@ -199,7 +201,7 @@ class CatalogServiceTest {
             val mediaId = actor.photos!![0].id!!
             val resource = mediaService.getResource(actorId = actor.id!!, mediaId = mediaId)
             val bytes = resource.inputStream.use { it.readAllBytes() }
-            assertThat(bytes).isEqualTo("binary".toByteArray())
+            assertThat(bytes).isEqualTo(MediaTestBytes.PNG)
         }
 
         @Test

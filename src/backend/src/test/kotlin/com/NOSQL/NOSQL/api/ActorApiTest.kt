@@ -1,5 +1,6 @@
 package com.NOSQL.NOSQL.api
 
+import com.NOSQL.NOSQL.MediaTestBytes
 import com.NOSQL.NOSQL.model.AdminDocument
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.EducationCreateItem
@@ -312,7 +313,7 @@ class ActorApiTest {
     inner class PostMedia {
         @Test
         fun `201 upload photo`() {
-            val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", "image data".toByteArray())
+            val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
             mockMvc.perform(
                 MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
                     .file(file)
@@ -323,6 +324,20 @@ class ActorApiTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("ok"))
                 .andExpect(jsonPath("$.mediaId").exists())
+        }
+
+        @Test
+        fun `400 when file signature does not match extension`() {
+            val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.PNG)
+            mockMvc.perform(
+                MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
+                    .file(file)
+                    .header("Authorization", "Bearer $token")
+                    .param("type", "photo")
+            )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("failed"))
+                .andExpect(jsonPath("$.errorCode").value("INVALID_MEDIA_SIGNATURE"))
         }
 
         @Test
@@ -344,7 +359,7 @@ class ActorApiTest {
     inner class GetMedia {
         @Test
         fun `200 get media`() {
-            val file = MockMultipartFile("file", "p.jpg", "image/jpeg", "bytes".toByteArray())
+            val file = MockMultipartFile("file", "p.jpg", "image/jpeg", MediaTestBytes.JPEG)
             mockMvc.perform(
                 MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
                     .file(file)
@@ -376,7 +391,7 @@ class ActorApiTest {
     inner class DeleteMedia {
         @Test
         fun `204 delete media`() {
-            val file = MockMultipartFile("file", "p.jpg", "image/jpeg", "bytes".toByteArray())
+            val file = MockMultipartFile("file", "p.jpg", "image/jpeg", MediaTestBytes.JPEG)
             val upload = mockMvc.perform(
                 MockMvcRequestBuilders.multipart("/v1/actors/$actorId/media")
                     .file(file)

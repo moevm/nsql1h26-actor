@@ -1,5 +1,6 @@
 package com.NOSQL.NOSQL.service
 
+import com.NOSQL.NOSQL.MediaTestBytes
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.MediaUploadResponse
@@ -65,22 +66,22 @@ class MediaServiceTest {
         mongoTemplate.db.getCollection("media.chunks").deleteMany(Document())
         mongoTemplate.db.getCollection("media.files").deleteMany(Document())
         actorRepository.deleteAll()
-        actorId = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
+        actorId = actorService.create(ActorCreate(firstName = "John", lastName = "Doe")).id!!
     }
 
     @Nested
     @DisplayName("upload")
     inner class Upload {
         @Test
-        fun `фото — success, mediaId в ответе, фото в документе актёра`() {
-            val data = "fake image bytes".toByteArray()
+        fun `photo upload succeeds and persists on actor`() {
+            val data = MediaTestBytes.JPEG
             val res = mediaService.upload(
                 actorId = actorId,
                 inputStream = ByteArrayInputStream(data),
                 filename = "photo.jpg",
                 contentType = "image/jpeg",
                 type = ActorMediaType.photo,
-                caption = "Портрет"
+                caption = "Portrait"
             )
             assertThat(res.status).isEqualTo(MediaUploadResponse.Status.ok)
             assertThat(res.mediaId).isNotNull()
@@ -88,18 +89,18 @@ class MediaServiceTest {
             val actor = actorRepository.findById(actorId).get()
             assertThat(actor.photos).hasSize(1)
             assertThat(actor.photos!![0].id).isEqualTo(res.mediaId)
-            assertThat(actor.photos!![0].caption).isEqualTo("Портрет")
+            assertThat(actor.photos!![0].caption).isEqualTo("Portrait")
         }
 
         @Test
-        fun `видео — success`() {
+        fun `video upload succeeds`() {
             val res = mediaService.upload(
                 actorId = actorId,
-                inputStream = ByteArrayInputStream("video".toByteArray()),
+                inputStream = ByteArrayInputStream(MediaTestBytes.MP4),
                 filename = "clip.mp4",
                 contentType = "video/mp4",
                 type = ActorMediaType.video,
-                caption = "Интервью"
+                caption = "Interview"
             )
             assertThat(res.status).isEqualTo(MediaUploadResponse.Status.ok)
             assertThat(res.mediaId).isNotNull()
@@ -109,7 +110,7 @@ class MediaServiceTest {
         }
 
         @Test
-        fun `актёр не найден — failed и ACTOR_NOT_FOUND`() {
+        fun `actor not found returns ACTOR_NOT_FOUND`() {
             val res = mediaService.upload(
                 actorId = "000000000000000000000000",
                 inputStream = ByteArrayInputStream("x".toByteArray()),
@@ -122,16 +123,46 @@ class MediaServiceTest {
             assertThat(res.errorCode).isEqualTo("ACTOR_NOT_FOUND")
             assertThat(res.mediaId).isNull()
         }
+
+        @Test
+        fun `wrong extension for photo type returns INVALID_MEDIA_EXTENSION`() {
+            val res = mediaService.upload(
+                actorId = actorId,
+                inputStream = ByteArrayInputStream(MediaTestBytes.JPEG),
+                filename = "x.mp4",
+                contentType = "video/mp4",
+                type = ActorMediaType.photo,
+                caption = null
+            )
+            assertThat(res.status).isEqualTo(MediaUploadResponse.Status.failed)
+            assertThat(res.errorCode).isEqualTo(MediaUploadValidator.INVALID_MEDIA_EXTENSION)
+            assertThat(res.mediaId).isNull()
+        }
+
+        @Test
+        fun `content mismatch with extension returns INVALID_MEDIA_SIGNATURE`() {
+            val res = mediaService.upload(
+                actorId = actorId,
+                inputStream = ByteArrayInputStream(MediaTestBytes.PNG),
+                filename = "photo.jpg",
+                contentType = "image/jpeg",
+                type = ActorMediaType.photo,
+                caption = null
+            )
+            assertThat(res.status).isEqualTo(MediaUploadResponse.Status.failed)
+            assertThat(res.errorCode).isEqualTo(MediaUploadValidator.INVALID_MEDIA_SIGNATURE)
+            assertThat(res.mediaId).isNull()
+        }
     }
 
     @Nested
     @DisplayName("getResource")
     inner class GetResource {
         @Test
-        fun `успех — возвращает Resource`() {
+        fun `getResource returns existing resource`() {
             val res = mediaService.upload(
                 actorId = actorId,
-                inputStream = ByteArrayInputStream("image data".toByteArray()),
+                inputStream = ByteArrayInputStream(MediaTestBytes.JPEG),
                 filename = "p.jpg",
                 contentType = "image/jpeg",
                 type = ActorMediaType.photo,
@@ -139,11 +170,11 @@ class MediaServiceTest {
             )
             val resource = mediaService.getResource(actorId, res.mediaId!!)
             assertThat(resource.exists()).isTrue()
-            assertThat(resource.contentLength()).isEqualTo(10L)
+            assertThat(resource.contentLength()).isEqualTo(MediaTestBytes.JPEG.size.toLong())
         }
 
         @Test
-        fun `медиа не найдено — 404`() {
+        fun `getResource returns 404 when media missing`() {
             val ex = assertThrows<ResponseStatusException> {
                 mediaService.getResource(actorId, "000000000000000000000000")
             }
@@ -152,11 +183,11 @@ class MediaServiceTest {
         }
 
         @Test
-        fun `неверный actorId для существующего mediaId — 404`() {
+        fun `getResource returns 404 when actorId does not match`() {
             val res = mediaService.upload(
                 actorId = actorId,
-                inputStream = ByteArrayInputStream("x".toByteArray()),
-                filename = "x",
+                inputStream = ByteArrayInputStream(MediaTestBytes.JPEG),
+                filename = "x.jpg",
                 contentType = null,
                 type = ActorMediaType.photo,
                 caption = null
@@ -172,10 +203,10 @@ class MediaServiceTest {
     @DisplayName("delete")
     inner class Delete {
         @Test
-        fun `удаление — GridFS и ссылки в актёре очищены`() {
+        fun `delete removes GridFS file and actor references`() {
             val res = mediaService.upload(
                 actorId = actorId,
-                inputStream = ByteArrayInputStream("data".toByteArray()),
+                inputStream = ByteArrayInputStream(MediaTestBytes.JPEG),
                 filename = "p.jpg",
                 contentType = "image/jpeg",
                 type = ActorMediaType.photo,
@@ -189,7 +220,7 @@ class MediaServiceTest {
         }
 
         @Test
-        fun `актёр не найден — 404`() {
+        fun `delete returns 404 when actor not found`() {
             val ex = assertThrows<ResponseStatusException> {
                 mediaService.delete("000000000000000000000000", "000000000000000000000000")
             }
@@ -198,7 +229,7 @@ class MediaServiceTest {
         }
 
         @Test
-        fun `медиа не найдено — 404`() {
+        fun `delete returns 404 when media not found`() {
             val ex = assertThrows<ResponseStatusException> {
                 mediaService.delete(actorId, "000000000000000000000000")
             }
