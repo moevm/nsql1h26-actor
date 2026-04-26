@@ -279,6 +279,32 @@ paths:
               schema:
                 $ref: './schemas.yaml#/components/schemas/ActorListResponse'
 
+  /actors/stats:
+    post:
+      summary: Aggregated chart data (series by groupBy, x from xAxis)
+      description: |
+        Applies the same filters as GET /actors (optional body.filters).
+        For xAxis filmYear / playYear, each film or play with a year produces a row (counts can exceed actor count).
+        For other xAxis fields, one row per actor when the value is present.
+        groupBy genre / university uses all values on the actor (multiple series per row).
+      operationId: v1ActorsStatsPost
+      tags: [actors]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/components/schemas/ActorStatsRequest'
+      responses:
+        '200':
+          description: Series for charts (sorted series names and x values)
+          content:
+            application/json:
+              schema:
+                $ref: './schemas.yaml#/components/schemas/ActorStatsResponse'
+        '400':
+          description: Invalid xAxis, groupBy, or filter combination
+
   /actors/{id}:
     get:
       summary: Get actor by id

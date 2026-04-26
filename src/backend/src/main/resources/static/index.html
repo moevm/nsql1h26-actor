@@ -340,7 +340,21 @@
         background: var(--accent);
         color: var(--bg);
       }
+
+      .chart-panel {
+        margin-top: 16px;
+        padding: 16px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        max-width: 920px;
+      }
+      .chart-panel canvas {
+        max-width: 100%;
+        height: auto !important;
+      }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <h1>Actor catalog API test</h1>
@@ -349,7 +363,7 @@
       <a href="/swagger-ui.html" target="_blank" rel="noopener">Swagger UI</a>
     </p>
     <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 24px">
-      This page exercises all REST operations: auth, universities (create/search/PATCH/delete), actors (list with total/includeItems, get/create/PATCH/delete), media (upload/get/delete), catalog (export/import JSON).
+      This page exercises all REST operations: auth, universities (create/search/PATCH/delete), actors (list with total/includeItems, chart stats POST, get/create/PATCH/delete), media (upload/get/delete), catalog (export/import JSON).
     </p>
 
     <section>
@@ -431,6 +445,49 @@
       <button type="button" id="btnSearch">Search</button>
       <div id="searchOut" class="out" style="display: none"></div>
       <div id="searchTable"></div>
+    </section>
+
+    <section>
+      <h2>3a. Статистика для графика (POST /actors/stats)</h2>
+      <p style="color: var(--muted); font-size: 0.9rem">
+        Те же фильтры, что в п.&nbsp;3 (заполните поля выше и отметьте «передавать фильтры»). Ответ:
+        <code>series[]</code> с точками <code>{ x, value }</code>. Линии — по одной на каждое значение
+        <code>groupBy</code>.
+      </p>
+      <div class="row">
+        <div>
+          <label>Ось X (xAxis)</label>
+          <select id="statXAxis" style="width: 160px">
+            <option value="age">age</option>
+            <option value="height">height</option>
+            <option value="weight">weight</option>
+            <option value="birthYear">birthYear</option>
+            <option value="filmYear">filmYear</option>
+            <option value="playYear">playYear</option>
+          </select>
+        </div>
+        <div>
+          <label>Группировка (groupBy)</label>
+          <select id="statGroupBy" style="width: 160px">
+            <option value="gender">gender</option>
+            <option value="title">title</option>
+            <option value="eyeColor">eyeColor</option>
+            <option value="hairColor">hairColor</option>
+            <option value="genre">genre</option>
+            <option value="university">university</option>
+          </select>
+        </div>
+        <div style="align-self: center; padding-bottom: 8px">
+          <label><input type="checkbox" id="statUseFilters" checked /> Передавать фильтры из п.&nbsp;3</label>
+        </div>
+        <button type="button" id="btnStatsLoad">Загрузить график</button>
+      </div>
+      <label>Тело запроса (после «Загрузить» — фактически отправленный JSON)</label>
+      <textarea id="statBodyPreview" class="wide-json" spellcheck="false" rows="6" readonly tabindex="-1"></textarea>
+      <div class="chart-panel">
+        <canvas id="statsChart" width="860" height="380"></canvas>
+      </div>
+      <div id="statsOut" class="out" style="display: none; max-height: 240px"></div>
     </section>
 
     <section>
@@ -756,6 +813,146 @@
           table.innerHTML = "";
         }
       };
+
+      function buildActorFiltersObject() {
+        const f = {};
+        const name = document.getElementById("filterName").value.trim();
+        if (name) f.name = name;
+        const gender = document.getElementById("filterGender").value;
+        if (gender) f.gender = gender;
+        const ageFrom = document.getElementById("filterAgeFrom").value;
+        if (ageFrom) f.ageFrom = parseInt(ageFrom, 10);
+        const ageTo = document.getElementById("filterAgeTo").value;
+        if (ageTo) f.ageTo = parseInt(ageTo, 10);
+        const heightMin = document.getElementById("filterHeightMin").value;
+        if (heightMin) f.heightMin = parseInt(heightMin, 10);
+        const heightMax = document.getElementById("filterHeightMax").value;
+        if (heightMax) f.heightMax = parseInt(heightMax, 10);
+        const weightMin = document.getElementById("filterWeightMin").value;
+        if (weightMin) f.weightMin = parseInt(weightMin, 10);
+        const weightMax = document.getElementById("filterWeightMax").value;
+        if (weightMax) f.weightMax = parseInt(weightMax, 10);
+        const activityYearFrom = document.getElementById("filterActivityYearFrom").value;
+        if (activityYearFrom) f.activityYearFrom = parseInt(activityYearFrom, 10);
+        const activityYearTo = document.getElementById("filterActivityYearTo").value;
+        if (activityYearTo) f.activityYearTo = parseInt(activityYearTo, 10);
+        const hairColor = document.getElementById("filterHairColor").value.trim();
+        if (hairColor) f.hairColor = hairColor;
+        const eyeColor = document.getElementById("filterEyeColor").value.trim();
+        if (eyeColor) f.eyeColor = eyeColor;
+        const genresRaw = document.getElementById("filterGenres").value.trim();
+        if (genresRaw) {
+          const g = genresRaw.split(",").map((s) => s.trim()).filter(Boolean);
+          if (g.length) f.genres = g;
+        }
+        const theatre = document.getElementById("filterTheatre").value.trim();
+        if (theatre) f.theatre = theatre;
+        const title = document.getElementById("filterTitle").value;
+        if (title) f.title = title;
+        const universityId = document.getElementById("filterUniversityId").value.trim();
+        if (universityId) f.universityId = universityId;
+        return Object.keys(f).length ? f : null;
+      }
+
+      function refreshStatBodyPreview() {
+        const body = {
+          xAxis: document.getElementById("statXAxis").value,
+          groupBy: document.getElementById("statGroupBy").value,
+        };
+        if (document.getElementById("statUseFilters").checked) {
+          const filters = buildActorFiltersObject();
+          if (filters) body.filters = filters;
+        }
+        document.getElementById("statBodyPreview").value = JSON.stringify(body, null, 2);
+      }
+
+      ["statXAxis", "statGroupBy", "statUseFilters"].forEach((id) => {
+        document.getElementById(id).addEventListener("change", refreshStatBodyPreview);
+      });
+
+      let statsChartInstance = null;
+      document.getElementById("btnStatsLoad").onclick = async () => {
+        const out = document.getElementById("statsOut");
+        refreshStatBodyPreview();
+        const body = JSON.parse(document.getElementById("statBodyPreview").value);
+        const res = await api("POST", "/actors/stats", body);
+        if (!res.ok) {
+          showOut(out, res.data ? JSON.stringify(res.data, null, 2) : "HTTP " + res.status, true);
+          return;
+        }
+        showOut(out, JSON.stringify(res.data, null, 2));
+        const series = res.data && res.data.series ? res.data.series : [];
+        const xs = new Set();
+        series.forEach((s) => (s.data || []).forEach((p) => xs.add(Number(p.x))));
+        const labelNums = Array.from(xs).sort((a, b) => a - b);
+        const labels = labelNums.map(String);
+        if (statsChartInstance) {
+          statsChartInstance.destroy();
+          statsChartInstance = null;
+        }
+        if (!labelNums.length) {
+          return;
+        }
+        const n = series.length;
+        const colors = series.map((_, i) => {
+          const h = Math.round((360 * i) / Math.max(n, 1));
+          return "hsl(" + h + ", 70%, 58%)";
+        });
+        if (typeof Chart === "undefined") {
+          showOut(out, document.getElementById("statBodyPreview").value + "\n\nChart.js не загрузился (проверьте CDN).", true);
+          return;
+        }
+        const canvas = document.getElementById("statsChart");
+        const ctx = canvas.getContext("2d");
+        statsChartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: series.map((s, i) => ({
+              label: s.name,
+              data: labelNums.map((x) => {
+                const pt = (s.data || []).find((p) => Number(p.x) === x);
+                return pt != null ? Number(pt.value) : null;
+              }),
+              borderColor: colors[i],
+              backgroundColor: colors[i].replace(")", ", 0.14)").replace("hsl(", "hsla("),
+              tension: 0.25,
+              fill: false,
+              spanGaps: false,
+            })),
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                labels: { color: "#a1a1aa", boxWidth: 12 },
+              },
+              title: {
+                display: true,
+                text: "x: " + (body.xAxis || "") + " · series: " + (body.groupBy || ""),
+                color: "#e4e4e7",
+                font: { size: 14 },
+              },
+            },
+            scales: {
+              x: {
+                title: { display: true, text: String(body.xAxis || "x"), color: "#71717a" },
+                ticks: { color: "#a1a1aa" },
+                grid: { color: "rgba(255,255,255,0.07)" },
+              },
+              y: {
+                beginAtZero: true,
+                title: { display: true, text: "value (count)", color: "#71717a" },
+                ticks: { color: "#a1a1aa", precision: 0 },
+                grid: { color: "rgba(255,255,255,0.07)" },
+              },
+            },
+          },
+        });
+      };
+
+      refreshStatBodyPreview();
 
       // 3. Search actors
       document.getElementById("btnSearch").onclick = async () => {

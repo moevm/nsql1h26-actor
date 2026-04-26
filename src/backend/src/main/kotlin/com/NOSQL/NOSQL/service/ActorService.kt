@@ -7,7 +7,13 @@ import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorListResponse
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
+import com.NOSQL.NOSQL.model.generated.ActorStatsPoint
+import com.NOSQL.NOSQL.model.generated.ActorStatsRequest
+import com.NOSQL.NOSQL.model.generated.ActorStatsResponse
+import com.NOSQL.NOSQL.model.generated.ActorStatsSeries
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
+import com.NOSQL.NOSQL.model.generated.ChartStatsGroupBy
+import com.NOSQL.NOSQL.model.generated.ChartStatsXAxis
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.model.generated.UniversityInfo
@@ -23,8 +29,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import org.bson.Document
+import java.math.BigDecimal
 import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
+import java.time.Period
 
 @Service
 class ActorService(
@@ -162,6 +171,105 @@ class ActorService(
         val actors = docs.map { MappingToApi.documentToActor(it) }.map(::enrichWithUniversities)
         return ActorListResponse(total = total, actors = actors)
     }
+
+    fun actorChartStats(request: ActorStatsRequest): ActorStatsResponse {
+        val f = request.filters
+        val query = buildFilterQuery(
+            gender = f?.gender,
+            ageFrom = f?.ageFrom,
+            ageTo = f?.ageTo,
+            weightMin = f?.weightMin,
+            weightMax = f?.weightMax,
+            heightMin = f?.heightMin,
+            heightMax = f?.heightMax,
+            activityYearFrom = f?.activityYearFrom,
+            activityYearTo = f?.activityYearTo,
+            universityId = f?.universityId,
+            theatre = f?.theatre,
+            title = f?.title,
+            hairColor = f?.hairColor,
+            eyeColor = f?.eyeColor,
+            genres = f?.genres,
+            name = f?.name,
+        )
+        val docs = mongoTemplate.find(query, ActorDocument::class.java)
+        val bySeries = mutableMapOf<String, MutableMap<Int, Long>>()
+        for (doc in docs) {
+            val xs = expandChartX(doc, request.xAxis)
+            if (xs.isEmpty()) continue
+            val groups = expandChartGroups(doc, request.groupBy)
+            for (x in xs) {
+                for (g in groups) {
+                    bySeries.getOrPut(g) { mutableMapOf() }.merge(x, 1L, Long::plus)
+                }
+            }
+        }
+        val series = bySeries.keys.sorted().map { name ->
+            ActorStatsSeries(
+                name = name,
+                data = bySeries[name]!!.toSortedMap().map { (x, v) ->
+                    ActorStatsPoint(
+                        x = BigDecimal.valueOf(x.toLong()),
+                        `value` = BigDecimal.valueOf(v),
+                    )
+                },
+            )
+        }
+        return ActorStatsResponse(series = series)
+    }
+
+    private fun expandChartX(doc: ActorDocument, xAxis: ChartStatsXAxis): List<Int> =
+        when (xAxis) {
+            ChartStatsXAxis.age ->
+                listOfNotNull(doc.birthDate?.let { Period.between(it, LocalDate.now()).years })
+            ChartStatsXAxis.height -> listOfNotNull(doc.height)
+            ChartStatsXAxis.weight -> listOfNotNull(doc.weight)
+            ChartStatsXAxis.birthYear -> listOfNotNull(doc.birthDate?.year)
+            ChartStatsXAxis.filmYear ->
+                doc.films?.mapNotNull { it.year } ?: emptyList()
+            ChartStatsXAxis.playYear ->
+                doc.theatrePlayItems?.flatMap { it.plays ?: emptyList() }?.mapNotNull { it.year }
+                    ?: emptyList()
+        }
+
+    private fun expandChartGroups(doc: ActorDocument, groupBy: ChartStatsGroupBy): List<String> =
+        when (groupBy) {
+            ChartStatsGroupBy.gender -> listOf(chartLabelGender(doc.gender))
+            ChartStatsGroupBy.title -> listOf(chartLabelTitle(doc.title))
+            ChartStatsGroupBy.eyeColor ->
+                listOf(doc.eyeColor?.trim()?.takeIf { it.isNotEmpty() } ?: "—")
+            ChartStatsGroupBy.hairColor ->
+                listOf(doc.hairColor?.trim()?.takeIf { it.isNotEmpty() } ?: "—")
+            ChartStatsGroupBy.genre -> {
+                val gs = doc.genres?.map { it.trim() }?.filter { it.isNotEmpty() }?.distinct().orEmpty()
+                if (gs.isEmpty()) listOf("—") else gs
+            }
+            ChartStatsGroupBy.university -> {
+                val ids = doc.education?.mapNotNull { it.uniId }?.distinct().orEmpty()
+                if (ids.isEmpty()) {
+                    listOf("—")
+                } else {
+                    ids.map { id ->
+                        universityRepository.findById(id).orElse(null)?.name?.takeIf { it.isNotBlank() } ?: id
+                    }
+                }
+            }
+        }
+
+    private fun chartLabelTitle(t: com.NOSQL.NOSQL.model.domain.Title?): String =
+        when (t) {
+            com.NOSQL.NOSQL.model.domain.Title.honored -> "Заслуженный артист"
+            com.NOSQL.NOSQL.model.domain.Title.national -> "Народный артист"
+            com.NOSQL.NOSQL.model.domain.Title.none -> "Без звания"
+            null -> "—"
+        }
+
+    private fun chartLabelGender(g: com.NOSQL.NOSQL.model.domain.Gender?): String =
+        when (g) {
+            com.NOSQL.NOSQL.model.domain.Gender.male -> "Мужской"
+            com.NOSQL.NOSQL.model.domain.Gender.female -> "Женский"
+            null -> "—"
+        }
 
     private fun buildFilterQuery(
         gender: Gender?,

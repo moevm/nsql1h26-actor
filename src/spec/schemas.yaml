@@ -20,6 +20,116 @@ components:
       pattern: "^[0-9a-fA-F]{24}$"
       description: "MongoDB ObjectId (24 hex characters)"
 
+    ChartStatsXAxis:
+      type: string
+      description: Numeric bucket for the chart horizontal axis
+      enum:
+        - age
+        - height
+        - weight
+        - birthYear
+        - filmYear
+        - playYear
+
+    ChartStatsGroupBy:
+      type: string
+      description: Field that splits data into named series
+      enum:
+        - gender
+        - title
+        - eyeColor
+        - hairColor
+        - genre
+        - university
+
+    ActorStatsFilters:
+      type: object
+      description: Same semantics as GET /actors query parameters
+      properties:
+        gender:
+          $ref: '#/components/schemas/Gender'
+        ageFrom:
+          type: integer
+          description: Minimum age (years)
+        ageTo:
+          type: integer
+          description: Maximum age (years)
+        weightMin:
+          type: integer
+        weightMax:
+          type: integer
+        heightMin:
+          type: integer
+          description: Minimum height (cm)
+        heightMax:
+          type: integer
+          description: Maximum height (cm)
+        activityYearFrom:
+          type: integer
+        activityYearTo:
+          type: integer
+        universityId:
+          $ref: '#/components/schemas/MongoId'
+        theatre:
+          type: string
+        title:
+          $ref: '#/components/schemas/Title'
+        hairColor:
+          type: string
+        eyeColor:
+          type: string
+        genres:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+          description: Substring match on full name, case-insensitive
+
+    ActorStatsRequest:
+      type: object
+      required: [xAxis, groupBy]
+      properties:
+        filters:
+          $ref: '#/components/schemas/ActorStatsFilters'
+          nullable: true
+        xAxis:
+          $ref: '#/components/schemas/ChartStatsXAxis'
+        groupBy:
+          $ref: '#/components/schemas/ChartStatsGroupBy'
+
+    ActorStatsPoint:
+      type: object
+      required: [x, value]
+      properties:
+        x:
+          type: number
+          description: Bucket on the horizontal axis (integer values encoded as number)
+        value:
+          type: number
+          description: Count of rows in this bucket
+
+    ActorStatsSeries:
+      type: object
+      required: [name, data]
+      properties:
+        name:
+          type: string
+          description: Display label for the series (groupBy value)
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActorStatsPoint'
+
+    ActorStatsResponse:
+      type: object
+      required: [series]
+      properties:
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActorStatsSeries'
+
     ActorListResponse:
       type: object
       required: [total, actors]

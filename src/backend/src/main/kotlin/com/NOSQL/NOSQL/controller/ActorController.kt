@@ -5,6 +5,8 @@ import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
 import com.NOSQL.NOSQL.model.generated.ActorListResponse
+import com.NOSQL.NOSQL.model.generated.ActorStatsRequest
+import com.NOSQL.NOSQL.model.generated.ActorStatsResponse
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.Gender
@@ -101,6 +103,12 @@ class ActorController(
             offset = offset,
             includeItems = includeItems,
         )
+        return ResponseEntity.ok(body)
+    }
+
+    override fun v1ActorsStatsPost(actorStatsRequest: ActorStatsRequest): ResponseEntity<ActorStatsResponse> {
+        log.info("POST /v1/actors/stats xAxis={} groupBy={}", actorStatsRequest.xAxis, actorStatsRequest.groupBy)
+        val body = actorService.actorChartStats(actorStatsRequest)
         return ResponseEntity.ok(body)
     }
 

@@ -1,7 +1,9 @@
 package com.NOSQL.NOSQL.config
 
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -9,6 +11,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler {
 
     private val log = LoggerFactory.getLogger(javaClass)
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleUnreadableMessage(e: HttpMessageNotReadableException): ResponseEntity<Map<String, String>> {
+        val msg = e.mostSpecificCause?.message ?: e.message ?: "Invalid request body"
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            mapOf("error" to "Bad Request", "message" to msg),
+        )
+    }
 
     @ExceptionHandler(Throwable::class)
     fun handleAny(e: Throwable): ResponseEntity<Map<String, Any>> {
