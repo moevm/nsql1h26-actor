@@ -43,7 +43,6 @@ import java.time.LocalDate
 @SpringBootTest
 @ActiveProfiles("test")
 class ActorChartStatsApiTest {
-
     companion object {
         @Container
         @JvmStatic
@@ -87,46 +86,50 @@ class ActorChartStatsApiTest {
         uniId = uniRes.id!!
 
         val birth = LocalDate.of(1990, 6, 15)
-        val createNational = ActorCreate(
-            firstName = "А",
-            lastName = "Национальный",
-            birthDate = birth,
-            gender = Gender.male,
-            height = 180,
-            weight = 80,
-            title = Title.national,
-            hairColor = "чёрный",
-            eyeColor = "карий",
-            education = listOf(EducationCreateItem(uniId = uniId)),
-            films = listOf(
-                FilmPlayItem(title = "Ф1", year = 2010, role = null, director = null),
-                FilmPlayItem(title = "Ф2", year = 2010, role = null, director = null),
-            ),
-            theatrePlayItems = listOf(
-                TheatrePlayItem(
-                    name = "Театр",
-                    years = null,
-                    plays = listOf(FilmPlayItem(title = "Пьеса", year = 2005, role = null, director = null)),
-                ),
-            ),
-            genres = listOf("драма"),
-        )
+        val createNational =
+            ActorCreate(
+                firstName = "А",
+                lastName = "Национальный",
+                birthDate = birth,
+                gender = Gender.male,
+                height = 180,
+                weight = 80,
+                title = Title.national,
+                hairColor = "чёрный",
+                eyeColor = "карий",
+                education = listOf(EducationCreateItem(uniId = uniId)),
+                films =
+                    listOf(
+                        FilmPlayItem(title = "Ф1", year = 2010, role = null, director = null),
+                        FilmPlayItem(title = "Ф2", year = 2010, role = null, director = null),
+                    ),
+                theatrePlayItems =
+                    listOf(
+                        TheatrePlayItem(
+                            name = "Театр",
+                            years = null,
+                            plays = listOf(FilmPlayItem(title = "Пьеса", year = 2005, role = null, director = null)),
+                        ),
+                    ),
+                genres = listOf("драма"),
+            )
         actorService.create(createNational)
 
-        val createHonored = ActorCreate(
-            firstName = "Б",
-            lastName = "Заслуженный",
-            birthDate = birth,
-            gender = Gender.female,
-            height = 165,
-            weight = 55,
-            title = Title.honored,
-            hairColor = "русый",
-            eyeColor = "голубой",
-            education = listOf(EducationCreateItem(uniId = uniId)),
-            films = listOf(FilmPlayItem(title = "Ф3", year = 2015, role = null, director = null)),
-            genres = listOf("комедия", "драма"),
-        )
+        val createHonored =
+            ActorCreate(
+                firstName = "Б",
+                lastName = "Заслуженный",
+                birthDate = birth,
+                gender = Gender.female,
+                height = 165,
+                weight = 55,
+                title = Title.honored,
+                hairColor = "русый",
+                eyeColor = "голубой",
+                education = listOf(EducationCreateItem(uniId = uniId)),
+                films = listOf(FilmPlayItem(title = "Ф3", year = 2015, role = null, director = null)),
+                genres = listOf("комедия", "драма"),
+            )
         actorService.create(createHonored)
     }
 
@@ -136,17 +139,19 @@ class ActorChartStatsApiTest {
         @Test
         fun `200 height and title - two series sorted by name`() {
             val mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
-            val body = ActorStatsRequest(
-                xAxis = ChartStatsXAxis.height,
-                groupBy = ChartStatsGroupBy.title,
-                filters = null,
-            )
-            mockMvc.perform(
-                MockMvcRequestBuilders.post("/v1/actors/stats")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(body)),
-            )
-                .andExpect(status().isOk())
+            val body =
+                ActorStatsRequest(
+                    xAxis = ChartStatsXAxis.height,
+                    groupBy = ChartStatsGroupBy.title,
+                    filters = null,
+                )
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/v1/actors/stats")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)),
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.series.length()").value(2))
                 .andExpect(jsonPath("$.series[0].name").value("Заслуженный артист"))
                 .andExpect(jsonPath("$.series[0].data[0].x").value(165))
@@ -159,25 +164,30 @@ class ActorChartStatsApiTest {
         @Test
         fun `200 filmYear counts two films same year`() {
             val mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
-            val body = ActorStatsRequest(
-                xAxis = ChartStatsXAxis.filmYear,
-                groupBy = ChartStatsGroupBy.gender,
-                filters = null,
-            )
-            mockMvc.perform(
-                MockMvcRequestBuilders.post("/v1/actors/stats")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(body)),
-            )
-                .andExpect(status().isOk())
+            val body =
+                ActorStatsRequest(
+                    xAxis = ChartStatsXAxis.filmYear,
+                    groupBy = ChartStatsGroupBy.gender,
+                    filters = null,
+                )
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/v1/actors/stats")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)),
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.series.length()").value(2))
                 .andExpect(jsonPath("$.series[0].name").value("Женский"))
                 .andExpect(jsonPath("$.series[1].name").value("Мужской"))
-            val res = mockMvc.perform(
-                MockMvcRequestBuilders.post("/v1/actors/stats")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(body)),
-            ).andReturn()
+            val res =
+                mockMvc
+                    .perform(
+                        MockMvcRequestBuilders
+                            .post("/v1/actors/stats")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(body)),
+                    ).andReturn()
             val root = objectMapper.readTree(res.response.contentAsString)
             val maleSeries = root["series"].firstOrNull { it["name"].asText() == "Мужской" }
             assertThat(maleSeries).isNotNull
@@ -189,17 +199,19 @@ class ActorChartStatsApiTest {
         @Test
         fun `200 filter gender male only national title series`() {
             val mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
-            val body = ActorStatsRequest(
-                xAxis = ChartStatsXAxis.weight,
-                groupBy = ChartStatsGroupBy.title,
-                filters = ActorStatsFilters(gender = Gender.male),
-            )
-            mockMvc.perform(
-                MockMvcRequestBuilders.post("/v1/actors/stats")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(body)),
-            )
-                .andExpect(status().isOk())
+            val body =
+                ActorStatsRequest(
+                    xAxis = ChartStatsXAxis.weight,
+                    groupBy = ChartStatsGroupBy.title,
+                    filters = ActorStatsFilters(gender = Gender.male),
+                )
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/v1/actors/stats")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)),
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.series.length()").value(1))
                 .andExpect(jsonPath("$.series[0].name").value("Народный артист"))
                 .andExpect(jsonPath("$.series[0].data[0].x").value(80))
@@ -208,17 +220,19 @@ class ActorChartStatsApiTest {
         @Test
         fun `200 groupBy university uses catalog name`() {
             val mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
-            val body = ActorStatsRequest(
-                xAxis = ChartStatsXAxis.birthYear,
-                groupBy = ChartStatsGroupBy.university,
-                filters = null,
-            )
-            mockMvc.perform(
-                MockMvcRequestBuilders.post("/v1/actors/stats")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(body)),
-            )
-                .andExpect(status().isOk())
+            val body =
+                ActorStatsRequest(
+                    xAxis = ChartStatsXAxis.birthYear,
+                    groupBy = ChartStatsGroupBy.university,
+                    filters = null,
+                )
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/v1/actors/stats")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)),
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.series.length()").value(1))
                 .andExpect(jsonPath("$.series[0].name").value("ГИТИС"))
                 .andExpect(jsonPath("$.series[0].data[0].x").value(1990))
@@ -228,17 +242,19 @@ class ActorChartStatsApiTest {
         @Test
         fun `200 playYear`() {
             val mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
-            val body = ActorStatsRequest(
-                xAxis = ChartStatsXAxis.playYear,
-                groupBy = ChartStatsGroupBy.genre,
-                filters = ActorStatsFilters(gender = Gender.male),
-            )
-            mockMvc.perform(
-                MockMvcRequestBuilders.post("/v1/actors/stats")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(body)),
-            )
-                .andExpect(status().isOk())
+            val body =
+                ActorStatsRequest(
+                    xAxis = ChartStatsXAxis.playYear,
+                    groupBy = ChartStatsGroupBy.genre,
+                    filters = ActorStatsFilters(gender = Gender.male),
+                )
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/v1/actors/stats")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)),
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.series[0].name").value("драма"))
                 .andExpect(jsonPath("$.series[0].data[0].x").value(2005))
                 .andExpect(jsonPath("$.series[0].data[0].value").value(1))
@@ -247,12 +263,13 @@ class ActorChartStatsApiTest {
         @Test
         fun `400 invalid xAxis in JSON`() {
             val mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
-            mockMvc.perform(
-                MockMvcRequestBuilders.post("/v1/actors/stats")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content("""{"xAxis":"notAnAxis","groupBy":"gender"}"""),
-            )
-                .andExpect(status().isBadRequest())
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .post("/v1/actors/stats")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""{"xAxis":"notAnAxis","groupBy":"gender"}"""),
+                ).andExpect(status().isBadRequest())
         }
     }
 }

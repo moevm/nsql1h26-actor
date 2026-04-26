@@ -1,29 +1,32 @@
 package com.NOSQL.NOSQL.mapping
 
 import com.NOSQL.NOSQL.model.ActorDocument
+import com.NOSQL.NOSQL.model.generated.Actor
+import com.NOSQL.NOSQL.model.generated.ActorCreate
+import com.NOSQL.NOSQL.model.generated.ActorUpdate
+import com.NOSQL.NOSQL.model.generated.EducationCreateItem
+import java.time.OffsetDateTime
 import com.NOSQL.NOSQL.model.domain.ContactLinkItem as DomainContactLinkItem
 import com.NOSQL.NOSQL.model.domain.EducationItem as DomainEducationItem
 import com.NOSQL.NOSQL.model.domain.FilmPlayItem as DomainFilmPlayItem
 import com.NOSQL.NOSQL.model.domain.Gender as DomainGender
+import com.NOSQL.NOSQL.model.domain.PhotoItem as DomainPhotoItem
 import com.NOSQL.NOSQL.model.domain.TheatrePlayItem as DomainTheatrePlayItem
 import com.NOSQL.NOSQL.model.domain.Title as DomainTitle
-import com.NOSQL.NOSQL.model.domain.PhotoItem as DomainPhotoItem
 import com.NOSQL.NOSQL.model.domain.VideoItem as DomainVideoItem
-import com.NOSQL.NOSQL.model.generated.Actor
-import com.NOSQL.NOSQL.model.generated.ActorCreate
-import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ContactLinkItem as ApiContactLinkItem
-import com.NOSQL.NOSQL.model.generated.EducationCreateItem
 import com.NOSQL.NOSQL.model.generated.EducationItem as ApiEducationItem
 import com.NOSQL.NOSQL.model.generated.FilmPlayItem as ApiFilmPlayItem
 import com.NOSQL.NOSQL.model.generated.PhotoItem as ApiPhotoItem
 import com.NOSQL.NOSQL.model.generated.TheatrePlayItem as ApiTheatrePlayItem
 import com.NOSQL.NOSQL.model.generated.VideoItem as ApiVideoItem
-import java.time.OffsetDateTime
 
 object MappingFromApi {
-
-    fun actorCreateToDocument(actorCreate: ActorCreate, createdAt: OffsetDateTime, updatedAt: OffsetDateTime): ActorDocument =
+    fun actorCreateToDocument(
+        actorCreate: ActorCreate,
+        createdAt: OffsetDateTime,
+        updatedAt: OffsetDateTime,
+    ): ActorDocument =
         ActorDocument(
             firstName = actorCreate.firstName,
             lastName = actorCreate.lastName,
@@ -46,7 +49,7 @@ object MappingFromApi {
             videos = emptyList(),
             genres = actorCreate.genres,
             createdAt = createdAt.toInstant(),
-            updatedAt = updatedAt.toInstant()
+            updatedAt = updatedAt.toInstant(),
         )
 
     fun actorToDocument(a: Actor): ActorDocument =
@@ -77,7 +80,10 @@ object MappingFromApi {
             updatedAt = a.updatedAt?.toInstant(),
         )
 
-    fun mergeActorDocument(doc: ActorDocument, update: ActorUpdate): ActorDocument =
+    fun mergeActorDocument(
+        doc: ActorDocument,
+        update: ActorUpdate,
+    ): ActorDocument =
         doc.copy(
             firstName = update.firstName ?: doc.firstName,
             lastName = update.lastName ?: doc.lastName,
@@ -100,8 +106,7 @@ object MappingFromApi {
             mainPhotoId = update.mainPhotoId ?: doc.mainPhotoId,
         )
 
-    private fun contactLinkItemToDomain(it: ApiContactLinkItem): DomainContactLinkItem =
-        DomainContactLinkItem(name = it.name, url = it.url?.toString())
+    private fun contactLinkItemToDomain(it: ApiContactLinkItem): DomainContactLinkItem = DomainContactLinkItem(name = it.name, url = it.url?.toString())
 
     private fun educationCreateItemToDomain(it: EducationCreateItem): DomainEducationItem =
         DomainEducationItem(uniId = it.uniId, graduationYear = null, name = null)
@@ -110,7 +115,7 @@ object MappingFromApi {
         DomainEducationItem(
             uniId = it.uniId,
             graduationYear = it.graduationYear,
-            name = it.name
+            name = it.name,
         )
 
     private fun filmPlayItemToDomain(it: ApiFilmPlayItem): DomainFilmPlayItem =
@@ -118,19 +123,17 @@ object MappingFromApi {
             title = it.title,
             year = it.year,
             role = it.role,
-            director = it.director
+            director = it.director,
         )
 
     private fun theatrePlayItemToDomain(it: ApiTheatrePlayItem): DomainTheatrePlayItem =
         DomainTheatrePlayItem(
             name = it.name,
             years = it.years,
-            plays = it.plays?.map(::filmPlayItemToDomain)
+            plays = it.plays?.map(::filmPlayItemToDomain),
         )
 
-    private fun photoItemToDomain(it: ApiPhotoItem): DomainPhotoItem =
-        DomainPhotoItem(id = it.id, caption = it.caption)
+    private fun photoItemToDomain(it: ApiPhotoItem): DomainPhotoItem = DomainPhotoItem(id = it.id, caption = it.caption)
 
-    private fun videoItemToDomain(it: ApiVideoItem): DomainVideoItem =
-        DomainVideoItem(id = it.id, caption = it.caption)
+    private fun videoItemToDomain(it: ApiVideoItem): DomainVideoItem = DomainVideoItem(id = it.id, caption = it.caption)
 }

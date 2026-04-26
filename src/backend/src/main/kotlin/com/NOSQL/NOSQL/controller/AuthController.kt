@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class AuthController(
-    private val authService: AuthService
+    private val authService: AuthService,
 ) : AuthApi {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun v1AuthLoginPost(loginRequest: LoginRequest): ResponseEntity<LoginResponse> {

@@ -12,12 +12,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.web.server.ResponseStatusException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
+import org.springframework.web.server.ResponseStatusException
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -27,7 +27,6 @@ import org.testcontainers.utility.DockerImageName
 @SpringBootTest
 @ActiveProfiles("test")
 class UniversityServiceTest {
-
     companion object {
         @Container
         @JvmStatic
@@ -75,13 +74,14 @@ class UniversityServiceTest {
     @Test
     @DisplayName("create — name, shortName, oldNames")
     fun createFull() {
-        val res = universityService.create(
-            UniversityCreate(
-                name = "Московский государственный университет",
-                shortName = "МГУ",
-                oldNames = listOf("Императорский Московский университет")
+        val res =
+            universityService.create(
+                UniversityCreate(
+                    name = "Московский государственный университет",
+                    shortName = "МГУ",
+                    oldNames = listOf("Императорский Московский университет"),
+                ),
             )
-        )
         assertThat(res.status).isEqualTo(UniversityCreateResponse.Status.ok)
         val doc = universityRepository.findById(res.id!!).get()
         assertThat(doc.name).isEqualTo("Московский государственный университет")
@@ -116,8 +116,8 @@ class UniversityServiceTest {
             UniversityCreate(
                 name = "Щукинское училище",
                 shortName = "Щука",
-                oldNames = listOf("Театральное училище им. Щукина", "ВТУ им. Щукина")
-            )
+                oldNames = listOf("Театральное училище им. Щукина", "ВТУ им. Щукина"),
+            ),
         )
         val list = universityService.search("Щукина", 10)
         assertThat(list).hasSize(1)
@@ -190,9 +190,10 @@ class UniversityServiceTest {
     @Test
     @DisplayName("delete — 404 when university not found")
     fun deleteNotFound() {
-        val ex = assertThrows<ResponseStatusException> {
-            universityService.deleteById("000000000000000000000000")
-        }
+        val ex =
+            assertThrows<ResponseStatusException> {
+                universityService.deleteById("000000000000000000000000")
+            }
         assertThat(ex.statusCode.value()).isEqualTo(404)
     }
 
@@ -205,11 +206,12 @@ class UniversityServiceTest {
                 firstName = "Иван",
                 lastName = "Тестов",
                 education = listOf(EducationItem(uniId = uniId, graduationYear = null, name = null)),
-            )
+            ),
         )
-        val ex = assertThrows<ResponseStatusException> {
-            universityService.deleteById(uniId)
-        }
+        val ex =
+            assertThrows<ResponseStatusException> {
+                universityService.deleteById(uniId)
+            }
         assertThat(ex.statusCode.value()).isEqualTo(409)
         assertThat(universityRepository.existsById(uniId)).isTrue()
     }

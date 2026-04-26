@@ -9,7 +9,6 @@ import java.io.SequenceInputStream
  * Validates uploaded media: filename extension and leading bytes (magic numbers).
  */
 object MediaUploadValidator {
-
     const val PEEK_HEADER_BYTES: Int = 32
 
     private val PHOTO_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "webp")
@@ -40,16 +39,21 @@ object MediaUploadValidator {
         return Pair(captured, rest)
     }
 
-    fun validate(actorMediaType: ActorMediaType, filename: String, header: ByteArray): String? {
+    fun validate(
+        actorMediaType: ActorMediaType,
+        filename: String,
+        header: ByteArray,
+    ): String? {
         val ext = extractExtension(filename)
         if (ext.isEmpty()) {
             return INVALID_MEDIA_EXTENSION
         }
 
-        val allowedExt = when (actorMediaType) {
-            ActorMediaType.photo -> PHOTO_EXTENSIONS
-            ActorMediaType.video -> VIDEO_EXTENSIONS
-        }
+        val allowedExt =
+            when (actorMediaType) {
+                ActorMediaType.photo -> PHOTO_EXTENSIONS
+                ActorMediaType.video -> VIDEO_EXTENSIONS
+            }
         if (ext !in allowedExt) {
             return INVALID_MEDIA_EXTENSION
         }

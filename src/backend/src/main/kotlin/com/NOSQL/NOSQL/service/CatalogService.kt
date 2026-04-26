@@ -6,8 +6,8 @@ import com.NOSQL.NOSQL.model.catalog.CATALOG_FORMAT
 import com.NOSQL.NOSQL.model.catalog.CATALOG_VERSION
 import com.NOSQL.NOSQL.model.generated.CatalogMediaEntry
 import com.NOSQL.NOSQL.model.generated.CatalogSnapshot
-import com.NOSQL.NOSQL.repository.AdminRepository
 import com.NOSQL.NOSQL.repository.ActorRepository
+import com.NOSQL.NOSQL.repository.AdminRepository
 import com.NOSQL.NOSQL.repository.MediaRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository
 import org.slf4j.LoggerFactory
@@ -26,17 +26,18 @@ class CatalogService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     fun exportSnapshot(): CatalogSnapshot {
-        val media = mediaRepository.exportAllForBackup().map { row ->
-            CatalogMediaEntry(
-                id = row.id,
-                actorId = row.actorId,
-                filename = row.filename,
-                contentType = row.contentType,
-                type = row.mediaType,
-                caption = row.caption,
-                dataBase64 = Base64.getEncoder().encodeToString(row.bytes),
-            )
-        }
+        val media =
+            mediaRepository.exportAllForBackup().map { row ->
+                CatalogMediaEntry(
+                    id = row.id,
+                    actorId = row.actorId,
+                    filename = row.filename,
+                    contentType = row.contentType,
+                    type = row.mediaType,
+                    caption = row.caption,
+                    dataBase64 = Base64.getEncoder().encodeToString(row.bytes),
+                )
+            }
         return MappingCatalog.toCatalogSnapshot(
             universities = universityRepository.findAll(),
             actors = actorRepository.findAll(),
@@ -57,7 +58,7 @@ class CatalogService(
             snapshot.universities.size,
             snapshot.actors.size,
             snapshot.admins.size,
-            snapshot.media.size
+            snapshot.media.size,
         )
 
         actorRepository.deleteAll()

@@ -15,10 +15,8 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory
 import org.springframework.data.mongodb.core.convert.MongoConverter
 import org.springframework.data.mongodb.gridfs.GridFsTemplate
 
-
 @Configuration
 class MongoConfig {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Value("\${app.mongodb.gridfs-bucket:media}")
@@ -35,9 +33,11 @@ class MongoConfig {
     @ConditionalOnProperty(name = ["spring.data.mongodb.uri"])
     fun mongoClient(): MongoClient {
         log.info("MongoDB: creating client from URI (database will be '{}')", databaseName)
-        val settings = MongoClientSettings.builder()
-            .applyConnectionString(ConnectionString(mongoUri))
-            .build()
+        val settings =
+            MongoClientSettings
+                .builder()
+                .applyConnectionString(ConnectionString(mongoUri))
+                .build()
         return MongoClients.create(settings)
     }
 
@@ -52,7 +52,6 @@ class MongoConfig {
     @Bean
     fun gridFsTemplate(
         mongoDbFactory: MongoDatabaseFactory,
-        mongoConverter: MongoConverter
-    ): GridFsTemplate =
-        GridFsTemplate(mongoDbFactory, mongoConverter, gridFsBucket)
+        mongoConverter: MongoConverter,
+    ): GridFsTemplate = GridFsTemplate(mongoDbFactory, mongoConverter, gridFsBucket)
 }

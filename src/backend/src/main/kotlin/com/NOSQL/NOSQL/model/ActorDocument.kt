@@ -39,5 +39,5 @@ data class ActorDocument(
     val videos: List<VideoItem>? = null,
     val genres: List<String>? = null,
     val createdAt: Instant? = null,
-    val updatedAt: Instant? = null
+    val updatedAt: Instant? = null,
 )

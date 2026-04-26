@@ -15,11 +15,10 @@ import org.springframework.web.filter.OncePerRequestFilter
 class JwtAuthenticationFilter(
     private val jwtService: JwtService,
 ) : OncePerRequestFilter() {
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         if (!isProtectedPath(request)) {
             filterChain.doFilter(request, response)
@@ -34,9 +33,10 @@ class JwtAuthenticationFilter(
         val token = authHeader.removePrefix("Bearer ").trim()
         try {
             val subject = jwtService.parseSubject(token)
-            val auth = UsernamePasswordAuthenticationToken(subject, null, emptyList<GrantedAuthority>()).apply {
-                details = WebAuthenticationDetailsSource().buildDetails(request)
-            }
+            val auth =
+                UsernamePasswordAuthenticationToken(subject, null, emptyList<GrantedAuthority>()).apply {
+                    details = WebAuthenticationDetailsSource().buildDetails(request)
+                }
             SecurityContextHolder.getContext().authentication = auth
             filterChain.doFilter(request, response)
         } catch (e: Exception) {

@@ -12,5 +12,5 @@ data class AdminDocument(
     @Indexed(unique = true, name = "admins_email_unique")
     val email: String,
     val passwordHash: String,
-    val createdAt: Instant? = null
+    val createdAt: Instant? = null,
 )

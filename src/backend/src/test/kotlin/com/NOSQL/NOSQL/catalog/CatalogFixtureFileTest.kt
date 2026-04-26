@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.core.io.ClassPathResource
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -34,7 +34,6 @@ import java.util.Base64
 @SpringBootTest
 @ActiveProfiles("test")
 class CatalogFixtureFileTest {
-
     companion object {
         @Container
         @JvmStatic
@@ -50,9 +49,10 @@ class CatalogFixtureFileTest {
             registry.add("spring.data.mongodb.database") { db }
         }
 
-        private val jsonMapper = ObjectMapper()
-            .registerKotlinModule()
-            .registerModule(JavaTimeModule())
+        private val jsonMapper =
+            ObjectMapper()
+                .registerKotlinModule()
+                .registerModule(JavaTimeModule())
     }
 
     @Autowired
@@ -118,9 +118,10 @@ class CatalogFixtureFileTest {
         val mediaId = "507f1f77bcf86cd799439014"
         val resource = mediaService.getResource(actorId = actor.id!!, mediaId = mediaId)
         val actualBytes = resource.inputStream.use { it.readAllBytes() }
-        val expectedBytes = Base64.getDecoder().decode(
-            expected.media.single { it.id == mediaId }.dataBase64
-        )
+        val expectedBytes =
+            Base64.getDecoder().decode(
+                expected.media.single { it.id == mediaId }.dataBase64,
+            )
         assertThat(actualBytes).isEqualTo(expectedBytes)
         assertThat(String(actualBytes)).isEqualTo("fixture-bytes")
 
@@ -135,7 +136,13 @@ class CatalogFixtureFileTest {
         val exportedJson = jsonMapper.writeValueAsString(exported)
         val parsedAgain = jsonMapper.readValue(exportedJson, CatalogSnapshot::class.java)
         catalogService.importSnapshot(parsedAgain)
-        assertThat(catalogService.exportSnapshot().actors.single().lastName).isEqualTo("Экспорт")
+        assertThat(
+            catalogService
+                .exportSnapshot()
+                .actors
+                .single()
+                .lastName,
+        ).isEqualTo("Экспорт")
     }
 
     private fun readFixture(path: String): CatalogSnapshot {

@@ -18,11 +18,14 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class UniversityService(
     private val universityRepository: UniversityRepository,
-    private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun search(q: String, limit: Int): List<UniversitySearchItem> {
+    fun search(
+        q: String,
+        limit: Int,
+    ): List<UniversitySearchItem> {
         val trimmed = q.trim()
         if (trimmed.isEmpty()) {
             log.debug("University search: empty query, returning empty list")
@@ -30,11 +33,12 @@ class UniversityService(
         }
         val escaped = escapeRegex(trimmed)
         val pattern = ".*$escaped.*"
-        val criteria = Criteria().orOperator(
-            Criteria.where("name").regex(pattern, "i"),
-            Criteria.where("shortName").regex(pattern, "i"),
-            Criteria.where("oldNames").regex(pattern, "i")
-        )
+        val criteria =
+            Criteria().orOperator(
+                Criteria.where("name").regex(pattern, "i"),
+                Criteria.where("shortName").regex(pattern, "i"),
+                Criteria.where("oldNames").regex(pattern, "i"),
+            )
         val query = Query().addCriteria(criteria).limit(limit.coerceIn(1, 100))
         val docs = mongoTemplate.find(query, UniversityDocument::class.java)
         log.info("University search: q='{}', limit={}, found={}", trimmed, limit, docs.size)
@@ -43,13 +47,14 @@ class UniversityService(
                 id = doc.id,
                 name = doc.name,
                 shortName = doc.shortName,
-                oldNames = doc.oldNames
+                oldNames = doc.oldNames,
             )
         }
     }
 
-    private fun escapeRegex(s: String): String {
-        return s.replace("\\", "\\\\")
+    private fun escapeRegex(s: String): String =
+        s
+            .replace("\\", "\\\\")
             .replace(".", "\\.")
             .replace("*", "\\*")
             .replace("+", "\\+")
@@ -63,55 +68,63 @@ class UniversityService(
             .replace("{", "\\{")
             .replace("}", "\\}")
             .replace("|", "\\|")
-    }
 
     fun create(create: UniversityCreate): UniversityCreateResponse {
         log.info("Creating university: {}", create.name)
-        val doc = UniversityDocument(
-            name = create.name,
-            shortName = create.shortName,
-            oldNames = create.oldNames
-        )
+        val doc =
+            UniversityDocument(
+                name = create.name,
+                shortName = create.shortName,
+                oldNames = create.oldNames,
+            )
         val saved = universityRepository.save(doc)
         log.info("University created with id={}", saved.id)
         return UniversityCreateResponse(
             id = saved.id,
             status = UniversityCreateResponse.Status.ok,
-            errorCode = null
+            errorCode = null,
         )
     }
 
-    fun update(id: String, update: UniversityUpdate): UniversityCreateResponse {
+    fun update(
+        id: String,
+        update: UniversityUpdate,
+    ): UniversityCreateResponse {
         log.info("Updating university id={}", id)
         if (update.name == null && update.shortName == null && update.oldNames == null) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Provide at least one field to update")
         }
-        val doc = universityRepository.findById(id)
-            .orElseThrow {
-                log.warn("University not found: id={}", id)
-                ResponseStatusException(HttpStatus.NOT_FOUND, "University not found")
-            }
+        val doc =
+            universityRepository
+                .findById(id)
+                .orElseThrow {
+                    log.warn("University not found: id={}", id)
+                    ResponseStatusException(HttpStatus.NOT_FOUND, "University not found")
+                }
         val newName = update.name ?: doc.name
-        val newShort = when {
-            update.shortName != null -> update.shortName.ifBlank { null }
-            else -> doc.shortName
-        }
-        val newOldNames = when {
-            update.oldNames != null -> update.oldNames
-            else -> doc.oldNames
-        }
-        val saved = universityRepository.save(
-            doc.copy(
-                name = newName,
-                shortName = newShort,
-                oldNames = newOldNames
+        val newShort =
+            when {
+                update.shortName != null -> update.shortName.ifBlank { null }
+                else -> doc.shortName
+            }
+        val newOldNames =
+            when {
+                update.oldNames != null -> update.oldNames
+                else -> doc.oldNames
+            }
+        val saved =
+            universityRepository.save(
+                doc.copy(
+                    name = newName,
+                    shortName = newShort,
+                    oldNames = newOldNames,
+                ),
             )
-        )
         log.info("University updated id={}", saved.id)
         return UniversityCreateResponse(
             id = saved.id,
             status = UniversityCreateResponse.Status.ok,
-            errorCode = null
+            errorCode = null,
         )
     }
 
@@ -121,15 +134,16 @@ class UniversityService(
             log.warn("University not found: id={}", id)
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "University not found")
         }
-        val refCount = mongoTemplate.count(
-            Query.query(Criteria.where("education.uniId").`is`(id)),
-            ActorDocument::class.java
-        )
+        val refCount =
+            mongoTemplate.count(
+                Query.query(Criteria.where("education.uniId").`is`(id)),
+                ActorDocument::class.java,
+            )
         if (refCount > 0) {
             log.warn("Cannot delete university id={}: referenced by {} actor(s)", id, refCount)
             throw ResponseStatusException(
                 HttpStatus.CONFLICT,
-                "University is referenced by $refCount actor(s)"
+                "University is referenced by $refCount actor(s)",
             )
         }
         universityRepository.deleteById(id)

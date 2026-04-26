@@ -4,7 +4,6 @@ package com.NOSQL.NOSQL
  * Minimal valid file headers for media upload tests.
  */
 object MediaTestBytes {
-
     /** JPEG: SOI + minimal JFIF-like segment and EOI. */
     val JPEG: ByteArray =
         byteArrayOf(

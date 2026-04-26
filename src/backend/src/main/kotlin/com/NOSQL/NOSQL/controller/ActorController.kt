@@ -5,10 +5,10 @@ import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
 import com.NOSQL.NOSQL.model.generated.ActorListResponse
+import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.ActorStatsRequest
 import com.NOSQL.NOSQL.model.generated.ActorStatsResponse
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
-import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.MediaUploadResponse
 import com.NOSQL.NOSQL.model.generated.Title
@@ -31,9 +31,8 @@ class ActorController(
     private val actorService: ActorService,
     private val mediaService: MediaService,
     @param:Value("\${app.http.cache-control.media-max-age-seconds:300}")
-    private val mediaCacheMaxAgeSeconds: Long
+    private val mediaCacheMaxAgeSeconds: Long,
 ) : ActorsApi {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun v1ActorCreatePost(actorCreate: ActorCreate): ResponseEntity<ActorCreateResponse> {
@@ -54,7 +53,10 @@ class ActorController(
         return ResponseEntity.noContent().build()
     }
 
-    override fun v1ActorByIdPatch(id: String, actorUpdate: ActorUpdate): ResponseEntity<Actor> {
+    override fun v1ActorByIdPatch(
+        id: String,
+        actorUpdate: ActorUpdate,
+    ): ResponseEntity<Actor> {
         log.info("PATCH /v1/actors/{}", id)
         val actor = actorService.update(id, actorUpdate)
         return ResponseEntity.ok(actor)
@@ -81,28 +83,38 @@ class ActorController(
         offset: Int,
         includeItems: Boolean,
     ): ResponseEntity<ActorListResponse> {
-        log.info("GET /v1/actors gender={} limit={} offset={} includeItems={} theatre={} universityId={} name={}", gender, limit, offset, includeItems, theatre, universityId, name)
-        val body = actorService.findAll(
-            gender = gender,
-            ageFrom = ageFrom,
-            ageTo = ageTo,
-            weightMin = weightMin,
-            weightMax = weightMax,
-            heightMin = heightMin,
-            heightMax = heightMax,
-            activityYearFrom = activityYearFrom,
-            activityYearTo = activityYearTo,
-            universityId = universityId,
-            theatre = theatre,
-            title = title,
-            hairColor = hairColor,
-            eyeColor = eyeColor,
-            genres = genres,
-            name = name,
-            limit = limit,
-            offset = offset,
-            includeItems = includeItems,
+        log.info(
+            "GET /v1/actors gender={} limit={} offset={} includeItems={} theatre={} universityId={} name={}",
+            gender,
+            limit,
+            offset,
+            includeItems,
+            theatre,
+            universityId,
+            name,
         )
+        val body =
+            actorService.findAll(
+                gender = gender,
+                ageFrom = ageFrom,
+                ageTo = ageTo,
+                weightMin = weightMin,
+                weightMax = weightMax,
+                heightMin = heightMin,
+                heightMax = heightMax,
+                activityYearFrom = activityYearFrom,
+                activityYearTo = activityYearTo,
+                universityId = universityId,
+                theatre = theatre,
+                title = title,
+                hairColor = hairColor,
+                eyeColor = eyeColor,
+                genres = genres,
+                name = name,
+                limit = limit,
+                offset = offset,
+                includeItems = includeItems,
+            )
         return ResponseEntity.ok(body)
     }
 
@@ -116,31 +128,37 @@ class ActorController(
         id: String,
         file: Resource,
         type: ActorMediaType,
-        caption: String?
+        caption: String?,
     ): ResponseEntity<MediaUploadResponse> {
         log.info("POST /v1/actors/{}/media type={}", id, type)
         val filename = resolveMultipartPartFilename("file", file)
-        val response = mediaService.upload(
-            actorId = id,
-            inputStream = file.inputStream,
-            filename = filename,
-            contentType = null,
-            type = type,
-            caption = caption
-        )
-        val status = when {
-            response.status == MediaUploadResponse.Status.ok -> 201
-            response.errorCode == "ACTOR_NOT_FOUND" -> 404
-            else -> 400
-        }
+        val response =
+            mediaService.upload(
+                actorId = id,
+                inputStream = file.inputStream,
+                filename = filename,
+                contentType = null,
+                type = type,
+                caption = caption,
+            )
+        val status =
+            when {
+                response.status == MediaUploadResponse.Status.ok -> 201
+                response.errorCode == "ACTOR_NOT_FOUND" -> 404
+                else -> 400
+            }
         return ResponseEntity.status(status).body(response)
     }
 
-    override fun v1MediaByIdGet(actorId: String, mediaId: String): ResponseEntity<Resource> {
+    override fun v1MediaByIdGet(
+        actorId: String,
+        mediaId: String,
+    ): ResponseEntity<Resource> {
         log.info("GET /v1/actors/{}/media/{}", actorId, mediaId)
         val resource = mediaService.getResource(actorId, mediaId)
         return if (mediaCacheMaxAgeSeconds > 0) {
-            ResponseEntity.ok()
+            ResponseEntity
+                .ok()
                 .cacheControl(CacheControl.maxAge(mediaCacheMaxAgeSeconds, TimeUnit.SECONDS))
                 .body(resource)
         } else {
@@ -148,13 +166,19 @@ class ActorController(
         }
     }
 
-    override fun v1MediaByIdDelete(actorId: String, mediaId: String): ResponseEntity<Unit> {
+    override fun v1MediaByIdDelete(
+        actorId: String,
+        mediaId: String,
+    ): ResponseEntity<Unit> {
         log.info("DELETE /v1/actors/{}/media/{}", actorId, mediaId)
         mediaService.delete(actorId, mediaId)
         return ResponseEntity.noContent().build()
     }
 
-    private fun resolveMultipartPartFilename(partName: String, partResource: Resource): String {
+    private fun resolveMultipartPartFilename(
+        partName: String,
+        partResource: Resource,
+    ): String {
         val attrs = RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes
         val multipart = attrs?.request?.let { WebUtils.getNativeRequest(it, MultipartHttpServletRequest::class.java) }
         val fromMultipart = multipart?.getFile(partName)?.originalFilename?.takeIf { it.isNotBlank() }

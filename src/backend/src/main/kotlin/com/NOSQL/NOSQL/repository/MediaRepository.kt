@@ -27,18 +27,20 @@ class MediaRepository(
         caption: String?,
     ): String {
         log.debug("Storing file in GridFS: actorId={}, type={}, filename={}", actorId, type, filename)
-        val metadata = org.bson.Document().apply {
-            put("actorId", actorId)
-            put("type", type)
-            put("caption", caption ?: "")
-            put("contentType", contentType ?: "application/octet-stream")
-        }
-        val objectId = gridFs.store(
-            inputStream,
-            filename,
-            contentType,
-            metadata,
-        )
+        val metadata =
+            org.bson.Document().apply {
+                put("actorId", actorId)
+                put("type", type)
+                put("caption", caption ?: "")
+                put("contentType", contentType ?: "application/octet-stream")
+            }
+        val objectId =
+            gridFs.store(
+                inputStream,
+                filename,
+                contentType,
+                metadata,
+            )
         log.debug("File stored in GridFS: mediaId={}", objectId.toHexString())
         return objectId.toHexString()
     }
@@ -61,8 +63,9 @@ class MediaRepository(
             val caption = meta.getString("caption")
             val id = file.objectId.toHexString()
             val filename = file.filename ?: "file"
-            val contentType = meta.getString("contentType")
-                ?: runCatching { resource.contentType?.toString() }.getOrNull()
+            val contentType =
+                meta.getString("contentType")
+                    ?: runCatching { resource.contentType?.toString() }.getOrNull()
             out.add(
                 GridFsBackupRow(
                     id = id,
@@ -72,7 +75,7 @@ class MediaRepository(
                     mediaType = mediaType,
                     caption = caption,
                     bytes = bytes,
-                )
+                ),
             )
         }
         return out
@@ -89,18 +92,21 @@ class MediaRepository(
     ) {
         val id = ObjectId(idHex)
         val ct = contentType ?: "application/octet-stream"
-        val metadata = org.bson.Document().apply {
-            put("actorId", actorId)
-            put("type", type)
-            put("caption", caption ?: "")
-            put("contentType", ct)
-        }
-        val upload = GridFsUpload.fromStream(ByteArrayInputStream(bytes))
-            .id(id)
-            .filename(filename)
-            .contentType(ct)
-            .metadata(metadata)
-            .build()
+        val metadata =
+            org.bson.Document().apply {
+                put("actorId", actorId)
+                put("type", type)
+                put("caption", caption ?: "")
+                put("contentType", ct)
+            }
+        val upload =
+            GridFsUpload
+                .fromStream(ByteArrayInputStream(bytes))
+                .id(id)
+                .filename(filename)
+                .contentType(ct)
+                .metadata(metadata)
+                .build()
         gridFs.store(upload)
         log.debug("Stored GridFS with id={}", idHex)
     }
@@ -112,31 +118,49 @@ class MediaRepository(
         log.debug("Media deleted for actorId={}", actorId)
     }
 
-    fun findOne(actorId: String, mediaId: String): GridFsResource? {
+    fun findOne(
+        actorId: String,
+        mediaId: String,
+    ): GridFsResource? {
         log.debug("findOne: actorId={}, mediaId={}", actorId, mediaId)
-        val objectId = try {
-            ObjectId(mediaId)
-        } catch (_: Exception) {
-            log.warn("Invalid mediaId format: {}", mediaId)
-            return null
-        }
-        val query = Query.query(
-            Criteria.where("_id").`is`(objectId).and("metadata.actorId").`is`(actorId)
-        )
+        val objectId =
+            try {
+                ObjectId(mediaId)
+            } catch (_: Exception) {
+                log.warn("Invalid mediaId format: {}", mediaId)
+                return null
+            }
+        val query =
+            Query.query(
+                Criteria
+                    .where("_id")
+                    .`is`(objectId)
+                    .and("metadata.actorId")
+                    .`is`(actorId),
+            )
         val file = gridFs.findOne(query) ?: return null
         return gridFs.getResource(file)
     }
 
-    fun deleteOne(actorId: String, mediaId: String): Boolean {
-        val objectId = try {
-            ObjectId(mediaId)
-        } catch (_: Exception) {
-            log.warn("Invalid mediaId format: {}", mediaId)
-            return false
-        }
-        val query = Query.query(
-            Criteria.where("_id").`is`(objectId).and("metadata.actorId").`is`(actorId)
-        )
+    fun deleteOne(
+        actorId: String,
+        mediaId: String,
+    ): Boolean {
+        val objectId =
+            try {
+                ObjectId(mediaId)
+            } catch (_: Exception) {
+                log.warn("Invalid mediaId format: {}", mediaId)
+                return false
+            }
+        val query =
+            Query.query(
+                Criteria
+                    .where("_id")
+                    .`is`(objectId)
+                    .and("metadata.actorId")
+                    .`is`(actorId),
+            )
         if (gridFs.findOne(query) == null) return false
         gridFs.delete(query)
         log.debug("Deleted GridFS file: actorId={}, mediaId={}", actorId, mediaId)

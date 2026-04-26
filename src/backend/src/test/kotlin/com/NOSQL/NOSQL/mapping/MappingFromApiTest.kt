@@ -15,38 +15,44 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class MappingFromApiTest {
-
     private val createdAt = OffsetDateTime.parse("2024-01-15T10:00:00Z")
     private val updatedAt = OffsetDateTime.parse("2024-01-15T10:00:00Z")
 
     @Test
     @DisplayName("actorCreateToDocument — все поля маппятся, photos/videos пустые")
     fun actorCreateToDocument_full() {
-        val create = ActorCreate(
-            firstName = "Иван",
-            lastName = "Петров",
-            middleName = "Сергеевич",
-            birthDate = LocalDate.of(1990, 5, 20),
-            height = 180,
-            weight = 75,
-            gender = Gender.male,
-            hairColor = "чёрный",
-            eyeColor = "карий",
-            bio = "Био",
-            title = Title.national,
-            phone = "+7 999 123-45-67",
-            email = "actor@test.ru",
-            links = listOf(
-                ContactLinkItem(name = "ВК", url = URI("https://vk.com/actor")),
-                ContactLinkItem(name = "Рутуб", url = URI("https://rutube.ru/actor"))
-            ),
-            education = listOf(EducationCreateItem(uniId = "507f1f77bcf86cd799439011")),
-            films = listOf(FilmPlayItem(title = "Фильм", year = 2020, role = "Роль", director = "Реж")),
-            theatrePlayItems = listOf(
-                TheatrePlayItem(name = "Театр", years = "2015–", plays = listOf(FilmPlayItem(title = "Пьеса", year = 2016, role = "Роль", director = null)))
-            ),
-            genres = listOf("драма", "комедия")
-        )
+        val create =
+            ActorCreate(
+                firstName = "Иван",
+                lastName = "Петров",
+                middleName = "Сергеевич",
+                birthDate = LocalDate.of(1990, 5, 20),
+                height = 180,
+                weight = 75,
+                gender = Gender.male,
+                hairColor = "чёрный",
+                eyeColor = "карий",
+                bio = "Био",
+                title = Title.national,
+                phone = "+7 999 123-45-67",
+                email = "actor@test.ru",
+                links =
+                    listOf(
+                        ContactLinkItem(name = "ВК", url = URI("https://vk.com/actor")),
+                        ContactLinkItem(name = "Рутуб", url = URI("https://rutube.ru/actor")),
+                    ),
+                education = listOf(EducationCreateItem(uniId = "507f1f77bcf86cd799439011")),
+                films = listOf(FilmPlayItem(title = "Фильм", year = 2020, role = "Роль", director = "Реж")),
+                theatrePlayItems =
+                    listOf(
+                        TheatrePlayItem(
+                            name = "Театр",
+                            years = "2015–",
+                            plays = listOf(FilmPlayItem(title = "Пьеса", year = 2016, role = "Роль", director = null)),
+                        ),
+                    ),
+                genres = listOf("драма", "комедия"),
+            )
         val doc = MappingFromApi.actorCreateToDocument(create, createdAt, updatedAt)
         assertThat(doc.firstName).isEqualTo("Иван")
         assertThat(doc.lastName).isEqualTo("Петров")

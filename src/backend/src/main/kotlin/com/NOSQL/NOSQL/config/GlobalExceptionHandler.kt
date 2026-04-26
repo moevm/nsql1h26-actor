@@ -10,7 +10,6 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -33,8 +32,8 @@ class GlobalExceptionHandler {
             mapOf(
                 "error" to "Internal Server Error",
                 "message" to message,
-                "cause" to (cause ?: "")
-            )
+                "cause" to (cause ?: ""),
+            ),
         )
     }
 }

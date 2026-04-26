@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.web.server.ResponseStatusException
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.junit.jupiter.Container
@@ -37,7 +37,6 @@ import java.time.LocalDate
 @SpringBootTest
 @ActiveProfiles("test")
 class CatalogServiceTest {
-
     companion object {
         @Container
         @JvmStatic
@@ -104,24 +103,26 @@ class CatalogServiceTest {
                     id = null,
                     name = "МГУ",
                     shortName = "МГУ",
-                    oldNames = null
-                )
+                    oldNames = null,
+                ),
             )
-            val actorId = actorService.create(
-                ActorCreate(
-                    firstName = "Иван",
-                    lastName = "Тестов",
-                    birthDate = LocalDate.of(1990, 1, 1),
-                    gender = Gender.male,
-                )
-            ).id!!
+            val actorId =
+                actorService
+                    .create(
+                        ActorCreate(
+                            firstName = "Иван",
+                            lastName = "Тестов",
+                            birthDate = LocalDate.of(1990, 1, 1),
+                            gender = Gender.male,
+                        ),
+                    ).id!!
             adminRepository.save(
                 AdminDocument(
                     id = null,
                     email = "a@b.c",
                     passwordHash = "hash",
-                    createdAt = Instant.parse("2020-01-01T00:00:00Z")
-                )
+                    createdAt = Instant.parse("2020-01-01T00:00:00Z"),
+                ),
             )
             mediaService.upload(
                 actorId = actorId,
@@ -129,7 +130,7 @@ class CatalogServiceTest {
                 filename = "f.jpg",
                 contentType = "image/jpeg",
                 type = ActorMediaType.photo,
-                caption = "c"
+                caption = "c",
             )
 
             val snap = catalogService.exportSnapshot()
@@ -153,32 +154,34 @@ class CatalogServiceTest {
                     id = null,
                     name = "Вуз1",
                     shortName = "В1",
-                    oldNames = listOf("старое")
-                )
+                    oldNames = listOf("старое"),
+                ),
             )
-            val actorId = actorService.create(
-                ActorCreate(
-                    firstName = "Пётр",
-                    lastName = "Петров",
-                    birthDate = LocalDate.of(1985, 5, 5),
-                    gender = Gender.male,
-                )
-            ).id!!
+            val actorId =
+                actorService
+                    .create(
+                        ActorCreate(
+                            firstName = "Пётр",
+                            lastName = "Петров",
+                            birthDate = LocalDate.of(1985, 5, 5),
+                            gender = Gender.male,
+                        ),
+                    ).id!!
             mediaService.upload(
                 actorId = actorId,
                 inputStream = ByteArrayInputStream(MediaTestBytes.PNG),
                 filename = "x.png",
                 contentType = "image/png",
                 type = ActorMediaType.photo,
-                caption = null
+                caption = null,
             )
             adminRepository.save(
                 AdminDocument(
                     id = null,
                     email = "admin@test.ru",
                     passwordHash = "x",
-                    createdAt = Instant.now()
-                )
+                    createdAt = Instant.now(),
+                ),
             )
 
             val exported = catalogService.exportSnapshot()
@@ -207,9 +210,10 @@ class CatalogServiceTest {
         @Test
         fun `неверная version — 400`() {
             val empty = catalogService.exportSnapshot()
-            val ex = assertThrows<ResponseStatusException> {
-                catalogService.importSnapshot(empty.copy(version = 999))
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    catalogService.importSnapshot(empty.copy(version = 999))
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
     }

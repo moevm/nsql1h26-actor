@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class NosqlApplication
 
 fun main(args: Array<String>) {
-	runApplication<NosqlApplication>(*args)
+    runApplication<NosqlApplication>(*args)
 }

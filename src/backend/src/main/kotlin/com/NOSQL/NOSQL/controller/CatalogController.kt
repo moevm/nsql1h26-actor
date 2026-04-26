@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController
 class CatalogController(
     private val catalogService: CatalogService,
 ) : CatalogApi {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun v1CatalogExportGet(): ResponseEntity<CatalogSnapshot> {

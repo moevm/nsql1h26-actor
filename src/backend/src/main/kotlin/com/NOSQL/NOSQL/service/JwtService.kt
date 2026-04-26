@@ -12,9 +12,13 @@ class JwtService(
 ) {
     private val key by lazy { Keys.hmacShaKeyFor(secret.encodeToByteArray()) }
 
-    fun generateToken(subject: String, expirationSeconds: Long): String {
+    fun generateToken(
+        subject: String,
+        expirationSeconds: Long,
+    ): String {
         val exp = Date(System.currentTimeMillis() + expirationSeconds * 1000)
-        return Jwts.builder()
+        return Jwts
+            .builder()
             .subject(subject)
             .expiration(exp)
             .signWith(key)
@@ -22,5 +26,10 @@ class JwtService(
     }
 
     fun parseSubject(token: String): String =
-        Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload.subject
+        Jwts
+            .parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .payload.subject
 }

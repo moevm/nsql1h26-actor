@@ -13,7 +13,7 @@ import java.io.InputStream
 @Service
 class MediaService(
     private val mediaRepository: MediaRepository,
-    private val actorService: ActorService
+    private val actorService: ActorService,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -23,7 +23,7 @@ class MediaService(
         filename: String,
         contentType: String?,
         type: ActorMediaType,
-        caption: String?
+        caption: String?,
     ): MediaUploadResponse {
         log.info("Uploading media for actorId={}, type={}, filename={}", actorId, type, filename)
         if (!actorService.existsById(actorId)) {
@@ -31,7 +31,7 @@ class MediaService(
             return MediaUploadResponse(
                 status = MediaUploadResponse.Status.failed,
                 mediaId = null,
-                errorCode = "ACTOR_NOT_FOUND"
+                errorCode = "ACTOR_NOT_FOUND",
             )
         }
         val (header, fullStream) = MediaUploadValidator.peekHeaderAndWrap(inputStream)
@@ -42,23 +42,24 @@ class MediaService(
                 actorId,
                 filename,
                 type,
-                validationError
+                validationError,
             )
             fullStream.close()
             return MediaUploadResponse(
                 status = MediaUploadResponse.Status.failed,
                 mediaId = null,
-                errorCode = validationError
+                errorCode = validationError,
             )
         }
-        val mediaId = mediaRepository.store(
-            inputStream = fullStream,
-            filename = filename,
-            contentType = contentType,
-            actorId = actorId,
-            type = type.value,
-            caption = caption
-        )
+        val mediaId =
+            mediaRepository.store(
+                inputStream = fullStream,
+                filename = filename,
+                contentType = contentType,
+                actorId = actorId,
+                type = type.value,
+                caption = caption,
+            )
         when (type) {
             ActorMediaType.photo -> actorService.updatePhotos(actorId, mediaId, caption)
             ActorMediaType.video -> actorService.updateVideos(actorId, mediaId, caption)
@@ -67,11 +68,14 @@ class MediaService(
         return MediaUploadResponse(
             status = MediaUploadResponse.Status.ok,
             mediaId = mediaId,
-            errorCode = null
+            errorCode = null,
         )
     }
 
-    fun getResource(actorId: String, mediaId: String): Resource {
+    fun getResource(
+        actorId: String,
+        mediaId: String,
+    ): Resource {
         log.info("getResource: actorId={}, mediaId={}", actorId, mediaId)
         return mediaRepository.findOne(actorId, mediaId)
             ?: run {
@@ -80,7 +84,10 @@ class MediaService(
             }
     }
 
-    fun delete(actorId: String, mediaId: String) {
+    fun delete(
+        actorId: String,
+        mediaId: String,
+    ) {
         log.info("delete media: actorId={}, mediaId={}", actorId, mediaId)
         if (!actorService.existsById(actorId)) {
             log.warn("Actor not found for media delete: actorId={}", actorId)

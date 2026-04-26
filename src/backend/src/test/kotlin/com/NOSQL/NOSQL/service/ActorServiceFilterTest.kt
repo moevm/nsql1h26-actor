@@ -30,12 +30,12 @@ import java.time.LocalDate
 @SpringBootTest
 @ActiveProfiles("test")
 class ActorServiceFilterTest {
-
     companion object {
         @Container
         @JvmStatic
-        val mongo = GenericContainer(DockerImageName.parse("mongo:7"))
-            .withExposedPorts(27017)
+        val mongo =
+            GenericContainer(DockerImageName.parse("mongo:7"))
+                .withExposedPorts(27017)
 
         @DynamicPropertySource
         @JvmStatic
@@ -82,109 +82,130 @@ class ActorServiceFilterTest {
         uniB = resB.id!!
 
         // Actor 1: male, 40, weight 70, black hair, brown eyes, national title, Sovremennik theatre, drama, films 2010 & 2015, uni A
-        val create1 = actorService.create(
-            ActorCreate(
-                firstName = "Иван",
-                lastName = "Петров",
-                middleName = null,
-                birthDate = now.minusYears(40),
-                height = 180,
-                weight = 70,
-                gender = Gender.male,
-                hairColor = "чёрный",
-                eyeColor = "карий",
-                bio = null,
-                title = Title.national,
-                education = listOf(EducationCreateItem(uniId = uniA)),
-                films = listOf(
-                    FilmPlayItem(title = "Фильм 1", year = 2010, role = "Роль 1", director = "Реж 1"),
-                    FilmPlayItem(title = "Фильм 2", year = 2015, role = "Роль 2", director = "Реж 2")
+        val create1 =
+            actorService.create(
+                ActorCreate(
+                    firstName = "Иван",
+                    lastName = "Петров",
+                    middleName = null,
+                    birthDate = now.minusYears(40),
+                    height = 180,
+                    weight = 70,
+                    gender = Gender.male,
+                    hairColor = "чёрный",
+                    eyeColor = "карий",
+                    bio = null,
+                    title = Title.national,
+                    education = listOf(EducationCreateItem(uniId = uniA)),
+                    films =
+                        listOf(
+                            FilmPlayItem(title = "Фильм 1", year = 2010, role = "Роль 1", director = "Реж 1"),
+                            FilmPlayItem(title = "Фильм 2", year = 2015, role = "Роль 2", director = "Реж 2"),
+                        ),
+                    theatrePlayItems =
+                        listOf(
+                            TheatrePlayItem(
+                                name = "Современник",
+                                years = "2005–",
+                                plays = listOf(FilmPlayItem(title = "Пьеса 1", year = 2006, role = "Роль", director = null)),
+                            ),
+                        ),
+                    genres = listOf("драма"),
                 ),
-                theatrePlayItems = listOf(
-                    TheatrePlayItem(name = "Современник", years = "2005–", plays = listOf(FilmPlayItem(title = "Пьеса 1", year = 2006, role = "Роль", director = null)))
-                ),
-                genres = listOf("драма")
             )
-        )
         idMale40 = create1.id!!
 
         // Actor 2: female, 35, weight 60, fair hair, blue eyes, honored title, Lenkom theatre, comedy, film 2012, uni B
-        val create2 = actorService.create(
-            ActorCreate(
-                firstName = "Мария",
-                lastName = "Сидорова",
-                middleName = null,
-                birthDate = now.minusYears(35),
-                height = 165,
-                weight = 60,
-                gender = Gender.female,
-                hairColor = "русый",
-                eyeColor = "голубой",
-                bio = null,
-                title = Title.honored,
-                education = listOf(EducationCreateItem(uniId = uniB)),
-                films = listOf(FilmPlayItem(title = "Комедия", year = 2012, role = "Главная", director = "Реж")),
-                theatrePlayItems = listOf(
-                    TheatrePlayItem(name = "Ленком", years = "2010–", plays = listOf(FilmPlayItem(title = "Пьеса", year = 2011, role = "Роль", director = null)))
+        val create2 =
+            actorService.create(
+                ActorCreate(
+                    firstName = "Мария",
+                    lastName = "Сидорова",
+                    middleName = null,
+                    birthDate = now.minusYears(35),
+                    height = 165,
+                    weight = 60,
+                    gender = Gender.female,
+                    hairColor = "русый",
+                    eyeColor = "голубой",
+                    bio = null,
+                    title = Title.honored,
+                    education = listOf(EducationCreateItem(uniId = uniB)),
+                    films = listOf(FilmPlayItem(title = "Комедия", year = 2012, role = "Главная", director = "Реж")),
+                    theatrePlayItems =
+                        listOf(
+                            TheatrePlayItem(
+                                name = "Ленком",
+                                years = "2010–",
+                                plays = listOf(FilmPlayItem(title = "Пьеса", year = 2011, role = "Роль", director = null)),
+                            ),
+                        ),
+                    genres = listOf("комедия"),
                 ),
-                genres = listOf("комедия")
             )
-        )
         idFemale35 = create2.id!!
 
         // Actor 3: male, 25, weight 80, black hair, no title, Sovremennik, drama & comedy, film 2020
-        val create3 = actorService.create(
-            ActorCreate(
-                firstName = "Алексей",
-                lastName = "Козлов",
-                middleName = null,
-                birthDate = now.minusYears(25),
-                height = 178,
-                weight = 80,
-                gender = Gender.male,
-                hairColor = "чёрный",
-                eyeColor = null,
-                bio = null,
-                title = Title.none,
-                education = null,
-                films = listOf(FilmPlayItem(title = "Новый фильм", year = 2020, role = "Эпизод", director = null)),
-                theatrePlayItems = listOf(
-                    TheatrePlayItem(name = "Современник", years = "2020–", plays = listOf(FilmPlayItem(title = "Пьеса 2020", year = 2020, role = "Роль", director = null)))
+        val create3 =
+            actorService.create(
+                ActorCreate(
+                    firstName = "Алексей",
+                    lastName = "Козлов",
+                    middleName = null,
+                    birthDate = now.minusYears(25),
+                    height = 178,
+                    weight = 80,
+                    gender = Gender.male,
+                    hairColor = "чёрный",
+                    eyeColor = null,
+                    bio = null,
+                    title = Title.none,
+                    education = null,
+                    films = listOf(FilmPlayItem(title = "Новый фильм", year = 2020, role = "Эпизод", director = null)),
+                    theatrePlayItems =
+                        listOf(
+                            TheatrePlayItem(
+                                name = "Современник",
+                                years = "2020–",
+                                plays = listOf(FilmPlayItem(title = "Пьеса 2020", year = 2020, role = "Роль", director = null)),
+                            ),
+                        ),
+                    genres = listOf("драма", "комедия"),
                 ),
-                genres = listOf("драма", "комедия")
             )
-        )
         idMale25 = create3.id!!
 
-        val create4 = actorService.create(
-            ActorCreate(
-                firstName = "Олег",
-                lastName = "Смирнов",
-                middleName = null,
-                birthDate = now.minusYears(30),
-                gender = Gender.male,
-                education = null,
-                films = null,
-                theatrePlayItems = null,
-                genres = null
+        val create4 =
+            actorService.create(
+                ActorCreate(
+                    firstName = "Олег",
+                    lastName = "Смирнов",
+                    middleName = null,
+                    birthDate = now.minusYears(30),
+                    gender = Gender.male,
+                    education = null,
+                    films = null,
+                    theatrePlayItems = null,
+                    genres = null,
+                ),
             )
-        )
         idOleg = create4.id!!
 
         // Actor with patronymic — full-name search tests
-        val create5 = actorService.create(
-            ActorCreate(
-                firstName = "Николай",
-                lastName = "Иванов",
-                middleName = "Михайлович",
-                birthDate = now.minusYears(28),
-                gender = Gender.male,
-                education = null,
-                films = null,
-                theatrePlayItems = null,
-                genres = null
+        val create5 =
+            actorService.create(
+                ActorCreate(
+                    firstName = "Николай",
+                    lastName = "Иванов",
+                    middleName = "Михайлович",
+                    birthDate = now.minusYears(28),
+                    gender = Gender.male,
+                    education = null,
+                    films = null,
+                    theatrePlayItems = null,
+                    genres = null,
+                ),
             )
-        )
         idWithMiddleName = create5.id!!
     }
 
@@ -349,19 +370,20 @@ class ActorServiceFilterTest {
         @Test
         fun `ageTo includes peers whose birthday before anniversary this year`() {
             val now = LocalDate.now()
-            val res = actorService.create(
-                ActorCreate(
-                    firstName = "Граница",
-                    lastName = "Возраста",
-                    middleName = null,
-                    birthDate = now.minusYears(48).minusDays(1),
-                    gender = Gender.male,
-                    education = null,
-                    films = null,
-                    theatrePlayItems = null,
-                    genres = null
+            val res =
+                actorService.create(
+                    ActorCreate(
+                        firstName = "Граница",
+                        lastName = "Возраста",
+                        middleName = null,
+                        birthDate = now.minusYears(48).minusDays(1),
+                        gender = Gender.male,
+                        education = null,
+                        films = null,
+                        theatrePlayItems = null,
+                        genres = null,
+                    ),
                 )
-            )
             val idBoundary = res.id!!
             assertThat(findAll(ageTo = 48).map { it.id }).contains(idBoundary)
             assertThat(findAll(ageTo = 47).map { it.id }).doesNotContain(idBoundary)

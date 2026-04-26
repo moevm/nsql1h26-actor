@@ -16,7 +16,6 @@ class AdminSeeder(
     private val adminRepository: AdminRepository,
     private val passwordEncoder: PasswordEncoder,
 ) : ApplicationRunner {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Value("\${app.admin.seed-email:admin@example.com}")
@@ -28,14 +27,15 @@ class AdminSeeder(
     override fun run(args: ApplicationArguments) {
         if (adminRepository.count() > 0) return
         val email = seedEmail.trim().lowercase()
-        val passwordHash = passwordEncoder.encode(seedPassword)
-            ?: throw IllegalStateException("PasswordEncoder.encode returned null")
+        val passwordHash =
+            passwordEncoder.encode(seedPassword)
+                ?: throw IllegalStateException("PasswordEncoder.encode returned null")
         adminRepository.save(
             AdminDocument(
                 email = email,
                 passwordHash = passwordHash,
-                createdAt = java.time.Instant.now()
-            )
+                createdAt = java.time.Instant.now(),
+            ),
         )
         log.info("Seeded default admin: {}", email)
     }

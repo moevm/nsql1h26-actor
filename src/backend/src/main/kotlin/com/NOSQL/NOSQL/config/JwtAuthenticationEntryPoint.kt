@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component
 
 @Component
 class JwtAuthenticationEntryPoint : AuthenticationEntryPoint {
-
     private val objectMapper = ObjectMapper()
 
     override fun commence(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        authException: AuthenticationException
+        authException: AuthenticationException,
     ) {
-        val message = request.getAttribute(ATTR_ERROR_MESSAGE) as? String
-            ?: "Authorization header required: Bearer <token>"
+        val message =
+            request.getAttribute(ATTR_ERROR_MESSAGE) as? String
+                ?: "Authorization header required: Bearer <token>"
         val body = UnauthorizedError(error = "Unauthorized", message = message)
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = MediaType.APPLICATION_JSON_VALUE

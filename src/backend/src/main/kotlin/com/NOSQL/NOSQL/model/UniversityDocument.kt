@@ -9,5 +9,5 @@ data class UniversityDocument(
     val id: String? = null,
     val name: String,
     val shortName: String? = null,
-    val oldNames: List<String>? = null
+    val oldNames: List<String>? = null,
 )

@@ -1,6 +1,13 @@
 package com.NOSQL.NOSQL.mapping
 
 import com.NOSQL.NOSQL.model.ActorDocument
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import java.net.URI
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 import com.NOSQL.NOSQL.model.domain.ContactLinkItem as DomainContactLinkItem
 import com.NOSQL.NOSQL.model.domain.EducationItem as DomainEducationItem
 import com.NOSQL.NOSQL.model.domain.FilmPlayItem as DomainFilmPlayItem
@@ -9,54 +16,49 @@ import com.NOSQL.NOSQL.model.domain.PhotoItem as DomainPhotoItem
 import com.NOSQL.NOSQL.model.domain.TheatrePlayItem as DomainTheatrePlayItem
 import com.NOSQL.NOSQL.model.domain.Title as DomainTitle
 import com.NOSQL.NOSQL.model.domain.VideoItem as DomainVideoItem
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
-import java.net.URI
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class MappingToApiTest {
-
     @Test
     @DisplayName("documentToActor — все поля, education без university")
     fun documentToActor_full() {
-        val doc = ActorDocument(
-            id = "507f1f77bcf86cd799439011",
-            firstName = "Иван",
-            lastName = "Петров",
-            middleName = "Сергеевич",
-            birthDate = LocalDate.of(1990, 5, 20),
-            height = 180,
-            weight = 75,
-            gender = DomainGender.male,
-            hairColor = "чёрный",
-            eyeColor = "карий",
-            bio = "Био",
-            title = DomainTitle.national,
-            phone = "+7 999 000-00-00",
-            email = "test@example.com",
-            links = listOf(
-                DomainContactLinkItem(name = "ВК", url = "https://vk.com/id"),
-                DomainContactLinkItem(name = "Личный сайт", url = "https://site.ru")
-            ),
-            education = listOf(DomainEducationItem(uniId = "uni1", graduationYear = 2012, name = "Актёр")),
-            films = listOf(DomainFilmPlayItem(title = "Фильм", year = 2020, role = "Роль", director = "Реж")),
-            theatrePlayItems = listOf(
-                DomainTheatrePlayItem(
-                    name = "Театр",
-                    years = "2015–",
-                    plays = listOf(DomainFilmPlayItem(title = "Пьеса", year = 2016, role = "Роль", director = null))
-                )
-            ),
-            photos = listOf(DomainPhotoItem(id = "photo1", caption = "Фото")),
-            mainPhotoId = "507f1f77bcf86cd799439012",
-            videos = listOf(DomainVideoItem(id = "video1", caption = "Видео")),
-            genres = listOf("драма"),
-            createdAt = Instant.EPOCH,
-            updatedAt = Instant.EPOCH
-        )
+        val doc =
+            ActorDocument(
+                id = "507f1f77bcf86cd799439011",
+                firstName = "Иван",
+                lastName = "Петров",
+                middleName = "Сергеевич",
+                birthDate = LocalDate.of(1990, 5, 20),
+                height = 180,
+                weight = 75,
+                gender = DomainGender.male,
+                hairColor = "чёрный",
+                eyeColor = "карий",
+                bio = "Био",
+                title = DomainTitle.national,
+                phone = "+7 999 000-00-00",
+                email = "test@example.com",
+                links =
+                    listOf(
+                        DomainContactLinkItem(name = "ВК", url = "https://vk.com/id"),
+                        DomainContactLinkItem(name = "Личный сайт", url = "https://site.ru"),
+                    ),
+                education = listOf(DomainEducationItem(uniId = "uni1", graduationYear = 2012, name = "Актёр")),
+                films = listOf(DomainFilmPlayItem(title = "Фильм", year = 2020, role = "Роль", director = "Реж")),
+                theatrePlayItems =
+                    listOf(
+                        DomainTheatrePlayItem(
+                            name = "Театр",
+                            years = "2015–",
+                            plays = listOf(DomainFilmPlayItem(title = "Пьеса", year = 2016, role = "Роль", director = null)),
+                        ),
+                    ),
+                photos = listOf(DomainPhotoItem(id = "photo1", caption = "Фото")),
+                mainPhotoId = "507f1f77bcf86cd799439012",
+                videos = listOf(DomainVideoItem(id = "video1", caption = "Видео")),
+                genres = listOf("драма"),
+                createdAt = Instant.EPOCH,
+                updatedAt = Instant.EPOCH,
+            )
         val actor = MappingToApi.documentToActor(doc)
         assertThat(actor.id).isEqualTo("507f1f77bcf86cd799439011")
         assertThat(actor.firstName).isEqualTo("Иван")
@@ -91,11 +93,12 @@ class MappingToApiTest {
     @Test
     @DisplayName("documentToActor — минимальный документ")
     fun documentToActor_minimal() {
-        val doc = ActorDocument(
-            id = "id1",
-            firstName = "А",
-            lastName = "Б"
-        )
+        val doc =
+            ActorDocument(
+                id = "id1",
+                firstName = "А",
+                lastName = "Б",
+            )
         val actor = MappingToApi.documentToActor(doc)
         assertThat(actor.id).isEqualTo("id1")
         assertThat(actor.firstName).isEqualTo("А")

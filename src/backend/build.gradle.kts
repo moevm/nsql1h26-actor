@@ -4,6 +4,7 @@ plugins {
 	id("org.springframework.boot") version "4.0.2"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("org.openapi.generator") version "7.2.0"
+	id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 group = "com.NOSQL"
@@ -54,6 +55,25 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+ktlint {
+	filter {
+		exclude {
+			val normalized =
+				project.projectDir.toPath().relativize(it.file.toPath()).toString().replace('\\', '/')
+			normalized.startsWith("build/generated/") || normalized.contains("/build/generated/")
+		}
+	}
+}
+
+tasks.matching {
+	it.name == "ktlintKotlinScriptCheck" ||
+		it.name == "ktlintKotlinScriptFormat" ||
+		it.name == "runKtlintCheckOverKotlinScripts" ||
+		it.name == "runKtlintFormatOverKotlinScripts"
+}.configureEach {
+	enabled = false
 }
 
 openApiGenerate {

@@ -8,8 +8,8 @@ import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ContactLinkItem
 import com.NOSQL.NOSQL.model.generated.EducationCreateItem
 import com.NOSQL.NOSQL.model.generated.EducationItem
-import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.FilmPlayItem
+import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
 import com.NOSQL.NOSQL.repository.ActorRepository
@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.web.server.ResponseStatusException
 import org.testcontainers.containers.GenericContainer
@@ -39,7 +39,6 @@ import java.time.LocalDate
 @SpringBootTest
 @ActiveProfiles("test")
 class ActorServiceTest {
-
     companion object {
         @Container
         @JvmStatic
@@ -86,19 +85,21 @@ class ActorServiceTest {
     inner class Create {
         @Test
         fun `успех — возвращает id и status ok`() {
-            val create = ActorCreate(
-                firstName = "Иван",
-                lastName = "Петров",
-                birthDate = LocalDate.of(1990, 1, 1),
-                gender = Gender.male,
-                phone = "+7 999 123-45-67",
-                email = "ivan@example.com",
-                links = listOf(
-                    ContactLinkItem(name = "ВК", url = URI("https://vk.com/ivan")),
-                    ContactLinkItem(name = "Рутуб", url = URI("https://rutube.ru/ivan"))
-                ),
-                education = listOf(EducationCreateItem(uniId = validUniId))
-            )
+            val create =
+                ActorCreate(
+                    firstName = "Иван",
+                    lastName = "Петров",
+                    birthDate = LocalDate.of(1990, 1, 1),
+                    gender = Gender.male,
+                    phone = "+7 999 123-45-67",
+                    email = "ivan@example.com",
+                    links =
+                        listOf(
+                            ContactLinkItem(name = "ВК", url = URI("https://vk.com/ivan")),
+                            ContactLinkItem(name = "Рутуб", url = URI("https://rutube.ru/ivan")),
+                        ),
+                    education = listOf(EducationCreateItem(uniId = validUniId)),
+                )
             val response = actorService.create(create)
             assertThat(response.status).isEqualTo(ActorCreateResponse.Status.ok)
             assertThat(response.id).isNotNull()
@@ -108,11 +109,12 @@ class ActorServiceTest {
 
         @Test
         fun `несуществующий uniId — 400 Вуз не найден`() {
-            val create = ActorCreate(
-                firstName = "Иван",
-                lastName = "Петров",
-                education = listOf(EducationCreateItem(uniId = "000000000000000000000000"))
-            )
+            val create =
+                ActorCreate(
+                    firstName = "Иван",
+                    lastName = "Петров",
+                    education = listOf(EducationCreateItem(uniId = "000000000000000000000000")),
+                )
             val ex = assertThrows<ResponseStatusException> { actorService.create(create) }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
             assertThat(ex.reason).contains("University not found")
@@ -134,17 +136,19 @@ class ActorServiceTest {
 
         @Test
         fun `успех — меняется только переданное поле, остальное сохраняется`() {
-            val id = actorService.create(
-                ActorCreate(
-                    firstName = "Иван",
-                    lastName = "Петров",
-                    birthDate = LocalDate.of(1990, 1, 1),
-                    gender = Gender.male,
-                    title = Title.national,
-                    phone = "+7 900 000-00-00",
-                    education = listOf(EducationCreateItem(uniId = validUniId))
-                )
-            ).id!!
+            val id =
+                actorService
+                    .create(
+                        ActorCreate(
+                            firstName = "Иван",
+                            lastName = "Петров",
+                            birthDate = LocalDate.of(1990, 1, 1),
+                            gender = Gender.male,
+                            title = Title.national,
+                            phone = "+7 900 000-00-00",
+                            education = listOf(EducationCreateItem(uniId = validUniId)),
+                        ),
+                    ).id!!
             val updated = actorService.update(id, ActorUpdate(firstName = "Пётр"))
             assertThat(updated.firstName).isEqualTo("Пётр")
             assertThat(updated.lastName).isEqualTo("Петров")
@@ -158,9 +162,11 @@ class ActorServiceTest {
 
         @Test
         fun `genres — при передаче списка он заменяется целиком, emptyList() очищает`() {
-            val id = actorService.create(
-                ActorCreate(firstName = "Иван", lastName = "Петров", genres = listOf("драма", "комедия"))
-            ).id!!
+            val id =
+                actorService
+                    .create(
+                        ActorCreate(firstName = "Иван", lastName = "Петров", genres = listOf("драма", "комедия")),
+                    ).id!!
             val withOne = actorService.update(id, ActorUpdate(genres = listOf("триллер")))
             assertThat(withOne.genres).containsExactly("триллер")
             val cleared = actorService.update(id, ActorUpdate(genres = emptyList()))
@@ -169,37 +175,44 @@ class ActorServiceTest {
 
         @Test
         fun `links — заменяются целиком`() {
-            val id = actorService.create(
-                ActorCreate(
-                    firstName = "Иван",
-                    lastName = "Петров",
-                    links = listOf(
-                        ContactLinkItem(name = "ВК", url = URI("https://vk.com/a")),
-                        ContactLinkItem(name = "Сайт", url = URI("https://a.ru"))
-                    )
+            val id =
+                actorService
+                    .create(
+                        ActorCreate(
+                            firstName = "Иван",
+                            lastName = "Петров",
+                            links =
+                                listOf(
+                                    ContactLinkItem(name = "ВК", url = URI("https://vk.com/a")),
+                                    ContactLinkItem(name = "Сайт", url = URI("https://a.ru")),
+                                ),
+                        ),
+                    ).id!!
+            val replaced =
+                actorService.update(
+                    id,
+                    ActorUpdate(links = listOf(ContactLinkItem(name = "Телеграм", url = URI("https://t.me/a")))),
                 )
-            ).id!!
-            val replaced = actorService.update(
-                id,
-                ActorUpdate(links = listOf(ContactLinkItem(name = "Телеграм", url = URI("https://t.me/a"))))
-            )
             assertThat(replaced.links).hasSize(1)
             assertThat(replaced.links!![0].name).isEqualTo("Телеграм")
         }
 
         @Test
         fun `films — заменяются целиком`() {
-            val id = actorService.create(
-                ActorCreate(
-                    firstName = "Иван",
-                    lastName = "Петров",
-                    films = listOf(FilmPlayItem(title = "Старый", year = 2000, role = "роль", director = "реж"))
+            val id =
+                actorService
+                    .create(
+                        ActorCreate(
+                            firstName = "Иван",
+                            lastName = "Петров",
+                            films = listOf(FilmPlayItem(title = "Старый", year = 2000, role = "роль", director = "реж")),
+                        ),
+                    ).id!!
+            val u =
+                actorService.update(
+                    id,
+                    ActorUpdate(films = listOf(FilmPlayItem(title = "Новый", year = 2020, role = "главная", director = "др"))),
                 )
-            ).id!!
-            val u = actorService.update(
-                id,
-                ActorUpdate(films = listOf(FilmPlayItem(title = "Новый", year = 2020, role = "главная", director = "др")))
-            )
             assertThat(u.films).hasSize(1)
             assertThat(u.films!![0].title).isEqualTo("Новый")
             assertThat(u.films[0].year).isEqualTo(2020)
@@ -215,21 +228,23 @@ class ActorServiceTest {
 
         @Test
         fun `несуществующий актёр — 404`() {
-            val ex = assertThrows<ResponseStatusException> {
-                actorService.update("000000000000000000000000", ActorUpdate(lastName = "X"))
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    actorService.update("000000000000000000000000", ActorUpdate(lastName = "X"))
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
         }
 
         @Test
         fun `education с несуществующим uniId — 400`() {
             val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
-            val ex = assertThrows<ResponseStatusException> {
-                actorService.update(
-                    id,
-                    ActorUpdate(education = listOf(EducationItem(uniId = "000000000000000000000000", graduationYear = 2010, name = "X")))
-                )
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    actorService.update(
+                        id,
+                        ActorUpdate(education = listOf(EducationItem(uniId = "000000000000000000000000", graduationYear = 2010, name = "X"))),
+                    )
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
             assertThat(ex.reason).contains("University not found")
         }
@@ -247,9 +262,10 @@ class ActorServiceTest {
         fun `mainPhotoId не из списка photos — 400`() {
             val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
             actorService.updatePhotos(id, samplePhotoId, null)
-            val ex = assertThrows<ResponseStatusException> {
-                actorService.update(id, ActorUpdate(mainPhotoId = "bbbbbbbbbbbbbbbbbbbbbbbb"))
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    actorService.update(id, ActorUpdate(mainPhotoId = "bbbbbbbbbbbbbbbbbbbbbbbb"))
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
             assertThat(ex.reason).contains("mainPhotoId")
         }
@@ -257,9 +273,10 @@ class ActorServiceTest {
         @Test
         fun `mainPhotoId без фото у актёра — 400`() {
             val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
-            val ex = assertThrows<ResponseStatusException> {
-                actorService.update(id, ActorUpdate(mainPhotoId = samplePhotoId))
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    actorService.update(id, ActorUpdate(mainPhotoId = samplePhotoId))
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
     }
@@ -269,17 +286,19 @@ class ActorServiceTest {
     inner class GetById {
         @Test
         fun `успех — возвращает актёра с обогащённым education university и контактами`() {
-            val create = ActorCreate(
-                firstName = "Иван",
-                lastName = "Петров",
-                phone = "+7 999 111-22-33",
-                email = "actor@mail.ru",
-                links = listOf(
-                    ContactLinkItem(name = "ВК", url = URI("https://vk.com/ivan_petrov")),
-                    ContactLinkItem(name = "Личный сайт", url = URI("https://ivan-actor.ru"))
-                ),
-                education = listOf(EducationCreateItem(uniId = validUniId))
-            )
+            val create =
+                ActorCreate(
+                    firstName = "Иван",
+                    lastName = "Петров",
+                    phone = "+7 999 111-22-33",
+                    email = "actor@mail.ru",
+                    links =
+                        listOf(
+                            ContactLinkItem(name = "ВК", url = URI("https://vk.com/ivan_petrov")),
+                            ContactLinkItem(name = "Личный сайт", url = URI("https://ivan-actor.ru")),
+                        ),
+                    education = listOf(EducationCreateItem(uniId = validUniId)),
+                )
             val id = actorService.create(create).id!!
             val actor = actorService.getById(id)
             assertThat(actor.id).isEqualTo(id)
@@ -300,9 +319,10 @@ class ActorServiceTest {
 
         @Test
         fun `несуществующий id — 404`() {
-            val ex = assertThrows<ResponseStatusException> {
-                actorService.getById("000000000000000000000000")
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    actorService.getById("000000000000000000000000")
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
             assertThat(ex.reason).contains("Actor not found")
         }
@@ -323,9 +343,10 @@ class ActorServiceTest {
 
         @Test
         fun `updatePhotos — актёр не найден 404`() {
-            val ex = assertThrows<ResponseStatusException> {
-                actorService.updatePhotos("000000000000000000000000", "x", null)
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    actorService.updatePhotos("000000000000000000000000", "x", null)
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
         }
 
@@ -340,9 +361,10 @@ class ActorServiceTest {
 
         @Test
         fun `updateVideos — актёр не найден 404`() {
-            val ex = assertThrows<ResponseStatusException> {
-                actorService.updateVideos("000000000000000000000000", "x", null)
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    actorService.updateVideos("000000000000000000000000", "x", null)
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
         }
     }
@@ -400,9 +422,10 @@ class ActorServiceTest {
 
         @Test
         fun `несуществующий id — 404`() {
-            val ex = assertThrows<ResponseStatusException> {
-                actorService.deleteById("000000000000000000000000")
-            }
+            val ex =
+                assertThrows<ResponseStatusException> {
+                    actorService.deleteById("000000000000000000000000")
+                }
             assertThat(ex.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
             assertThat(ex.reason).contains("Actor not found")
         }
