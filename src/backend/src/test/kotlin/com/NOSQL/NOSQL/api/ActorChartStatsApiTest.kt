@@ -134,7 +134,7 @@ class ActorChartStatsApiTest {
     @DisplayName("POST /v1/actors/stats")
     inner class PostStats {
         @Test
-        fun `200 height and title — two series sorted by name`() {
+        fun `200 height and title - two series sorted by name`() {
             val mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
             val body = ActorStatsRequest(
                 xAxis = ChartStatsXAxis.height,

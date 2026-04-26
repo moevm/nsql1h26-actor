@@ -3,6 +3,7 @@ package com.NOSQL.NOSQL.config
 import com.NOSQL.NOSQL.model.AdminDocument
 import com.NOSQL.NOSQL.repository.AdminRepository
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.core.annotation.Order
@@ -18,10 +19,10 @@ class AdminSeeder(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    @org.springframework.beans.factory.annotation.Value("\${app.admin.seed-email:admin@example.com}")
+    @Value("\${app.admin.seed-email:admin@example.com}")
     private lateinit var seedEmail: String
 
-    @org.springframework.beans.factory.annotation.Value("\${app.admin.seed-password:admin}")
+    @Value("\${app.admin.seed-password:admin}")
     private lateinit var seedPassword: String
 
     override fun run(args: ApplicationArguments) {

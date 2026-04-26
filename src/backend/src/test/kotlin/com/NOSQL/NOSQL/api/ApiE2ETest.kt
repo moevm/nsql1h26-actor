@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
@@ -72,7 +73,7 @@ class ApiE2ETest {
     lateinit var adminRepository: AdminRepository
 
     @Autowired
-    lateinit var passwordEncoder: org.springframework.security.crypto.password.PasswordEncoder
+    lateinit var passwordEncoder: PasswordEncoder
 
     @Autowired
     lateinit var jwtService: JwtService

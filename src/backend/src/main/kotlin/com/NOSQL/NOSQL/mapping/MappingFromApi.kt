@@ -12,7 +12,13 @@ import com.NOSQL.NOSQL.model.domain.VideoItem as DomainVideoItem
 import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
+import com.NOSQL.NOSQL.model.generated.ContactLinkItem as ApiContactLinkItem
 import com.NOSQL.NOSQL.model.generated.EducationCreateItem
+import com.NOSQL.NOSQL.model.generated.EducationItem as ApiEducationItem
+import com.NOSQL.NOSQL.model.generated.FilmPlayItem as ApiFilmPlayItem
+import com.NOSQL.NOSQL.model.generated.PhotoItem as ApiPhotoItem
+import com.NOSQL.NOSQL.model.generated.TheatrePlayItem as ApiTheatrePlayItem
+import com.NOSQL.NOSQL.model.generated.VideoItem as ApiVideoItem
 import java.time.OffsetDateTime
 
 object MappingFromApi {
@@ -94,20 +100,20 @@ object MappingFromApi {
             mainPhotoId = update.mainPhotoId ?: doc.mainPhotoId,
         )
 
-    private fun contactLinkItemToDomain(it: com.NOSQL.NOSQL.model.generated.ContactLinkItem): DomainContactLinkItem =
+    private fun contactLinkItemToDomain(it: ApiContactLinkItem): DomainContactLinkItem =
         DomainContactLinkItem(name = it.name, url = it.url?.toString())
 
     private fun educationCreateItemToDomain(it: EducationCreateItem): DomainEducationItem =
         DomainEducationItem(uniId = it.uniId, graduationYear = null, name = null)
 
-    private fun educationItemToDomain(it: com.NOSQL.NOSQL.model.generated.EducationItem): DomainEducationItem =
+    private fun educationItemToDomain(it: ApiEducationItem): DomainEducationItem =
         DomainEducationItem(
             uniId = it.uniId,
             graduationYear = it.graduationYear,
             name = it.name
         )
 
-    private fun filmPlayItemToDomain(it: com.NOSQL.NOSQL.model.generated.FilmPlayItem): DomainFilmPlayItem =
+    private fun filmPlayItemToDomain(it: ApiFilmPlayItem): DomainFilmPlayItem =
         DomainFilmPlayItem(
             title = it.title,
             year = it.year,
@@ -115,16 +121,16 @@ object MappingFromApi {
             director = it.director
         )
 
-    private fun theatrePlayItemToDomain(it: com.NOSQL.NOSQL.model.generated.TheatrePlayItem): DomainTheatrePlayItem =
+    private fun theatrePlayItemToDomain(it: ApiTheatrePlayItem): DomainTheatrePlayItem =
         DomainTheatrePlayItem(
             name = it.name,
             years = it.years,
             plays = it.plays?.map(::filmPlayItemToDomain)
         )
 
-    private fun photoItemToDomain(it: com.NOSQL.NOSQL.model.generated.PhotoItem): DomainPhotoItem =
+    private fun photoItemToDomain(it: ApiPhotoItem): DomainPhotoItem =
         DomainPhotoItem(id = it.id, caption = it.caption)
 
-    private fun videoItemToDomain(it: com.NOSQL.NOSQL.model.generated.VideoItem): DomainVideoItem =
+    private fun videoItemToDomain(it: ApiVideoItem): DomainVideoItem =
         DomainVideoItem(id = it.id, caption = it.caption)
 }

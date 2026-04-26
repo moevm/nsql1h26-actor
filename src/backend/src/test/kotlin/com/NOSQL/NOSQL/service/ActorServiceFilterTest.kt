@@ -7,6 +7,7 @@ import com.NOSQL.NOSQL.model.generated.Gender
 import com.NOSQL.NOSQL.model.generated.TheatrePlayItem
 import com.NOSQL.NOSQL.model.generated.Title
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
+import com.NOSQL.NOSQL.model.generated.UniversityCreateResponse
 import com.NOSQL.NOSQL.repository.ActorRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -75,8 +76,8 @@ class ActorServiceFilterTest {
         // Universities
         val resA = universityService.create(UniversityCreate(name = "Вуз А", shortName = "А", oldNames = null))
         val resB = universityService.create(UniversityCreate(name = "Вуз Б", shortName = "Б", oldNames = null))
-        assertThat(resA.status).isEqualTo(com.NOSQL.NOSQL.model.generated.UniversityCreateResponse.Status.ok)
-        assertThat(resB.status).isEqualTo(com.NOSQL.NOSQL.model.generated.UniversityCreateResponse.Status.ok)
+        assertThat(resA.status).isEqualTo(UniversityCreateResponse.Status.ok)
+        assertThat(resB.status).isEqualTo(UniversityCreateResponse.Status.ok)
         uniA = resA.id!!
         uniB = resB.id!!
 

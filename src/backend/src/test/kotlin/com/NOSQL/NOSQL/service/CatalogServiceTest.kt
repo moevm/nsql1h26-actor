@@ -2,8 +2,8 @@ package com.NOSQL.NOSQL.service
 
 import com.NOSQL.NOSQL.MediaTestBytes
 import com.NOSQL.NOSQL.model.AdminDocument
+import com.NOSQL.NOSQL.model.UniversityDocument
 import com.NOSQL.NOSQL.model.catalog.CATALOG_VERSION
-import com.NOSQL.NOSQL.model.generated.CatalogSnapshot
 import com.NOSQL.NOSQL.model.generated.ActorCreate
 import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.Gender
@@ -100,7 +100,7 @@ class CatalogServiceTest {
         @Test
         fun `снимок содержит вуз актёра админа и медиа`() {
             universityRepository.save(
-                com.NOSQL.NOSQL.model.UniversityDocument(
+                UniversityDocument(
                     id = null,
                     name = "МГУ",
                     shortName = "МГУ",
@@ -149,7 +149,7 @@ class CatalogServiceTest {
         @Test
         fun `импорт восстанавливает данные и медиа`() {
             universityRepository.save(
-                com.NOSQL.NOSQL.model.UniversityDocument(
+                UniversityDocument(
                     id = null,
                     name = "Вуз1",
                     shortName = "В1",

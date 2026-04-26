@@ -3,6 +3,7 @@ package com.NOSQL.NOSQL.service
 import com.NOSQL.NOSQL.model.ActorDocument
 import com.NOSQL.NOSQL.model.domain.EducationItem
 import com.NOSQL.NOSQL.model.generated.UniversityCreate
+import com.NOSQL.NOSQL.model.generated.UniversityCreateResponse
 import com.NOSQL.NOSQL.model.generated.UniversityUpdate
 import com.NOSQL.NOSQL.repository.ActorRepository
 import com.NOSQL.NOSQL.repository.UniversityRepository
@@ -62,7 +63,7 @@ class UniversityServiceTest {
     @DisplayName("create — name only")
     fun createMinimal() {
         val res = universityService.create(UniversityCreate(name = "МГУ"))
-        assertThat(res.status).isEqualTo(com.NOSQL.NOSQL.model.generated.UniversityCreateResponse.Status.ok)
+        assertThat(res.status).isEqualTo(UniversityCreateResponse.Status.ok)
         assertThat(res.id).isNotNull()
         assertThat(res.errorCode).isNull()
         val doc = universityRepository.findById(res.id!!).get()
@@ -81,7 +82,7 @@ class UniversityServiceTest {
                 oldNames = listOf("Императорский Московский университет")
             )
         )
-        assertThat(res.status).isEqualTo(com.NOSQL.NOSQL.model.generated.UniversityCreateResponse.Status.ok)
+        assertThat(res.status).isEqualTo(UniversityCreateResponse.Status.ok)
         val doc = universityRepository.findById(res.id!!).get()
         assertThat(doc.name).isEqualTo("Московский государственный университет")
         assertThat(doc.shortName).isEqualTo("МГУ")
@@ -154,7 +155,7 @@ class UniversityServiceTest {
     fun updateName() {
         val id = universityService.create(UniversityCreate(name = "Старое", shortName = "С", oldNames = listOf("А"))).id!!
         val res = universityService.update(id, UniversityUpdate(name = "Новое"))
-        assertThat(res.status).isEqualTo(com.NOSQL.NOSQL.model.generated.UniversityCreateResponse.Status.ok)
+        assertThat(res.status).isEqualTo(UniversityCreateResponse.Status.ok)
         val doc = universityRepository.findById(id).get()
         assertThat(doc.name).isEqualTo("Новое")
         assertThat(doc.shortName).isEqualTo("С")

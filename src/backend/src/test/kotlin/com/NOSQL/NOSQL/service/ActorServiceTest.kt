@@ -2,6 +2,8 @@ package com.NOSQL.NOSQL.service
 
 import com.NOSQL.NOSQL.MediaTestBytes
 import com.NOSQL.NOSQL.model.generated.ActorCreate
+import com.NOSQL.NOSQL.model.generated.ActorCreateResponse
+import com.NOSQL.NOSQL.model.generated.ActorMediaType
 import com.NOSQL.NOSQL.model.generated.ActorUpdate
 import com.NOSQL.NOSQL.model.generated.ContactLinkItem
 import com.NOSQL.NOSQL.model.generated.EducationCreateItem
@@ -23,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.web.server.ResponseStatusException
 import org.testcontainers.containers.GenericContainer
@@ -97,7 +100,7 @@ class ActorServiceTest {
                 education = listOf(EducationCreateItem(uniId = validUniId))
             )
             val response = actorService.create(create)
-            assertThat(response.status).isEqualTo(com.NOSQL.NOSQL.model.generated.ActorCreateResponse.Status.ok)
+            assertThat(response.status).isEqualTo(ActorCreateResponse.Status.ok)
             assertThat(response.id).isNotNull()
             assertThat(response.errorCode).isNull()
             assertThat(actorRepository.existsById(response.id!!)).isTrue()
@@ -119,7 +122,7 @@ class ActorServiceTest {
         fun `без education — успех`() {
             val create = ActorCreate(firstName = "Иван", lastName = "Петров")
             val response = actorService.create(create)
-            assertThat(response.status).isEqualTo(com.NOSQL.NOSQL.model.generated.ActorCreateResponse.Status.ok)
+            assertThat(response.status).isEqualTo(ActorCreateResponse.Status.ok)
             assertThat(response.id).isNotNull()
         }
     }
@@ -373,8 +376,8 @@ class ActorServiceTest {
         @Test
         fun `успех — удаляет медиа актёра из GridFS`() {
             val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
-            val file = org.springframework.mock.web.MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
-            val uploadRes = mediaService.upload(id, file.inputStream, "photo.jpg", "image/jpeg", com.NOSQL.NOSQL.model.generated.ActorMediaType.photo, null)
+            val file = MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
+            val uploadRes = mediaService.upload(id, file.inputStream, "photo.jpg", "image/jpeg", ActorMediaType.photo, null)
             val mediaId = uploadRes.mediaId!!
             assertThat(mediaService.getResource(id, mediaId).exists()).isTrue()
             actorService.deleteById(id)
@@ -386,10 +389,10 @@ class ActorServiceTest {
         @Test
         fun `успех — удаляет все медиа (фото и видео) актёра`() {
             val id = actorService.create(ActorCreate(firstName = "Иван", lastName = "Петров")).id!!
-            val photoFile = org.springframework.mock.web.MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
-            val videoFile = org.springframework.mock.web.MockMultipartFile("file", "video.mp4", "video/mp4", MediaTestBytes.MP4)
-            val photoRes = mediaService.upload(id, photoFile.inputStream, "photo.jpg", "image/jpeg", com.NOSQL.NOSQL.model.generated.ActorMediaType.photo, null)
-            val videoRes = mediaService.upload(id, videoFile.inputStream, "video.mp4", "video/mp4", com.NOSQL.NOSQL.model.generated.ActorMediaType.video, null)
+            val photoFile = MockMultipartFile("file", "photo.jpg", "image/jpeg", MediaTestBytes.JPEG)
+            val videoFile = MockMultipartFile("file", "video.mp4", "video/mp4", MediaTestBytes.MP4)
+            val photoRes = mediaService.upload(id, photoFile.inputStream, "photo.jpg", "image/jpeg", ActorMediaType.photo, null)
+            val videoRes = mediaService.upload(id, videoFile.inputStream, "video.mp4", "video/mp4", ActorMediaType.video, null)
             actorService.deleteById(id)
             assertThrows<ResponseStatusException> { mediaService.getResource(id, photoRes.mediaId!!) }
             assertThrows<ResponseStatusException> { mediaService.getResource(id, videoRes.mediaId!!) }

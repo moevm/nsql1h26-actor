@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.server.ResponseStatusException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -22,7 +23,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Throwable::class)
     fun handleAny(e: Throwable): ResponseEntity<Map<String, Any>> {
-        if (e is org.springframework.web.server.ResponseStatusException) {
+        if (e is ResponseStatusException) {
             throw e
         }
         log.error("Unhandled exception", e)

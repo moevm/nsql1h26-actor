@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
@@ -33,7 +34,7 @@ class JwtAuthenticationFilter(
         val token = authHeader.removePrefix("Bearer ").trim()
         try {
             val subject = jwtService.parseSubject(token)
-            val auth = UsernamePasswordAuthenticationToken(subject, null, emptyList<org.springframework.security.core.GrantedAuthority>()).apply {
+            val auth = UsernamePasswordAuthenticationToken(subject, null, emptyList<GrantedAuthority>()).apply {
                 details = WebAuthenticationDetailsSource().buildDetails(request)
             }
             SecurityContextHolder.getContext().authentication = auth

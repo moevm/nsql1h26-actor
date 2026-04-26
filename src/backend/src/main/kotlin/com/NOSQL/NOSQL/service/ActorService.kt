@@ -3,6 +3,10 @@ package com.NOSQL.NOSQL.service
 import com.NOSQL.NOSQL.mapping.MappingFromApi
 import com.NOSQL.NOSQL.mapping.MappingToApi
 import com.NOSQL.NOSQL.model.ActorDocument
+import com.NOSQL.NOSQL.model.domain.Gender as DomainGender
+import com.NOSQL.NOSQL.model.domain.PhotoItem
+import com.NOSQL.NOSQL.model.domain.Title as DomainTitle
+import com.NOSQL.NOSQL.model.domain.VideoItem
 import com.NOSQL.NOSQL.model.generated.Actor
 import com.NOSQL.NOSQL.model.generated.ActorListResponse
 import com.NOSQL.NOSQL.model.generated.ActorCreate
@@ -256,18 +260,18 @@ class ActorService(
             }
         }
 
-    private fun chartLabelTitle(t: com.NOSQL.NOSQL.model.domain.Title?): String =
+    private fun chartLabelTitle(t: DomainTitle?): String =
         when (t) {
-            com.NOSQL.NOSQL.model.domain.Title.honored -> "Заслуженный артист"
-            com.NOSQL.NOSQL.model.domain.Title.national -> "Народный артист"
-            com.NOSQL.NOSQL.model.domain.Title.none -> "Без звания"
+            DomainTitle.honored -> "Заслуженный артист"
+            DomainTitle.national -> "Народный артист"
+            DomainTitle.none -> "Без звания"
             null -> "—"
         }
 
-    private fun chartLabelGender(g: com.NOSQL.NOSQL.model.domain.Gender?): String =
+    private fun chartLabelGender(g: DomainGender?): String =
         when (g) {
-            com.NOSQL.NOSQL.model.domain.Gender.male -> "Мужской"
-            com.NOSQL.NOSQL.model.domain.Gender.female -> "Женский"
+            DomainGender.male -> "Мужской"
+            DomainGender.female -> "Женский"
             null -> "—"
         }
 
@@ -341,7 +345,7 @@ class ActorService(
         universityId?.let { criteria.add(Criteria.where("education.uniId").`is`(it)) }
 
         if (ageFrom != null || ageTo != null) {
-            val today = java.time.LocalDate.now()
+            val today = LocalDate.now()
             val fromDate = ageTo?.let { today.minusYears(it.toLong() + 1).plusDays(1) }
             val toDate = ageFrom?.let { today.minusYears(it.toLong()) }
             if (fromDate != null) criteria.add(Criteria.where("birthDate").gte(fromDate))
@@ -382,7 +386,7 @@ class ActorService(
         val actor = actorRepository.findById(actorId)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found") }
         val photos = (actor.photos ?: emptyList()).toMutableList()
-        photos.add(com.NOSQL.NOSQL.model.domain.PhotoItem(id = photoId, caption = caption))
+        photos.add(PhotoItem(id = photoId, caption = caption))
         actorRepository.save(actor.copy(photos = photos, updatedAt = Instant.now()))
     }
 
@@ -391,7 +395,7 @@ class ActorService(
         val actor = actorRepository.findById(actorId)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Actor not found") }
         val videos = (actor.videos ?: emptyList()).toMutableList()
-        videos.add(com.NOSQL.NOSQL.model.domain.VideoItem(id = videoId, caption = caption))
+        videos.add(VideoItem(id = videoId, caption = caption))
         actorRepository.save(actor.copy(videos = videos, updatedAt = Instant.now()))
     }
 
