@@ -25,7 +25,47 @@
       </div>
     </div>
   </section>
+  
   <section class="dashboard-statistic">
     <h2>Просмотр статистики</h2>
+
+    <div class="stats">
+      <div class="filters-section">
+        <app-search-filters (filtersChange)="onFiltersChanged($event)">
+        </app-search-filters>
+      </div>
+
+      <div class="chart-area">
+        <div class="chart-settings">
+          <div class="setting-item">
+            <label for="xAxisSelect">Значение по оси X:</label>
+            <select 
+              id="xAxisSelect" 
+              [(ngModel)]="selectedXAxis" 
+              (change)="onChartOptionsChanged()">
+              <option *ngFor="let option of xAxisOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <label for="groupBySelect">Группировка:</label>
+            <select 
+              id="groupBySelect" 
+              [(ngModel)]="selectedGroupBy" 
+              (change)="onChartOptionsChanged()">
+              <option *ngFor="let option of groupByOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chart-wrapper">
+          <div #chartContainer class="chart-container"></div>
+        </div>
+      </div>
+    </div>
   </section>
 </div>
