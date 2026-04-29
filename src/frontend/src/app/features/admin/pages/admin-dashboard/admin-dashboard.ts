@@ -136,9 +136,25 @@ export class AdminDashboard implements OnInit, AfterViewInit {
             break;
           default:
             if (key.startsWith('genre_') && value === true) {
-              const genreName = key.replace('genre_', '');
-              if (!transformed.genres) transformed.genres = [];
-              transformed.genres.push(genreName);
+              let genreName = key.replace('genre_', '');
+
+              const genreMap: { [key: string]: string } = {
+                'drama': 'драма',
+                'comedy': 'комедия',
+                'tragedy': 'трагедия',
+                'melodrama': 'мелодрама',
+                'tragicomedy': 'трагикомедия',
+                'musical': 'мюзикл',
+                'opera': 'опера',
+                'ballet': 'балет',
+                'monodrama': 'монодрама'
+              };
+              
+              const mappedGenre = genreMap[genreName];
+              if (mappedGenre) {
+                if (!transformed.genres) transformed.genres = [];
+                transformed.genres.push(mappedGenre);
+              }
             } else if (!key.startsWith('genre_')) {
               transformed[key] = value;
             }
